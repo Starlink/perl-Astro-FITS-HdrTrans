@@ -419,7 +419,6 @@ Keys are generic headers, values are FITS headers.
         FREQUENCY_RESOLUTION => "C12FR",
         FRONTEND => "C1RCV",
         HUMIDITY => "C5RH",
-        INSTRUMENT => "C1RCV",
         NUMBER_OF_CYCLES => "C3NCI",
         NUMBER_OF_SUBSCANS => "C3NIS",
         OBJECT => "C1SNA1",

@@ -434,7 +434,6 @@ Keys are generic headers, values are FITS headers.
         FREQUENCY_RESOLUTION => "FREQRES",
         FRONTEND => "FRONTEND",
         HUMIDITY => "HUMIDITY",
-        INSTRUMENT => "FRONTEND",
         NUMBER_OF_CYCLES => "NOCYCLES",
         NUMBER_OF_SUBSCANS => "NOSCANS",
         OBJECT => "OBJECT",
