@@ -98,11 +98,6 @@ expression C</^uist$/i>.
 sub valid_class {
   my $headers = shift;
 
-  print "BEING ASKED\n";
-  print "FITS: ". $headers->{INSTRUME} ."\n";
-  print "GEN : ". $headers->{INSTRUMENT} ."\n";
-
-
   if( exists( $headers->{'INSTRUME'} ) &&
       defined( $headers->{'INSTRUME'} ) &&
       $headers->{'INSTRUME'} =~ /^iris2$/i ) {
