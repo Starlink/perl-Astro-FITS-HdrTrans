@@ -261,7 +261,8 @@ sub to_UTSTART {
     my $utminute = int( ( $utdechour - $uthour ) * 60 );
     my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
     $uttime = join ':', $uthour, $utminute, $utsecond;
-    $return = Time::Piece->strptime( $utdate . "T" . $uttime, "%Y-%m-%dT%T" );
+    $return = Time::Piece->strptime( $utdate . " " . $uttime, "%Y-%m-%d %T" );
+    }
   }
   return $return;
 }
@@ -295,6 +296,7 @@ a C<Time::Piece> object.
 sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
+
   if(exists($FITS_headers->{IDATE}) && exists($FITS_headers->{RUTEND})) {
     my $uttime;
     my $utdate = $FITS_headers->{IDATE};
