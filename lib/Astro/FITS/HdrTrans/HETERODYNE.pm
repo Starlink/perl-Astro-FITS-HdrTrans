@@ -349,23 +349,23 @@ sub to_EXPOSURE_TIME {
   my $expt;
 
   if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) &&
-      exists( $FITS_headers->{'NOSCANS'} ) && defined( $FITS_headers->{'NOSCANS'} ) &&
+      exists( $FITS_headers->{'NSCAN'} ) && defined( $FITS_headers->{'NSCAN'} ) &&
       exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
       exists( $FITS_headers->{'NOCYCPTS'} ) && defined( $FITS_headers->{'NOCYCPTS'} ) &&
       exists( $FITS_headers->{'NOCYCLES'} ) && defined( $FITS_headers->{'NOCYCLES'} ) ) {
 
     my $obsmode = uc( $FITS_headers->{'OBSMODE'} );
-    my $noscans = uc( $FITS_headers->{'NOSCANS'} );
+    my $nscan = uc( $FITS_headers->{'NSCAN'} );
     my $cycllen = uc( $FITS_headers->{'CYCLLEN'} );
     my $nocycpts = uc( $FITS_headers->{'NOCYCPTS'} );
     my $nocycles = uc( $FITS_headers->{'NOCYCLES'} );
     if( $obsmode eq 'RASTER' ) {
-      $expt = $noscans * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
+      $expt = $nscan * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
     } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
-      $expt = $noscans * $cycllen * $nocycles;
+      $expt = $nscan * $cycllen * $nocycles;
     } else {
       # This supports pattern and grid
-      $expt = $nocycles * $cycllen * $noscans;
+      $expt = $nocycles * $cycllen * $nscan;
     }
   }
 
@@ -429,7 +429,7 @@ Keys are database headers, values are file headers.
                     VREF => "C12VREF",
                     SAMPRAT => "C3SRT",
                     NOCYCLES => "C3NCI",
-                    NOSCANS => "C3NSAMPL",
+                    NSCAN => "C3NSAMPL",
                     CYCLLEN => "C3CL",
                     NOCYCPTS => "C3NCP",
                     RESTFRQ1 => "C12RF",
