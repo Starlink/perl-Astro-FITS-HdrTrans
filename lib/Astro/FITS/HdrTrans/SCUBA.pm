@@ -37,9 +37,9 @@ headers and back again
 
 =head1 SYNOPSIS
 
-  %generic_headers = translate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
 
-  %FITS_headers = transate_to_FITS(\%generic_headers);
+  %FITS_headers = transate_to_FITS(\%generic_headers, \@header_array);
 
 =head1 DESCRIPTION
 
@@ -52,6 +52,7 @@ headers.
 # L O A D   M O D U L E S --------------------------------------------------
 
 use strict;
+use SCUBA::ODF;
 use vars qw/ $VERSION /;
 
 '$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
@@ -75,7 +76,10 @@ $Id$
 Converts a hash containing SCUBA FITS headers into a hash containing
 generic headers.
 
-  %generic_headers = translate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
+
+The C<header_array> argument is used to supply a list of generic
+header names.
 
 =back
 
@@ -83,9 +87,10 @@ generic headers.
 
 sub translate_from_FITS {
   my $FITS_header = shift;
+  my $header_array = shift;
   my %generic_header;
 
-  for my $key ( @Astro::FITS::HdrTrans::generic_headers ) {
+  for my $key ( @$header_array ) {
 
     if(exists($hdr{$key}) ) {
       $generic_header{$key} = $FITS_header->{$hdr{$key}};
@@ -108,7 +113,10 @@ sub translate_from_FITS {
 Converts a hash containing generic headers into a hash containing
 FITS headers
 
-  %FITS_headers = translate_to_FITS(\%generic_headers);
+  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
+
+The C<header_array> argument is used to supply a list of generic
+header names.
 
 =back
 
@@ -116,9 +124,10 @@ FITS headers
 
 sub translate_to_FITS {
   my $generic_header = shift;
+  my $header_array = shift;
   my %FITS_header;
 
-  for my $key ( @Astro::FITS::HdrTrans::generic_headers ) {
+  for my $key ( @$header_array ) {
 
     if( exists($hdr{$key}) ) {
       $FITS_header{$hdr{$key}} = $generic_header->{$key};
@@ -219,13 +228,13 @@ sub to_EQUINOX {
   my $return;
   if(exists($FITS_headers->{'CENT_CRD'})) {
     my $fits_eq = $FITS_headers->{'CENT_CRD'};
-    if( $fits_eq =~ /RB/ ) {
+    if( $fits_eq =~ /RB/i ) {
       $return = "1950";
-    } elsif( $fits_eq =~ /RJ/ ) {
+    } elsif( $fits_eq =~ /RJ/i ) {
       $return = "2000";
-    } elsif( $fits_eq =~ /RD/ ) {
+    } elsif( $fits_eq =~ /RD/i ) {
       $return = "current";
-    } elsif( $fits_eq =~ /AZ/ ) {
+    } elsif( $fits_eq =~ /AZ/i ) {
       $return = "AZ/EL";
     }
   }
@@ -360,6 +369,26 @@ sub to_SPEED_GAIN {
   "normal";
 }
 
+=item B<to_TELESCOPE>
+
+Always returns C<JCMT>.
+
+=cut
+
+sub to_TELESCOPE {
+  "JCMT";
+}
+
+=item B<to_INSTRUMENT>
+
+Always returns C<SCUBA>.
+
+=cut
+
+sub to_INSTRUMENT {
+  "SCUBA";
+}
+
 =item B<to_UTDATE>
 
 =cut
@@ -490,7 +519,6 @@ Keys are generic headers, values are FITS headers.
             EXPOSURE_TIME        => "EXP_TIME",
             FILTER               => "FILTER",
             GAIN                 => "GAIN",
-            INSTRUMENT           => "INSTRUME",
             NUMBER_OF_EXPOSURES  => "EXP_NO",
             OBJECT               => "OBJECT",
             OBSERVATION_NUMBER   => "RUN",
@@ -498,10 +526,8 @@ Keys are generic headers, values are FITS headers.
             RA_TELESCOPE_OFFSET  => "MAP_X",
             SCAN_INCREMENT       => "SAMPLE_DX",
             SEEING               => "SEEING",
-            SPEED_GAIN           => "SPD_GAIN",
             STANDARD             => "STANDARD",
             TAU                  => "TAU_225",
-            TELESCOPE            => "TELESCOP",
             X_BASE               => "LONG",
             Y_BASE               => "LAT",
             X_OFFSET             => "MAP_X",
