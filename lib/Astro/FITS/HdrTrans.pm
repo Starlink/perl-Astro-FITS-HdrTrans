@@ -89,6 +89,10 @@ headers in the instrument-specific subclasses.
 
 our @generic_headers = qw( AIRMASS_START
                        AIRMASS_END
+                       ALTITUDE_START
+                       ALTITUDE_END
+                       AZIMUTH_START
+                       AZIMUTH_END
                        BOLOMETERS
                        CHOP_ANGLE
                        CHOP_COORDINATE_SYSTEM
@@ -118,6 +122,7 @@ our @generic_headers = qw( AIRMASS_START
                        LONGITUDE
                        MSBID
                        NSCAN_POSITIONS
+                       NUMBER_OF_COADDS
                        NUMBER_OF_DETECTORS
                        NUMBER_OF_EXPOSURES
                        NUMBER_OF_OFFSETS
@@ -133,10 +138,12 @@ our @generic_headers = qw( AIRMASS_START
                        RA_SCALE
                        RA_TELESCOPE_OFFSET
                        ROTATION
+                       SAMPLING
                        SCAN_INCREMENT
                        SEEING
                        SLIT_ANGLE
                        SLIT_NAME
+                       SLIT_WIDTH
                        SPEED_GAIN
                        STANDARD
                        SYSTEM_VELOCITY
