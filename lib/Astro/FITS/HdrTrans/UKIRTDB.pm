@@ -184,7 +184,10 @@ sub to_INST_DHS {
   if( exists( $FITS_headers->{DHSVER} ) ) {
     $FITS_headers->{DHSVER} =~ /^(\w+)/;
     my $dhs = uc($1);
-    $return = $FITS_headers->{INSTRUME} . "_$dhs";
+    $return = $FITS_headers->{TEMP_INST} . "_$dhs";
+  } else {
+    my $dhs = "UKDHS";
+    $return = $FITS_headers->{TEMP_INST} . "_$dhs";
   }
 
   return $return;
