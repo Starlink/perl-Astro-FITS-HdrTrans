@@ -176,17 +176,7 @@ Sets the INST_DHS header.
 =cut
 
 sub to_INST_DHS {
-  my $FITS_headers = shift;
-  my $return;
-
-  if( exists( $FITS_headers->{DHSVER} ) ) {
-    $FITS_headers->{DHSVER} =~ /^(\w+)/;
-    my $dhs = uc($1);
-    $return = $FITS_headers->{INSTRUME} . "_$dhs";
-  }
-
-  return $return;
-
+  "CGS4_UKDHS";
 }
 
 =item B<to_COORDINATE_TYPE>
