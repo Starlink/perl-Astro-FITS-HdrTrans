@@ -320,7 +320,7 @@ Keys are generic headers, values are FITS headers.
         CYCLE_LENGTH => "CYCLLEN",
 #        DEC_BASE => "",
         ELEVATION_START => "EL",
-#        FILENAME => "GSDFILE",
+        FILENAME => "GSDFILE",
         FILTER => "FILTER",
         FREQUENCY_RESOLUTION => "FREQRES",
         FRONTEND => "FRONTEND",
