@@ -109,7 +109,7 @@ sub to_POLARIMETRY {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{FILTER})) {
-    $return = ( $FITS_headers->{FILTER} =~ /prism/i );
+    $return = ( $FITS_headers->{FILTER} =~ /prism/i ? 1 : 0);
   }
   return $return;
 }
