@@ -47,10 +47,11 @@ my @NULL_MAP = qw/ DETECTOR_INDEX /;
 my %UNIT_MAP = (
 		# UIST specific
 		DEC_SCALE            => "PIXLSIZE",
-		GRATING_DISPERSION   => "DISPERSN",
 		GRATING_NAME         => "GRISM",
-		GRATING_WAVELENGTH   => "CENWAVL",
 		RA_SCALE             => "PIXLSIZE",
+		# Not imaging
+		GRATING_DISPERSION   => "DISPERSN",
+		GRATING_WAVELENGTH   => "CENWAVL",
 		SLIT_ANGLE           => "SLIT_PA",
 		SLIT_WIDTH           => "SLITWID",
 		# MICHELLE compatible
