@@ -169,6 +169,34 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =over 4
 
+=item B<to_CHOP_COORDINATE_SYSTEM>
+
+Uses the C<CHOP_CRD> FITS header to determine the chopper coordinate
+system, and then places that coordinate type in the C<CHOP_COORDINATE_SYSTEM>
+generic header.
+
+A FITS header value of 'LO' translates to 'Tracking', 'AZ' translates to
+'Alt/Az', and 'NA' translates to 'Focal Plane'. Any other values will return
+undef.
+
+=cut
+
+sub to_CHOP_COORDINATE_SYSTEM {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{'CHOP_CRD'})) {
+    my $fits_eq = $FITS_headers->{'CHOP_CRD'};
+    if( $fits_eq =~ /LO/ ) {
+      $return = "Tracking";
+    } elsif( $fits_eq =~ /AZ/ ) {
+      $return = "Alt/Az";
+    } elsif( $fits_eq =~ /NA/ ) {
+      $return = "Focal Plane";
+    }
+  }
+  return $return;
+}
+
 =item B<to_COORDINATE_TYPE>
 
 Uses the C<CENT_CRD> FITS header to determine the coordinate type
