@@ -171,6 +171,25 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =over 4
 
+=item B<to_EXPOSURE_TIME>
+
+Converts either the C<EXPOSED> or C<DEXPTIME> FITS header into
+the C<EXPOSURE_TIME> generic header.
+
+=cut
+
+sub to_EXPOSURE_TIME {
+  my $FITS_headers = shift;
+  my $return;
+
+  if( exists( $FITS_headers->{'EXPOSED'} ) && defined( $FITS_headers->{'EXPOSED'} ) ) {
+    $return = $FITS_headers->{'EXPOSED'};
+  } elsif( exists( $FITS_headers->{'EXPOSED'} ) && defined( $FITS_headers->{'EXPOSED'} ) ) {
+    $return = $FITS_headers->{'DEXPTIME'};
+  }
+  return $return;
+}
+
 =item B<to_COORDINATE_TYPE>
 
 Converts the C<EQUINOX> FITS header into B1950 or J2000, depending
@@ -213,10 +232,13 @@ sub to_UTSTART {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'DATE-OBS'} ) ) {
-    ( $return = $FITS_headers->{'DATE-OBS'} ) =~ s/Z//;
-  } elsif(exists($FITS_headers->{'UT_DATE'}) &&
-     exists($FITS_headers->{'RUTSTART'}) ) {
+#  if($FITS_headers->{'RUN'} == 16) { use Data::Dumper; print Dumper $FITS_headers; }
+
+  if( exists( $FITS_headers->{'DATE_OBS'} ) ) {
+    ( $return = $FITS_headers->{'DATE_OBS'} ) =~ s/Z//;
+
+  } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
+          exists($FITS_headers->{'RUTSTART'}) && defined( $FITS_headers->{'RUTSTART'} ) ) {
     # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
     my $t = Time::Piece->strptime($FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p");
     my $hour = int($FITS_headers->{'RUTSTART'});
@@ -244,7 +266,7 @@ sub from_UTSTART {
     $month = $1;
     $return_hash{'UT_DATE'} = $month . " " . $t->mday . " " . $t->year;
     $return_hash{'RUTSTART'} = $t->hour + ($t->min / 60) + ($t->sec / 3600);
-    $return_hash{'DATE-OBS'} = $generic_headers->{'UTSTART'} . "Z";
+    $return_hash{'DATE_OBS'} = $generic_headers->{'UTSTART'} . "Z";
   }
   return %return_hash;
 }
@@ -260,8 +282,8 @@ C<UTEND> header.
 sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
-  if( exists( $FITS_headers->{'DATE-END'} ) ) {
-    ( $return = $FITS_headers->{'DATE-END'} ) =~ s/Z//;
+  if( exists( $FITS_headers->{'DATE_END'} ) ) {
+    ( $return = $FITS_headers->{'DATE_END'} ) =~ s/Z//;
   } elsif(exists($FITS_headers->{'UT_DATE'}) &&
      exists($FITS_headers->{'RUTEND'}) ) {
     # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
@@ -291,7 +313,7 @@ sub from_UTEND {
     $month = $1;
     $return_hash{'UT_DATE'} = $month . " " . $t->mday . " " . $t->year;
     $return_hash{'RUTEND'} = $t->hour + ($t->min / 60) + ($t->sec / 3600);
-    $return_hash{'DATE-END'} = $generic_headers->{'UTEND'} . "Z";
+    $return_hash{'DATE_END'} = $generic_headers->{'UTEND'} . "Z";
   }
   return %return_hash;
 }
@@ -350,8 +372,8 @@ Keys are generic headers, values are FITS headers.
             DEC_TELESCOPE_OFFSET => "DECOFF",
             DETECTOR_READ_TYPE   => "MODE",
             DR_GROUP             => "GRPNUM",
+            DR_RECIPE            => "RECIPE",
             EQUINOX              => "EQUINOX",
-            EXPOSURE_TIME        => "EXPOSED",
             FILTER               => "FILTER",
             GAIN                 => "DEPERDN",
             GRATING_DISPERSION   => "GDISP",
