@@ -65,7 +65,7 @@ my %UNIT_MAP = (
 		POLARIMETER          => "POL_CONN",
 		PROJECT              => "PROJ_ID",
 		RA_TELESCOPE_OFFSET  => "MAP_X",
-		SCAN_INCREMENT       => "SAMPLE_DX",
+		SCAN_INCREMENT       => "SAM_DX",
 		SEEING               => "SEEING",
 		STANDARD             => "STANDARD",
 		TAU                  => "TAU_225",
@@ -201,6 +201,8 @@ sub to_EQUINOX {
       $return = "2000";
     } elsif( $fits_eq =~ /RD/i ) {
       $return = "current";
+    } elsif( $fits_eq =~ /PLANET/i ) {
+      $return = "planet";
     } elsif( $fits_eq =~ /AZ/i ) {
       $return = "AZ/EL";
     }
@@ -220,7 +222,8 @@ sub from_EQUINOX {
   my $generic_headers = shift;
   my %return_hash;
   my $return;
-  if(exists($generic_headers->{EQUINOX})) {
+  if(exists($generic_headers->{EQUINOX}) && 
+     defined $generic_headers->{EQUINOX}) {
     my $equinox = $generic_headers->{EQUINOX};
     if( $equinox =~ /1950/ ) {
       $return = 'RB';
@@ -228,6 +231,8 @@ sub from_EQUINOX {
       $return = 'RJ';
     } elsif( $equinox =~ /current/ ) {
       $return = 'RD';
+    } elsif( $equinox =~ /planet/ ) {
+      $return = 'PLANET';
     } elsif( $equinox =~ /AZ\/EL/ ) {
       $return = 'AZ';
     } else {
