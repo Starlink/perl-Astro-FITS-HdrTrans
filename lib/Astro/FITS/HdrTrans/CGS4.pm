@@ -238,6 +238,7 @@ sub from_DEC_TELESCOPE_OFFSET {
       $return{'TDECOFF'} = $generic_headers->{DEC_TELESCOPE_OFFSET};
     }
   }
+  return %return;
 }
 
 =item B<to_RA_TELESCOPE_OFFSET>
@@ -290,6 +291,7 @@ sub from_RA_TELESCOPE_OFFSET {
       $return{'TRAOFF'} = $generic_headers->{RA_TELESCOPE_OFFSET};
     }
   }
+  return %return;
 }
 
 =item B<to_SAMPLING>
