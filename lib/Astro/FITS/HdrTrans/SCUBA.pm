@@ -35,12 +35,6 @@ package Astro::FITS::HdrTrans::SCUBA;
 Astro::FITS::HdrTrans::SCUBA - Translate FITS headers into generic
 headers and back again
 
-=head1 SYNOPSIS
-
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
-
-  %FITS_headers = transate_to_FITS(\%generic_headers, \@header_array);
-
 =head1 DESCRIPTION
 
 Converts information contained in SCUBA FITS headers to and from
@@ -54,7 +48,7 @@ headers.
 use strict;
 use vars qw/ $VERSION /;
 
-'$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
+$VERSION = '0.01';
 
 # P R E D E C L A R A T I O N S --------------------------------------------
 
@@ -68,83 +62,47 @@ $Id$
 
 =head1 METHODS
 
+These methods provide an interface to the class, allowing the base
+class to determine if this class is the appropriate one to use for
+the given headers.
+
 =over 4
 
-=item B<translate_from_FITS>
+=item B<valid_class>
 
-Converts a hash containing SCUBA FITS headers into a hash containing
-generic headers.
+  $valid = valid_class( \%headers );
 
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
+This method takes one argument: a reference to a hash containing
+the untranslated headers.
 
-The C<header_array> argument is used to supply a list of generic
-header names.
+This method returns true (1) or false (0) depending on if the headers
+can be translated by this method.
+
+For this class, the method will return true if the B<INSTRUME> header
+exists, and its value matches the regular expression C</^scuba/i>, or
+if the C<INSTRUMENT> header exists and its value matches the regular
+expression C</^scuba$/i>.
 
 =back
 
 =cut
 
-sub translate_from_FITS {
-  my $FITS_header = shift;
-  my $header_array = shift;
-  my %generic_header;
+sub valid_class {
+  my $headers = shift;
 
-  for my $key ( @$header_array ) {
-
-    if(exists($hdr{$key}) ) {
-      $generic_header{$key} = $FITS_header->{$hdr{$key}};
-    } else {
-      my $subname = "to_" . $key;
-      if(exists(&$subname) ) {
-        no strict 'refs'; # EEP!
-        $generic_header{$key} = &$subname($FITS_header);
-      }
-    }
+  if( exists( $headers->{'INSTRUME'} ) &&
+      defined( $headers->{'INSTRUME'} ) &&
+      $headers->{'INSTRUME'} =~ /^scuba/i ) {
+    return 1;
+  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
+           defined( $headers->{'INSTRUMENT'} ) &&
+           $headers->{'INSTRUMENT'} =~ /^scuba$/i ) {
+    return 1;
+  } else {
+    return 0;
   }
-  return %generic_header;
-
 }
 
-=over 4
-
-=item B<translate_to_FITS>
-
-Converts a hash containing generic headers into a hash containing
-FITS headers
-
-  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
-
-The C<header_array> argument is used to supply a list of generic
-header names.
-
-=back
-
-=cut
-
-sub translate_to_FITS {
-  my $generic_header = shift;
-  my $header_array = shift;
-  my %FITS_header;
-
-  for my $key ( @$header_array ) {
-
-    if( exists($hdr{$key}) ) {
-      $FITS_header{$hdr{$key}} = $generic_header->{$key};
-    } else {
-      no strict 'refs'; # EEP EEP!
-      my $subname = "from_" . $key;
-      if(exists(&$subname) ) {
-        my %new = &$subname($generic_header);
-        for my $newkey ( keys %new ) {
-          $FITS_header{$newkey} = $new{$newkey};
-        }
-      }
-    }
-  }
-
-  return %FITS_header;
-
-}
 
 =head1 TRANSLATION METHODS
 
@@ -162,10 +120,7 @@ header would be named C<to_AIRMASS>.
 The format of these methods is C<to_HEADER> and C<from_HEADER>.
 C<to_> methods accept a hash reference as an argument and return a scalar
 value (typically a string). C<from_> methods accept a hash reference
-as an argument and return a hash. All UT datetimes should be in
-standard ISO 8601 datetime format, which is C<YYYY-MM-DDThh:mm:ss>.
-See http://www.cl.cam.ac.uk/~mgk25/iso-time.html for a brief overview
-of ISO 8601. Dates should be in YYYY-MM-DD format.
+as an argument and return a hash.
 
 =over 4
 
@@ -176,9 +131,7 @@ Sets the INST_DHS header.
 =cut
 
 sub to_INST_DHS {
-
   return "SCUBA_SCUBA";
-
 }
 
 
@@ -434,27 +387,32 @@ sub to_INSTRUMENT {
 
 =item B<to_UTDATE>
 
+Converts the C<UTDATE> header into a C<Time::Piece> object.
+
 =cut
 
 sub to_UTDATE {
   my $FITS_headers = shift;
   my $return;
   my $utdate = $FITS_headers->{'UTDATE'};
-  my ($year, $month, $day) = split /:/, $utdate;
-  $return = sprintf("%04d-%02d-%02d", $year, $month, $day);
+  $return = Time::Piece->strptime( $utdate, "%Y:%m:%d" );
   return $return;
 }
 
 =item B<from_UTDATE>
+
+Converts UT date in C<Time::Piece> object into C<YYYY:MM:DD> format
+for C<UTDATE> header.
 
 =cut
 
 sub from_UTDATE {
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{UTDATE})) {
-    my ($year, $month, $day) = split /:/, $generic_headers->{UTDATE};
-    $return_hash{'UTDATE'} = join ':', int($year), int($month), int($day);
+  if(exists($generic_headers->{UTDATE}) &&
+     UNIVERSAL::isa( $generic_headers->{UTDATE}, "Time::Piece" ) ) {
+    my $date = $generic_headers->{UTDATE};
+    $return_hash{'UTDATE'} = join ':', $date->year, $date->mon, $date->mday;
   }
   return %return_hash;
 }
@@ -462,7 +420,7 @@ sub from_UTDATE {
 =item B<to_UTSTART>
 
 Combines C<UTDATE> and C<UTSTART> into a unified C<UTSTART>
-generic header. If those headers do not exist, uses C<DATE-OBS>.
+generic header. If those headers do not exist, uses C<DATE>.
 
 =cut
 
@@ -471,16 +429,20 @@ sub to_UTSTART {
   my $return;
   if( exists( $FITS_headers->{'UTDATE'} ) &&
       defined( $FITS_headers->{'UTDATE'} ) ) {
-    my $utdate = $FITS_headers->{'UTDATE'};
-    my $utstart = $FITS_headers->{'UTSTART'};
-    my ($year, $month, $day) = split /:/, $utdate;
-    my ($hour, $minute, $second) = split /:/, $utstart;
-    $return = sprintf("%04d-%02d-%02dT%02d:%02d:%02d",
-                      $year, $month, $day, $hour, $minute, $second);
+
+    my $ut = $FITS_headers->{'UTDATE'} . ":" . $FITS_headers->{'UTSTART'};
+
+    # Strip off fractional seconds.
+    $ut =~ s/\.\d+$//;
+
+    $return = Time::Piece->strptime( $ut, "%Y:%m:%d:%T" );
+
   } elsif( exists( $FITS_headers->{'DATE'} ) &&
            defined( $FITS_headers->{'DATE'} ) &&
            $FITS_headers->{'DATE'} =~ /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/ ) {
-    $return = $FITS_headers->{'DATE'};
+
+    $return = Time::Piece->strptime( $FITS_headers->{'DATE'}, "%Y-%m-%dT%T" );
+
   }
 
   return $return;
@@ -489,27 +451,27 @@ sub to_UTSTART {
 =item B<from_UTSTART>
 
 Converts the unified C<UTSTART> generic header into C<UTDATE>
-and C<UTSTART> FITS headers of the form C<YYYY:MM:DD> (but
-without leading zeroes) and C<HH:MM:SS> (but with leading
-zeroes for all but the hours).
+and C<UTSTART> FITS headers of the form C<YYYY:MM:DD> and C<HH:MM:SS>.
 
 =cut
 
 sub from_UTSTART {
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{UTSTART})) {
-    $generic_headers->{UTSTART} =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
-    $return_hash{'UTDATE'} = join ':', int($1), int($2), int($3);
-    $return_hash{'UTSTART'} = join ':', int($4), $5, $6;
-    $return_hash{'DATE'} = "$1-$2-$3T$4:$5:$6";
+  if(exists($generic_headers->{UTSTART}) &&
+     UNIVERSAL::isa( $generic_headers->{UTSTART}, "Time::Piece" ) ) {
+    my $ut = $generic_headers->{UTSTART};
+    $return_hash{'UTDATE'} = join ':', $ut->year, $ut->mon, $ut->mday;
+    $return_hash{'UTSTART'} = join ':', $ut->hour, $ut->minute, $ut->second;
+    $return_hash{'DATE'} = $ut->datetime;
   }
   return %return_hash;
 }
 
 =item B<to_UTEND>
 
-Removes the 'Z' from the end of the ending observation time.
+Converts the <UTDATE> and C<UTEND> headers into a combined
+C<Time::Piece> object.
 
 =cut
 
@@ -519,32 +481,34 @@ sub to_UTEND {
 
   if( exists( $FITS_headers->{'UTDATE'} ) &&
       defined( $FITS_headers->{'UTDATE'} ) ) {
-    my $utdate = $FITS_headers->{'UTDATE'};
-    my $utend = $FITS_headers->{'UTEND'};
-    my ($year, $month, $day) = split /:/, $utdate;
-    my ($hour, $minute, $second) = split /:/, $utend;
-    $return = sprintf("%04d-%02d-%02dT%02d:%02d:%02d",
-                      $year, $month, $day, $hour, $minute, $second);
-  }
 
+    my $ut = $FITS_headers->{'UTDATE'} . ":" . $FITS_headers->{'UTEND'};
+
+    # Strip off fractional seconds.
+    $ut =~ s/\.\d+$//;
+
+    $return = Time::Piece->strptime( $ut, "%Y:%m:%d:%T" );
+
+  }
   return $return;
 }
 
 =item B<from_UTEND>
 
-Adds a 'Z' to the end of the ending observation time.
+Converts the unified C<UTEND> generic header into C<UTDATE> and
+C<UTEND> FITS headers of the form C<YYYY:MM:DD> and C<HH:MM:SS>.
 
 =cut
 
 sub from_UTEND {
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{UTEND})) {
-
+  if(exists($generic_headers->{UTEND}) &&
+     UNIVERSAL::isa( $generic_headers->{UTEND}, "Time::Piece" ) ) {
+    my $ut = $generic_headers->{UTEND};
     $generic_headers->{UTEND} =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
-    $return_hash{'UTDATE'} = join ':', int($1), int($2), int($3);
-    $return_hash{'UTEND'} = join ':', int($4), $5, $6;
-
+    $return_hash{'UTDATE'} = join ':', $ut->year, $ut->mon, $ut->mday;
+    $return_hash{'UTEND'} = join ':', $ut->hour, $ut->minute, $ut->second;
   }
   return %return_hash;
 }
@@ -600,7 +564,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2002 Particle Physics and Astronomy Research Council.
+Copyright (C) 2003 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it
