@@ -545,7 +545,6 @@ Keys are generic headers, values are FITS headers.
             DEC_TELESCOPE_OFFSET => "MAP_Y",
             DETECTOR_READ_TYPE   => "MODE",
             DR_RECIPE            => "DRRECIPE",
-            EXPOSURE_TIME        => "EXP_TIME",
             FILENAME             => "SDFFILE",
             FILTER               => "FILTER",
             GAIN                 => "GAIN",
