@@ -2,7 +2,7 @@ package Astro::FITS::HdrTrans::SCUBA2;
 
 =head1 NAME
 
-Astro::FITS::HdrTrans::SCUBA2 - Translate SCUBA-2 FITS headers into generic headers and back again
+Astro::FITS::HdrTrans::SCUBA2 - JCMT SCUBA-2 translations
 
 =head1 DESCRIPTION
 
@@ -12,101 +12,68 @@ headers.
 
 =cut
 
+use 5.006;
+use warnings;
 use strict;
+use Carp;
+
+# Inherit from Base
+use base qw/ Astro::FITS::HdrTrans::Base /;
+
 use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d.%03d", q$Revision$ =~ /(\d+)\.(\d+)/);
 
-# This is for the one-to-one mapping defined at the end of the class.
-our %hdr;
+# for a constant mapping, there is no FITS header, just a generic
+# header that is constant
+my %CONST_MAP = (
+		);
 
-=head1 FUNCTIONS
+# NULL mappings used to override base class implementations
+my @NULL_MAP = ();
 
-These functions provide an interface to the class, allowing the base
-class to determine if this class is the appropriate one to use for
-the given headers.
+# unit mapping implies that the value propogates directly
+# to the output with only a keyword name change
+
+my %UNIT_MAP = (
+		INSTRUMENT           => "INSTRUME",
+		TELESCOPE            => "TELESCOP",
+	       );
+
+
+# Create the translation methods
+__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
+
+=head1 METHODS
 
 =over 4
 
-=item B<valid_class>
+=item B<this_instrument>
 
-  $valid = valid_class( \%headers );
+The name of the instrument required to match (case insensitively)
+against the INSTRUME/INSTRUMENT keyword to allow this class to
+translate the specified headers. Called by the default
+C<can_translate> method.
 
-This function takes one argument: a reference to a hash containing
-the untranslated headers.
+  $inst = $class->this_instrument();
 
-This method returns true (1) or false (0) depending on if the headers
-can be translated by this method.
-
-For this class, the method will return true if the B<INSTRUME> header
-exists, and its value matches the regular expression C</^scuba/i>, or
-if the C<INSTRUMENT> header exists and its value matches the regular
-expression C</^scuba-2$/i>.
-
-=back
+Returns "SCUBA2".
 
 =cut
 
-sub valid_class {
-  my $headers = shift;
-
-  if( exists( $headers->{'INSTRUME'} ) &&
-      defined( $headers->{'INSTRUME'} ) &&
-      $headers->{'INSTRUME'} =~ /^scuba-2/i ) {
-    return 1;
-  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
-           defined( $headers->{'INSTRUMENT'} ) &&
-           $headers->{'INSTRUMENT'} =~ /^scuba-2$/i ) {
-    return 1;
-  } else {
-    return 0;
-  }
+sub this_instrument {
+  return "SCUBA2";
 }
-
-=head1 TRANSLATION METHODS
-
-These methods provide many-to-one mappings between FITS headers and
-generic headers. An example of a method defined in this section would
-be one that converts UT date and UT hour FITS headers into one combined
-UT datetime generic header. These mappings can also use calculations,
-for example converting a zenith distance to airmass.
-
-These methods are named backwards from the C<translate_from_FITS> and
-C<translate_to_FITS> methods in that we are translating to and from
-generic headers. As an example, a method to convert to a generic airmass
-header would be named C<to_AIRMASS>.
-
-The format of these methods is C<to_HEADER> and C<from_HEADER>.
-C<to_> methods accept a hash reference as an argument and return a scalar
-value (typically a string). C<from_> methods accept a hash reference
-as an argument and return a hash.
-
-=over 4
-
-
-=back
-
-=head1 VARIABLES
-
-=over 4
-
-=item B<%hdr>
-
-Contains one-to-one mappings between FITS headers and generic headers.
-Keys are generic headers, values are FITS headers.
-
-=cut
-
-%hdr = (
-	TELESCOPE  => 'TELESCOP',
-	INSTRUMENT => 'INSTRUME',
-       );
 
 =back
 
 =head1 REVISION
 
  $Id$
+
+=head1 SEE ALSO
+
+C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>
 
 =head1 AUTHOR
 
