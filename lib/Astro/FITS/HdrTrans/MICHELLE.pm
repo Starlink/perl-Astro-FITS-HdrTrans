@@ -330,38 +330,6 @@ sub from_UTEND {
   return %return_hash;
 }
 
-=item B<to_X_BASE>
-
-Converts the decimal hours in the FITS header C<RABASE> into
-decimal degrees for the generic header C<X_BASE>.
-
-=cut
-
-sub to_X_BASE {
-  my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{RABASE})) {
-    $return = $FITS_headers->{RABASE} * 15;
-  }
-  return $return;
-}
-
-=item B<from_X_BASE>
-
-Converts the decimal degrees in the generic header C<X_BASE>
-into decimal hours for the FITS header C<RABASE>.
-
-=cut
-
-sub from_X_BASE {
-  my $generic_headers = shift;
-  my %return_hash;
-  if(exists($generic_headers->{X_BASE})) {
-    $return_hash{'RABASE'} = $generic_headers->{X_BASE} / 15;
-  }
-  return %return_hash;
-}
-
 =item B<to_RA_BASE>
 
 Converts the decimal hours in the FITS header C<RABASE> into
@@ -414,7 +382,7 @@ Keys are generic headers, values are FITS headers.
             CHOP_THROW           => "CHPTHROW",
             CONFIGURATION_INDEX  => "CNFINDEX",
             DEC_BASE             => "DECBASE",
-            DEC_SCALE            => "PIXELSI",
+            DEC_SCALE            => "PIXELSIZ",
             DEC_TELESCOPE_OFFSET => "TDECOFF",
             DETECTOR_INDEX       => "DINDEX",
             DETECTOR_READ_TYPE   => "DETMODE",
@@ -439,9 +407,10 @@ Keys are generic headers, values are FITS headers.
             OBSERVATION_NUMBER   => "OBSNUM",
             OBSERVATION_TYPE     => "OBSTYPE",
             PROJECT              => "PROJECT",
-            RA_SCALE             => "PIXELSI",
+            RA_SCALE             => "PIXELSIZ",
             RA_TELESCOPE_OFFSET  => "TRAOFF",
             ROTATION             => "CROTA2",
+            SAMPLING             => "SAMPLING",
             SCAN_INCREMENT       => "DETINCR",
             SLIT_ANGLE           => "SLITANG",
             SLIT_NAME            => "SLITNAME",
@@ -449,11 +418,6 @@ Keys are generic headers, values are FITS headers.
             STANDARD             => "STANDARD",
             TELESCOPE            => "TELESCOP",
             WAVEPLATE_ANGLE      => "WPLANGLE",
-            Y_BASE               => "RABASE",
-            X_OFFSET             => "TDECOFF",
-            Y_OFFSET             => "TRAOFF",
-            X_SCALE              => "PIXELSI",
-            Y_SCALE              => "PIXELSI",
             X_DIM                => "DCOLUMNS",
             Y_DIM                => "DROWS",
             X_LOWER_BOUND        => "RDOUT_X1",
