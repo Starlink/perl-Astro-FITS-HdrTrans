@@ -285,50 +285,6 @@ sub to_SYSTEM_VELOCITY {
 
 =over 4
 
-=item B<%to_file_headers>
-
-Contains one-to-one mappings between database headers and file headers.
-Keys are database headers, values are file headers.
-
-=cut
-
-%to_file_headers = (
-                    AZ => "C4AZ",
-                    MAPUNIT => "C4ODCO",
-                    OBSMODE => "C6ST",
-                    BACKEND => "C1BKE",
-                    BACKTYPE => "C1BTYP",
-                    PROJID => "C1PID",
-                    AFOCUSH => "C4Y",
-                    PHASE => "C7PHASE",
-                    AFOCUSR => "C4Z",
-                    AFOCUSV => "C4X",
-                    LST => "C3LST",
-                    COORDCD => "C4CSC",
-                    BACKEND => "C1BKE",
-                    FRAME => "C4LSC",
-                    UT1C => "C3UT1C",
-                    RADATE => "C4RADATE",
-                    FRONTEND => "C1RCV",
-                    FRONTYPE => "C1FTYP",
-                    OBJECT => "C1SNA1",
-                    EL => "C4EL",
-                    SCAN => "C1SNO",
-                    VELOCITY => "C7VR",
-                    VDEF => "C12VDEF",
-                    VREF => "C12VREF",
-                    SAMPRAT => "C3SRT",
-                    NOCYCLES => "C3NCI",
-                    NSCAN => "C3NSAMPL",
-                    CYCLLEN => "C3CL",
-                    NOCYCPTS => "C3NCP",
-                    NCYCPTS => "C6NP",
-                    RESTFRQ1 => "C12RF",
-                    C3DAT => "C3DAT",
-                    C3UT => "C3UT",
-                    NCYCLE => "C3NCYCLE",
-                   );
-
 =item B<%hdr>
 
 Contains one-to-one mappings between FITS headers and generic headers.
