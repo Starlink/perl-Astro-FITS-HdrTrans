@@ -169,6 +169,19 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =over 4
 
+=item B<to_INST-DHS>
+
+Sets the INST-DHS header.
+
+=cut
+
+sub to_INST_DHS {
+
+  return "SCUBA_SCUBA";
+
+}
+
+
 =item B<to_CHOP_COORDINATE_SYSTEM>
 
 Uses the C<CHOP_CRD> FITS header to determine the chopper coordinate

@@ -167,6 +167,26 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =over 4
 
+=item B<to_INST-DHS>
+
+Sets the INST-DHS header.
+
+=cut
+
+sub to_INST_DHS {
+  my $FITS_headers = shift;
+  my $return;
+
+  if( exists( $FITS_headers->{DHSVER} ) ) {
+    $FITS_headers->{DHSVER} =~ /^(\w+)/;
+    my $dhs = uc($1);
+    $return = $FITS_headers->{INSTRUME} . "_$dhs";
+  }
+
+  return $return;
+
+}
+
 =item B<to_COORDINATE_TYPE>
 
 Converts the C<EQUINOX> FITS header into B1950 or J2000, depending
