@@ -518,7 +518,7 @@ Keys are generic headers, values are FITS headers.
             X_LOWER_BOUND        => "RDOUT_X1",
             X_UPPER_BOUND        => "RDOUT_X2",
             Y_LOWER_BOUND        => "RDOUT_Y1",
-            Y_LOWER_BOUND        => "RDOUT_Y2"
+            Y_UPPER_BOUND        => "RDOUT_Y2"
           );
 
 =back
