@@ -237,30 +237,116 @@ sub to_UTEND {
 
 sub to_EXPOSURE_TIME {
   my $FITS_headers = shift;
-  my $expt;
+  my $expt = 0;
 
-  if( exists( $FITS_headers->{'C6ST'} ) && defined( $FITS_headers->{'C6ST'} ) &&
-      exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
-      exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) &&
-      exists( $FITS_headers->{'C3NCP'} ) && defined( $FITS_headers->{'C3NCP'} ) &&
-      exists( $FITS_headers->{'C3NCI'} ) && defined( $FITS_headers->{'C3NCI'} ) &&
-      exists( $FITS_headers->{'C6NP'} ) && defined( $FITS_headers->{'C6NP'} ) &&
-      exists( $FITS_headers->{'C3NCYCLE'} ) && defined( $FITS_headers->{'C3NCYCLE'} ) ) {
+  if( exists( $FITS_headers->{'C6ST'} ) && defined( $FITS_headers->{'C6ST'} ) ) {
 
-    my $obsmode = uc( $FITS_headers->{'C6ST'} );
-    my $nscan = uc( $FITS_headers->{'C3NSAMPL'} );
-    my $cycllen = uc( $FITS_headers->{'C3CL'} );
-    my $nocycpts = uc( $FITS_headers->{'C3NCP'} );
-    my $nocycles = uc( $FITS_headers->{'C3NCI'} );
-    my $ncycpts = uc( $FITS_headers->{'C6NP'} );
-    my $ncycle = uc( $FITS_headers->{'C3NCYCLE'} );
+    my $c6st = uc( $FITS_headers->{'C6ST'} );
 
-    if( $obsmode eq 'RASTER' ) {
-      $expt = 0.3 + $nscan * $cycllen * ( 1 + 1/sqrt($nocycpts) ) * 1.20;
+    if( $c6st eq 'RASTER' ) {
+
+      if( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
+          exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) &&
+          exists( $FITS_headers->{'C3NP'} ) && defined( $FITS_headers->{'C3NP'} ) ) {
+
+        my $c3nsampl = $FITS_headers->{'C3NSAMPL'};
+        my $c3cl = $FITS_headers->{'C3CL'};
+        my $c3np = $FITS_headers->{'C3NP'};
+
+        # raster.
+        $expt = 15 + $c3nsampl * $c3cl * ( 1 + 1 / sqrt( $c3np ) ) * 1.4;
+      }
+    } elsif( $c6st eq 'PATTERN' or $c6st eq 'GRID' ) {
+
+      my $c6mode = '';
+
+      if( exists( $FITS_headers->{'C6MODE'} ) && defined( $FITS_headers->{'C6MODE'} ) ) {
+        $c6mode = $FITS_headers->{'C6MODE'};
+      } else {
+        $c6mode = 'BEAMSWITCH';
+      }
+
+      if( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
+          exists( $FITS_headers->{'C3NCYCLE'} ) && defined( $FITS_headers->{'C3NCYCLE'} ) &&
+          exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) ) {
+
+        my $c3nsampl = $FITS_headers->{'C3NSAMPL'};
+        my $c3ncycle = $FITS_headers->{'C3NCYCLE'};
+        my $c3cl = $FITS_headers->{'C3CL'};
+
+        if( $c6mode eq 'POSITION_SWITCH' ) {
+
+          # position switch pattern/grid.
+          $expt = 6 + $c3nsampl * $c3ncycle * $c3cl * 1.35;
+
+        } elsif( $c6mode eq 'BEAMSWITCH' ) {
+
+          # beam switch pattern/grid.
+          $expt = 6 + $c3nsampl * $c3ncycle * $c3cl * 1.35;
+
+        } elsif( $c6mode eq 'CHOPPING' ) {
+          if( exists( $FITS_headers->{'C1RCV'} ) && defined( $FITS_headers->{'C1RCV'} ) ) {
+            my $c1rcv = uc( $FITS_headers->{'C1RCV'} );
+            if( $c1rcv eq 'RXA3I' ) {
+
+              # fast frequency switch pattern/grid, receiver A.
+              $expt = 15 + $c3nsampl * $c3ncycle * $c3cl * 1.20;
+
+            } elsif( $c1rcv eq 'RXB' ) {
+
+              # slow frequency switch pattern/grid, receiver B.
+              $expt = 18 + $c3nsampl * $c3ncycle * $c3cl * 1.60;
+
+            }
+          }
+        }
+      }
     } else {
-      $expt = 0.3 + $nscan * $ncycle * $cycllen * 1.20;
+
+      my $c6mode;
+      if( exists( $FITS_headers->{'C6MODE'} ) && defined( $FITS_headers->{'C6MODE'} ) ) {
+        $c6mode = $FITS_headers->{'C6MODE'};
+      } else {
+        $c6mode = 'BEAMSWITCH';
+      }
+
+      if( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
+          exists( $FITS_headers->{'C3NCYCLE'} ) && defined( $FITS_headers->{'C3NCYCLE'} ) &&
+          exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) ) {
+
+        my $c3nsampl = $FITS_headers->{'C3NSAMPL'};
+        my $c3ncycle = $FITS_headers->{'C3NCYCLE'};
+        my $c3cl = $FITS_headers->{'C3CL'};
+
+        if( $c6mode eq 'POSITION_SWITCH' ) {
+
+          # position switch sample.
+          $expt = 4.8 + $c3nsampl * $c3ncycle * $c3cl * 1.10;
+
+        } elsif( $c6mode eq 'BEAMSWITCH' ) {
+
+          # beam switch sample.
+          $expt = 4.8 + $c3nsampl * $c3ncycle * $c3cl * 1.25;
+
+        } elsif( $c6mode eq 'CHOPPING' ) {
+          if( exists( $FITS_headers->{'C1RCV'} ) && defined( $FITS_headers->{'C1RCV'} ) ) {
+            my $c1rcv = uc( $FITS_headers->{'C1RCV'} );
+            if( $c1rcv eq 'RXA3I' ) {
+
+              # fast frequency switch sample, receiver A.
+              $expt = 3 + $c3nsampl * $c3ncycle * $c3cl * 1.10;
+
+            } elsif( $c1rcv eq 'RXB' ) {
+
+              # slow frequency switch sample, receiver B.
+              $expt = 3 + $c3nsampl * $c3ncycle * $c3cl * 1.40;
+            }
+          }
+        }
+      }
     }
   }
+
   return $expt;
 }
 

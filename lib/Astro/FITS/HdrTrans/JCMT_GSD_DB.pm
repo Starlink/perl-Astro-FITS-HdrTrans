@@ -252,30 +252,116 @@ sub to_UTEND {
 
 sub to_EXPOSURE_TIME {
   my $FITS_headers = shift;
-  my $expt;
+  my $expt = 0;
 
-  if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) &&
-      exists( $FITS_headers->{'NSCAN'} ) && defined( $FITS_headers->{'NSCAN'} ) &&
-      exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
-      exists( $FITS_headers->{'NOCYCPTS'} ) && defined( $FITS_headers->{'NOCYCPTS'} ) &&
-      exists( $FITS_headers->{'NOCYCLES'} ) && defined( $FITS_headers->{'NOCYCLES'} ) &&
-      exists( $FITS_headers->{'NCYCPTS'} ) && defined( $FITS_headers->{'NCYCPTS'} ) &&
-      exists( $FITS_headers->{'NCYCLE'} ) && defined( $FITS_headers->{'NCYCLE'} ) ) {
+  if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) ) {
 
     my $obsmode = uc( $FITS_headers->{'OBSMODE'} );
-    my $nscan = uc( $FITS_headers->{'NSCAN'} );
-    my $cycllen = uc( $FITS_headers->{'CYCLLEN'} );
-    my $nocycpts = uc( $FITS_headers->{'NOCYCPTS'} );
-    my $nocycles = uc( $FITS_headers->{'NOCYCLES'} );
-    my $ncycpts = uc( $FITS_headers->{'NCYCPTS'} );
-    my $ncycle = uc( $FITS_headers->{'NCYCLE'} );
 
     if( $obsmode eq 'RASTER' ) {
-      $expt = 0.3 + $nscan * $cycllen * ( 1 + 1/sqrt($nocycpts) ) * 1.20;
+
+      if( exists( $FITS_headers->{'NSCAN'} ) && defined( $FITS_headers->{'NSCAN'} ) &&
+          exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
+          exists( $FITS_headers->{'NOCYCPTS'} ) && defined( $FITS_headers->{'NOCYCPTS'} ) ) {
+
+        my $nscan = $FITS_headers->{'NSCAN'};
+        my $cycllen = $FITS_headers->{'CYCLLEN'};
+        my $nocycpts = $FITS_headers->{'NOCYCPTS'};
+
+        # raster.
+        $expt = 15 + $nscan * $cycllen * ( 1 + 1 / sqrt( $nocycpts ) ) * 1.4;
+      }
+    } elsif( $obsmode eq 'PATTERN' or $obsmode eq 'GRID' ) {
+
+      my $swmode = '';
+
+      if( exists( $FITS_headers->{'SWMODE'} ) && defined( $FITS_headers->{'SWMODE'} ) ) {
+        $swmode = $FITS_headers->{'SWMODE'};
+      } else {
+        $swmode = 'BEAMSWITCH';
+      }
+
+      if( exists( $FITS_headers->{'NSCAN'} ) && defined( $FITS_headers->{'NSCAN'} ) &&
+          exists( $FITS_headers->{'NCYCLE'} ) && defined( $FITS_headers->{'NCYCLE'} ) &&
+          exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) ) {
+
+        my $nscan = $FITS_headers->{'NSCAN'};
+        my $ncycle = $FITS_headers->{'NCYCLE'};
+        my $cycllen = $FITS_headers->{'CYCLLEN'};
+
+        if( $swmode eq 'POSITION_SWITCH' ) {
+
+          # position switch pattern/grid.
+          $expt = 6 + $nscan * $ncycle * $cycllen * 1.35;
+
+        } elsif( $swmode eq 'BEAMSWITCH' ) {
+
+          # beam switch pattern/grid.
+          $expt = 6 + $nscan * $ncycle * $cycllen * 1.35;
+
+        } elsif( $swmode eq 'CHOPPING' ) {
+          if( exists( $FITS_headers->{'FRONTEND'} ) && defined( $FITS_headers->{'FRONTEND'} ) ) {
+            my $frontend = uc( $FITS_headers->{'FRONTEND'} );
+            if( $frontend eq 'RXA3I' ) {
+
+              # fast frequency switch pattern/grid, receiver A.
+              $expt = 15 + $nscan * $ncycle * $cycllen * 1.20;
+
+            } elsif( $frontend eq 'RXB' ) {
+
+              # slow frequency switch pattern/grid, receiver B.
+              $expt = 18 + $nscan * $ncycle * $cycllen * 1.60;
+
+            }
+          }
+        }
+      }
     } else {
-      $expt = 0.3 + $nscan * $ncycle * $cycllen * 1.20;
+
+      my $swmode;
+      if( exists( $FITS_headers->{'SWMODE'} ) && defined( $FITS_headers->{'SWMODE'} ) ) {
+        $swmode = $FITS_headers->{'SWMODE'};
+      } else {
+        $swmode = 'BEAMSWITCH';
+      }
+
+      if( exists( $FITS_headers->{'NSCAN'} ) && defined( $FITS_headers->{'NSCAN'} ) &&
+          exists( $FITS_headers->{'NCYCLE'} ) && defined( $FITS_headers->{'NCYCLE'} ) &&
+          exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) ) {
+
+        my $nscan = $FITS_headers->{'NSCAN'};
+        my $ncycle = $FITS_headers->{'NCYCLE'};
+        my $cycllen = $FITS_headers->{'CYCLLEN'};
+
+        if( $swmode eq 'POSITION_SWITCH' ) {
+
+          # position switch sample.
+          $expt = 4.8 + $nscan * $ncycle * $cycllen * 1.10;
+
+        } elsif( $swmode eq 'BEAMSWITCH' ) {
+
+          # beam switch sample.
+          $expt = 4.8 + $nscan * $ncycle * $cycllen * 1.25;
+
+        } elsif( $swmode eq 'CHOPPING' ) {
+          if( exists( $FITS_headers->{'FRONTEND'} ) && defined( $FITS_headers->{'FRONTEND'} ) ) {
+            my $frontend = uc( $FITS_headers->{'FRONTEND'} );
+            if( $frontend eq 'RXA3I' ) {
+
+              # fast frequency switch sample, receiver A.
+              $expt = 3 + $nscan * $ncycle * $cycllen * 1.10;
+
+            } elsif( $frontend eq 'RXB' ) {
+
+              # slow frequency switch sample, receiver B.
+              $expt = 3 + $nscan * $ncycle * $cycllen * 1.40;
+            }
+          }
+        }
+      }
     }
   }
+
   return $expt;
 }
 
