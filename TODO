@@ -7,3 +7,5 @@ Todo
 
  - Add appropriate headers for other areas of astronomy. Currently
    the headers have a bias towards infrared and submillimeter.
+
+ - Take Astro::FITS::Header object when doing translation.
