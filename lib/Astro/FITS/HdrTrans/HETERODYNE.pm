@@ -96,8 +96,6 @@ sub translate_from_FITS {
   } else {
     %db_headers = %{$FITS_header};
   }
-  use Data::Dumper;
-print Dumper \%db_headers;
   for my $key ( @$header_array ) {
     if(exists($hdr{$key}) ) {
       $generic_header{$key} = $db_headers{$hdr{$key}};
