@@ -420,7 +420,7 @@ sub to_UTEND {
   my $return;
 
   if( exists( $FITS_headers->{'DATE_END'} ) ) {
-    my $dateend = $FITS_headers->{'DATE_END'}
+    my $dateend = $FITS_headers->{'DATE_END'};
     $dateend =~ s/Z//g;
     $return = Time::Piece->strptime( $dateend, "%Y-%m-%dT%T" );
 
