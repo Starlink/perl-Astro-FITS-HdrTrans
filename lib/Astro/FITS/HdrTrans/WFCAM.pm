@@ -227,12 +227,9 @@ sub to_UTSTART {
   my $return;
   if(exists($FITS_headers->{'DATE-OBS'})) {
     my $utstart = $FITS_headers->{'DATE-OBS'};
-    if( $utstart =~ /Z$/ ) {
-      $return = Time::Piece->strptime( $utstart, "%Y-%m-%dT%TZ" );
-    } elsif( $utstart =~ /\.\d{3}$/ ) {
-      $utstart =~ s/\.\d{3}$//;
-      $return = Time::Piece->strptime( $utstart, "%Y-%m-%dT%T" );
-    }
+    $utstart =~ s/Z$//;
+    $utstart =~ s/(\.(\d)*)*$//;
+    $return = Time::Piece->strptime( $utstart, "%Y-%m-%dT%T" );
   }
   return $return;
 }
@@ -264,11 +261,9 @@ sub to_UTEND {
   my $return;
   if(exists($FITS_headers->{'DATE-END'})) {
     my $utend = $FITS_headers->{'DATE-END'};
-    if( $utend =~ /Z$/ ) {
-      $return = Time::Piece->strptime( $utend, "%Y-%m-%dT%TZ" );
-    } elsif( $utend =~ /\.\d{3}$/ ) {
-      $utend =~ s/\.\d{3}$//;
-      $return = Time::Piece->strptime( $utend, "%Y-%m-%dT%T" );
+    $utend =~ s/Z$//;
+    $utend =~ s/(\.(\d)*)*$//;
+    $return = Time::Piece->strptime( $utend, "%Y-%m-%dT%T" );
     }
   }
   return $return;
