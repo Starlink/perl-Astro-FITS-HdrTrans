@@ -230,13 +230,16 @@ headers in the instrument-specific subclasses.
                        INSTRUMENT
                        MSBID
                        NSCAN_POSITIONS
+                       NUMBER_OF_DETECTORS
                        NUMBER_OF_EXPOSURES
                        NUMBER_OF_OFFSETS
                        NUMBER_OF_READS
+                       NUMBER_OF_SUBFRAMES
                        OBJECT
                        OBSERVATION_MODE
                        OBSERVATION_NUMBER
                        OBSERVATION_TYPE
+                       POLARIMETRY
                        PROJECT
                        RA_BASE
                        RA_SCALE
