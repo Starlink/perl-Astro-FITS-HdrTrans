@@ -237,7 +237,7 @@ Values in this list can be added to using the C<push_class> method.
 
 =cut
 
-my @valid_classes = qw/ IRCAM CGS4 UIST UFTI JCMT_GSD JCMT_GSD_DB SCUBA UKIRTDB /;
+my @valid_classes = qw/ IRCAM CGS4 UIST UFTI JCMT_GSD JCMT_GSD_DB MICHELLE SCUBA UKIRTDB /;
 
 =head1 PUBLIC METHODS
 
