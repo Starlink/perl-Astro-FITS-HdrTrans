@@ -222,6 +222,10 @@ sub translate_from_FITS {
                    require Astro::FITS::HdrTrans::IRCAM;
                    %generic_header = Astro::FITS::HdrTrans::IRCAM::translate_from_FITS($FITS_header, \@generic_headers);
                   }
+    case "UIST" {
+                 require Astro::FITS::HdrTrans::UIST;
+                 %generic_header = Astro::FITS::HdrTrans::UIST::translate_from_FITS($FITS_header, \@generic_headers);
+                }
     case "IRIS2" {
                   require Astro::FITS::HdrTrans::IRIS2;
                   %generic_header = Astro::FITS::HdrTrans::IRIS2::translate_from_FITS($FITS_header, \@generic_headers);
@@ -283,6 +287,10 @@ sub translate_to_FITS {
                   require Astro::FITS::HdrTrans::IRCAM;
                   %FITS_header = Astro::FITS::HdrTrans::IRCAM::translate_to_FITS($generic_header, \@generic_headers);
                  }
+    case "UIST" {
+                 require Astro::FITS::HdrTrans::UIST;
+                 %FITS_header = Astro::FITS::HdrTrans::UIST::translate_to_FITS($generic_header, \@generic_headers);
+                }
     case "IRIS2" {
                   require Astro::FITS::HdrTrans::IRIS2;
                   %FITS_header = Astro::FITS::HdrTrans::IRIS2::translate_to_FITS($generic_header, \@generic_headers);
