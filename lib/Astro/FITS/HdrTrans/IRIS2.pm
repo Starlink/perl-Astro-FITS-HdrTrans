@@ -550,8 +550,6 @@ Keys are generic headers, values are FITS headers.
 =cut
 
 %hdr = (
-            AIRMASS_START        => "AMSTART",
-            AIRMASS_END          => "AMEND",
             CONFIGURATION_INDEX  => "CNFINDEX",
             DEC_BASE             => "DECBASE",
             DEC_TELESCOPE_OFFSET => "DECOFF",
@@ -575,7 +573,6 @@ Keys are generic headers, values are FITS headers.
             OBSERVATION_NUMBER   => "OBSNUM",
             OBSERVATION_TYPE     => "OBSTYPE",
             RA_TELESCOPE_OFFSET  => "RAOFF",
-            ROTATION             => "CROTA2",
             SCAN_INCREMENT       => "DETINCR",
             SLIT_ANGLE           => "SANGLE",
             SLIT_NAME            => "SLIT",
@@ -591,7 +588,7 @@ Keys are generic headers, values are FITS headers.
             X_LOWER_BOUND        => "RDOUT_X1",
             X_UPPER_BOUND        => "RDOUT_X2",
             Y_LOWER_BOUND        => "RDOUT_Y1",
-            Y_LOWER_BOUND        => "RDOUT_Y2"
+            Y_UPPER_BOUND        => "RDOUT_Y2"
           );
 
 =back
