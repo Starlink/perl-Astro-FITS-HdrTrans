@@ -216,6 +216,29 @@ sub to_POLARIMETRY {
   return $return;
 }
 
+=item B<to_SAMPLING>
+
+Converts FITS header values in C<DETINCR> and C<DETNINCR> to a single
+descriptive string.
+
+=cut
+
+sub to_SAMPLING {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{DETINCR}) && exists($FITS_headers->{DETNINCR})) {
+    my $detincr = $FITS_headers->{DETINCR};
+    my $detnincr = $FITS_headers->{DETNINCR};
+    if($detnincr == 6) {
+      $return = "3x2";
+    } elsif( $detnincr == 4 ) {
+      $return = "2x2";
+    } else {
+      $return = "1x1";
+    }
+  }
+}
+
 =item B<to_UTDATE>
 
 Converts FITS header values into standard UT date value of the form
@@ -342,38 +365,6 @@ sub from_UTEND {
   return %return_hash;
 }
 
-=item B<to_X_BASE>
-
-Converts the decimal hours in the FITS header C<RABASE> into
-decimal degrees for the generic header C<X_BASE>.
-
-=cut
-
-sub to_X_BASE {
-  my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{RABASE})) {
-    $return = $FITS_headers->{RABASE} * 15;
-  }
-  return $return;
-}
-
-=item B<from_X_BASE>
-
-Converts the decimal degrees in the generic header C<X_BASE>
-into decimal hours for the FITS header C<RABASE>.
-
-=cut
-
-sub from_X_BASE {
-  my $generic_headers = shift;
-  my %return_hash;
-  if(exists($generic_headers->{X_BASE})) {
-    $return_hash{'RABASE'} = $generic_headers->{X_BASE} / 15;
-  }
-  return %return_hash;
-}
-
 =item B<to_RA_BASE>
 
 Converts the decimal hours in the FITS header C<RABASE> into
@@ -426,7 +417,7 @@ Keys are generic headers, values are FITS headers.
             DEC_BASE             => "DECBASE",
             DEC_TELESCOPE_OFFSET => "DECOFF",
             DETECTOR_INDEX       => "DINDEX",
-            DETECTOR_READ_TYPE   => "DETMODE",
+            DETECTOR_READ_TYPE   => "MODE",
             DR_GROUP             => "GRPNUM",
             DR_RECIPE            => "DRRECIPE",
             EQUINOX              => "EQUINOX",
@@ -435,7 +426,7 @@ Keys are generic headers, values are FITS headers.
             GAIN                 => "DEPERDN",
             GRATING_DISPERSION   => "GDISP",
             GRATING_NAME         => "GRATING",
-            GRATING_ORDER        => "GORD",
+            GRATING_ORDER        => "GORDER",
             GRATING_WAVELENGTH   => "GLAMBDA",
             INSTRUMENT           => "INSTRUME",
             MSBID                => "MSBID",
@@ -447,17 +438,13 @@ Keys are generic headers, values are FITS headers.
             OBSERVATION_TYPE     => "OBSTYPE",
             PROJECT              => "PROJECT",
             RA_TELESCOPE_OFFSET  => "RAOFF",
-            ROTATION             => "CROTA2",
             SCAN_INCREMENT       => "DETINCR",
             SLIT_ANGLE           => "SANGLE",
             SLIT_NAME            => "SLIT",
-            SPEED_GAIN           => "SPD_GAIN",
+            SLIT_WIDTH           => "SWIDTH",
             STANDARD             => "STANDARD",
-            TELESCOPE            => "TELESCOPE",
+            TELESCOPE            => "TELESCOP",
             WAVEPLATE_ANGLE      => "WPLANGLE",
-            Y_BASE               => "DECBASE",
-            X_OFFSET             => "RAOFF",
-            Y_OFFSET             => "DECOFF",
             X_DIM                => "DCOLUMNS",
             Y_DIM                => "DROWS",
             X_LOWER_BOUND        => "RDOUT_X1",
