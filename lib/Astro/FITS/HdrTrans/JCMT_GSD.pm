@@ -247,14 +247,14 @@ sub to_EXPOSURE_TIME {
 
       if( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
           exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) &&
-          exists( $FITS_headers->{'C3NP'} ) && defined( $FITS_headers->{'C3NP'} ) ) {
+          exists( $FITS_headers->{'C3NPP'} ) && defined( $FITS_headers->{'C3NPP'} ) ) {
 
         my $c3nsampl = $FITS_headers->{'C3NSAMPL'};
         my $c3cl = $FITS_headers->{'C3CL'};
-        my $c3np = $FITS_headers->{'C3NP'};
+        my $c3npp = $FITS_headers->{'C3NPP'};
 
         # raster.
-        $expt = 15 + $c3nsampl * $c3cl * ( 1 + 1 / sqrt( $c3np ) ) * 1.4;
+        $expt = 15 + $c3nsampl * $c3cl * ( 1 + 1 / sqrt( $c3npp ) ) * 1.4;
       }
     } elsif( $c6st eq 'PATTERN' or $c6st eq 'GRID' ) {
 
