@@ -105,6 +105,7 @@ our @generic_headers = qw( AIRMASS_START
                        DR_RECIPE
                        EQUINOX
                        EXPOSURE_TIME
+                       FILENAME
                        FILTER
                        GAIN
                        GRATING_DISPERSION
