@@ -1,0 +1,9 @@
+Todo
+----
+
+ - Take advantage of classes other than Time::Piece for generic
+   headers (Astro::Telescope for telescope information, Astro::Coords
+   for coordinates, etc).
+
+ - Add appropriate headers for other areas of astronomy. Currently
+   the headers have a bias towards infrared and submillimeter.
