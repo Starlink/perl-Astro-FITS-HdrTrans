@@ -1,3 +1,8 @@
+2004-03-08  Brad Cavanagh  <b.cavanagh@jach.hawaii.edu>
+
+	* HdrTrans/JCMT_GSD.pm, HdrTrans/JCMT_GSD_DB.pm: Added
+	  FTS to list of possible frontends.
+
 2003-09-16 Brad Cavanagh  <b.cavanagh@jach.hawaii.edu>
 
 	* README: Change licence from GPL to Perl's terms.
