@@ -333,38 +333,6 @@ sub from_UTEND {
   return %return_hash;
 }
 
-=item B<to_X_BASE>
-
-Converts the decimal hours in the FITS header C<RABASE> into
-decimal degrees for the generic header C<X_BASE>.
-
-=cut
-
-sub to_X_BASE {
-  my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{RABASE})) {
-    $return = $FITS_headers->{RABASE} * 15;
-  }
-  return $return;
-}
-
-=item B<from_X_BASE>
-
-Converts the decimal degrees in the generic header C<X_BASE>
-into decimal hours for the FITS header C<RABASE>.
-
-=cut
-
-sub from_X_BASE {
-  my $generic_headers = shift;
-  my %return_hash;
-  if(exists($generic_headers->{X_BASE})) {
-    $return_hash{'RABASE'} = $generic_headers->{X_BASE} / 15;
-  }
-  return %return_hash;
-}
-
 =item B<to_RA_BASE>
 
 Converts the decimal hours in the FITS header C<RABASE> into
@@ -413,26 +381,21 @@ Keys are generic headers, values are FITS headers.
 %hdr = (
             AIRMASS_START        => "AMSTART",
             AIRMASS_END          => "AMEND",
-            CONFIGURATION_INDEX  => "CNFINDEX",
             DEC_BASE             => "DECBASE",
             DEC_SCALE            => "PIXELSIZ",
             DEC_TELESCOPE_OFFSET => "DECOFF",
             DETECTOR_INDEX       => "DINDEX",
-            DETECTOR_READ_TYPE   => "DETMODE",
+            DETECTOR_READ_TYPE   => "MODE",
             DR_GROUP             => "GRPNUM",
             DR_RECIPE            => "DRRECIPE",
             EQUINOX              => "EQUINOX",
             EXPOSURE_TIME        => "DEXPTIME",
             FILTER               => "FILTER",
             GAIN                 => "DEPERDN",
-            GRATING_DISPERSION   => "GDISP",
-            GRATING_NAME         => "GRATING",
-            GRATING_ORDER        => "GORD",
-            GRATING_WAVELENGTH   => "GLAMBDA",
             INSTRUMENT           => "INSTRUME",
             MSBID                => "MSBID",
-            NSCAN_POSITIONS      => "DETNINCR",
             NUMBER_OF_EXPOSURES  => "NEXP",
+            NUMBER_OF_COADDS     => "NEXP",
             NUMBER_OF_OFFSETS    => "NOFFSETS",
             OBJECT               => "OBJECT",
             OBSERVATION_NUMBER   => "OBSNUM",
@@ -441,18 +404,10 @@ Keys are generic headers, values are FITS headers.
             RA_SCALE             => "PIXELSIZ",
             RA_TELESCOPE_OFFSET  => "RAOFF",
             ROTATION             => "CROTA2",
-            SCAN_INCREMENT       => "DETINCR",
-            SLIT_ANGLE           => "SANGLE",
-            SLIT_NAME            => "SLIT",
             SPEED_GAIN           => "SPD_GAIN",
             STANDARD             => "STANDARD",
             TELESCOPE            => "TELESCOP",
             WAVEPLATE_ANGLE      => "WPLANGLE",
-            Y_BASE               => "DECBASE",
-            X_OFFSET             => "RAOFF",
-            Y_OFFSET             => "DECOFF",
-            X_SCALE              => "PIXELSIZ",
-            Y_SCALE              => "PIXELSIZ",
             X_DIM                => "DCOLUMNS",
             Y_DIM                => "DROWS",
             X_LOWER_BOUND        => "RDOUT_X1",
