@@ -47,6 +47,7 @@ my %UNIT_MAP = (
 		# IRCAM Specific
 		DEC_SCALE            => 'PIXELSIZ',
 		DEC_TELESCOPE_OFFSET => 'DECOFF',
+		NUMBER_OF_COADDS     => 'NEXP',
 		RA_SCALE             => 'PIXELSIZ',
 		RA_TELESCOPE_OFFSET  => 'RAOFF',
 		# Also Michelle + UFTI
