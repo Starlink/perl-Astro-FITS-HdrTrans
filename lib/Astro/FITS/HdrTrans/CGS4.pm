@@ -353,7 +353,7 @@ sub to_X_BASE {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{RABASE})) {
-    $return = $FITS_headers * 15;
+    $return = $FITS_headers->{RABASE} * 15;
   }
   return $return;
 }
@@ -395,6 +395,8 @@ Keys are generic headers, values are FITS headers.
             DEC_TELESCOPE_OFFSET => "DECOFF",
             DETECTOR_INDEX       => "DINDEX",
             DETECTOR_READ_TYPE   => "DETMODE",
+            DR_GROUP             => "GRPNUM",
+            DR_RECIPE            => "DRRECIPE",
             EQUINOX              => "EQUINOX",
             EXPOSURE_TIME        => "DEXPTIME",
             FILTER               => "FILTER",
