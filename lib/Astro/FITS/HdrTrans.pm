@@ -221,6 +221,7 @@ headers in the instrument-specific subclasses.
                        CHOP_ANGLE
                        CHOP_THROW
                        CONFIGURATION_INDEX
+                       COORDINATE_UNITS
                        COORDINATE_TYPE
                        DEC_BASE
                        DEC_SCALE
@@ -237,6 +238,8 @@ headers in the instrument-specific subclasses.
                        GRATING_ORDER
                        GRATING_WAVELENGTH
                        INSTRUMENT
+                       LATITUDE
+                       LONGITUDE
                        MSBID
                        NSCAN_POSITIONS
                        NUMBER_OF_DETECTORS
