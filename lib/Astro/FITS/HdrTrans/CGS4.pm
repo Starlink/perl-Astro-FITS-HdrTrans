@@ -262,7 +262,6 @@ sub to_UTSTART {
     my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
     $uttime = join ':', $uthour, $utminute, $utsecond;
     $return = Time::Piece->strptime( $utdate . " " . $uttime, "%Y-%m-%d %T" );
-    }
   }
   return $return;
 }
