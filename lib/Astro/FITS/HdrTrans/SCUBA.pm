@@ -286,7 +286,8 @@ is C<PHOTOM>, otherwise returns C<imaging>.
 sub to_OBSERVATION_MODE {
   my $FITS_headers = shift;
   my $return;
-  if($FITS_headers->{'MODE'} =~ /PHOTOM/i) {
+  if( defined( $FITS_headers->{'MODE'} ) &&
+      $FITS_headers->{'MODE'} =~ /PHOTOM/i ) {
     $return = "photometry";
   } else {
     $return = "imaging";
@@ -307,7 +308,7 @@ sub to_OBSERVATION_TYPE {
   my $FITS_headers = shift;
   my $return;
   my $mode = $FITS_headers->{'MODE'};
-  if($mode =~ /PHOTOM|MAP|POLPHOT|POLMAP/i) {
+  if( defined( $mode ) && $mode =~ /PHOTOM|MAP|POLPHOT|POLMAP/i) {
     $return = "OBJECT";
   } else {
     $return = $mode;
@@ -327,7 +328,7 @@ sub to_POLARIMETRY {
   my $FITS_headers = shift;
   my $return;
   my $mode = $FITS_headers->{'MODE'};
-  if($mode =~ /POLMAP|POLPHOT/i) {
+  if(defined( $mode ) && $mode =~ /POLMAP|POLPHOT/i) {
     $return = 1;
   } else {
     $return = 0;
@@ -387,15 +388,22 @@ sub to_INSTRUMENT {
 
 =item B<to_UTDATE>
 
-Converts the C<UTDATE> header into a C<Time::Piece> object.
+Converts either the C<UTDATE> or C<DATE> header into a C<Time::Piece> object.
 
 =cut
 
 sub to_UTDATE {
   my $FITS_headers = shift;
   my $return;
-  my $utdate = $FITS_headers->{'UTDATE'};
-  $return = Time::Piece->strptime( $utdate, "%Y:%m:%d" );
+  if( exists( $FITS_headers->{'UTDATE'} ) &&
+      defined( $FITS_headers->{'UTDATE'} ) ) {
+    my $utdate = $FITS_headers->{'UTDATE'};
+    $return = Time::Piece->strptime( $utdate, "%Y:%m:%d" );
+  } elsif( exists( $FITS_headers->{'DATE'} ) &&
+           defined( $FITS_headers->{'DATE'} ) ) {
+    my $utdate = $FITS_headers->{'DATE'};
+    $return = Time::Piece->strptime( $utdate, "%Y-%m-%dT%T" );
+  }
   return $return;
 }
 
