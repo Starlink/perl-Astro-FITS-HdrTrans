@@ -91,6 +91,7 @@ our @generic_headers = qw( AIRMASS_START
                        AIRMASS_END
                        BOLOMETERS
                        CHOP_ANGLE
+                       CHOP_COORDINATE_SYSTEM
                        CHOP_THROW
                        CONFIGURATION_INDEX
                        COORDINATE_UNITS
