@@ -161,6 +161,56 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =over 4
 
+=item B<to_COORDINATE_TYPE>
+
+Sets the C<COORDINATE_TYPE> generic header to "sexagesimal".
+
+=cut
+
+sub to_COORDINATE_TYPE {
+  "sexagesimal";
+}
+
+=item B<to_POLARIMETRY>
+
+Converts the C<POLARISE> FITS header to the C<POLARIMENTRY>
+generic header.
+
+=cut
+
+sub to_POLARIMETRY {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{'POLARISE'})) {
+    if($FITS_headers->{'POLARISE'} eq 'Y') {
+      $return = 1;
+    } else {
+      $return = 0;
+    }
+  }
+  return $return;
+}
+
+=item B<from_POLARIMETRY>
+
+Converts the C<POLARIMETRY> generic header to the C<POLARISE>
+FITS header.
+
+=cut
+
+sub from_POLARIMETRY {
+  my $generic_headers = shift;
+  my %return_hash;
+  if(exists($generic_headers->{'POLARIMETRY'})) {
+    if($generic_headers->{'POLARIMETRY'}) {
+      $return_hash{'POLARISE'} = 'Y';
+    } else {
+      $return_hash{'POLARISE'} = 'N';
+    }
+  }
+  return %return_hash;
+}
+
 =item B<to_UTDATE>
 
 Converts FITS header values into one unified UT start date value.
