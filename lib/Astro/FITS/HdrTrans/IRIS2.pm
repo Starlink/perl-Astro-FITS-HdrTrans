@@ -445,8 +445,6 @@ sub to_RA_SCALE {
 Contains one-to-one mappings between FITS headers and generic headers.
 Keys are generic headers, values are FITS headers.
 
-=back
-
 =cut
 
 our %hdr = (
@@ -489,5 +487,21 @@ our %hdr = (
             Y_LOWER_BOUND        => "RDOUT_Y1",
             Y_LOWER_BOUND        => "RDOUT_Y2"
           );
+
+=back
+
+=head1 AUTHOR
+
+Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2002 Particle Physics and Astronomy Research Council.
+All Rights Reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=cut
 
 1;

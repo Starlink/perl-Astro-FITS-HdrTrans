@@ -31,14 +31,13 @@ package Astro::FITS::HdrTrans;
 
 =head1 NAME
 
-Astro::FITS::HdrTrans - Translate FITS headers into generic headers and
-back again
+Astro::FITS::HdrTrans - Translate FITS headers into generic headers and back again
 
 =head1 SYNOPSIS
 
-  \%generic_headers = translate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers);
 
-  \%FITS_headers = transate_to_FITS(\%generic_headers);
+  %FITS_headers = translate_to_FITS(\%generic_headers);
 
 =head1 DESCRIPTION
 
@@ -72,7 +71,7 @@ $Id$
 Converts a hash containing instrument-specific FITS headers into a hash
 containing generic headers.
 
-  %generic_headers = transate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers);
 
 =cut
 
@@ -145,9 +144,7 @@ sub translate_from_FITS {
 Converts a hash containing generic headers into one containing
 instrument-specific FITS headers.
 
-  %FITS_headers = transate_to_FITS(\%generic_headers);
-
-=back
+  %FITS_headers = translate_to_FITS(\%generic_headers);
 
 =cut
 
@@ -194,6 +191,8 @@ sub translate_to_FITS {
   return %FITS_header;
 
 }
+
+=back
 
 =head2 B<Variables>
 
@@ -261,5 +260,20 @@ headers in the instrument-specific subclasses.
                        Y_UPPER_BOUND
                      );
 
+=back
+
+=head1 AUTHOR
+
+Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2002 Particle Physics and Astronomy Research Council.
+All Rights Reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=cut
 
 1;
