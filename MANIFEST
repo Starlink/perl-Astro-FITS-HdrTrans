@@ -3,5 +3,7 @@ README
 lib/Astro/FITS/HdrTrans.pm
 lib/Astro/FITS/HdrTrans/CGS4.pm
 lib/Astro/FITS/HdrTrans/IRCAM.pm
+lib/Astro/FITS/HdrTrans/UFTI.pm
+lib/Astro/FITS/HdrTrans/UIST.pm
 t/1_compile.t
 t/translate.t
