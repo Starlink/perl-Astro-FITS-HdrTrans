@@ -268,7 +268,7 @@ sub to_UTDATE {
   my $return;
   if( exists( $FITS_headers->{'UT'}) && defined( $FITS_headers->{'UT'} ) ) {
     my $t = Time::Piece->strptime($FITS_headers->{'UT'},
-                                  "%B%n%d %Y%n%H:%M%p");
+                                  "%b%t%d%t%Y%t%I:%M%p",);
     $return = $t->ymd;
   }
   return $return;
@@ -285,7 +285,8 @@ sub to_UTSTART {
   my $return;
   if( exists( $FITS_headers->{'UT'}) && defined( $FITS_headers->{'UT'} ) ) {
     my $t = Time::Piece->strptime($FITS_headers->{'UT'},
-                                  "%B%n%d %Y%n%H:%M%p");
+                                  "%b%t%d%t%Y%t%I:%M%p",);
+
     $return = $t->datetime;
   }
   return $return;
@@ -304,7 +305,7 @@ sub to_UTEND {
   if( exists( $FITS_headers->{'UT'} ) && defined( $FITS_headers->{'UT'} ) &&
       exists( $FITS_headers->{'SAMPRAT'} ) && defined( $FITS_headers->{'SAMPRAT'} ) ) {
     my $t = Time::Piece->strptime($FITS_headers->{'UT'},
-                                  "%B%n%d %Y%n%H:%M%p");
+                                  "%b%t%d%t%Y%t%I:%M%p",);
     $t += $FITS_headers->{'SAMPRAT'};
     $return = $t->datetime;
   }
