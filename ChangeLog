@@ -1,3 +1,8 @@
+2005-03-16  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
+  * HdrTrans/CGS4.pm: Header keywords for telescope offsets were changed
+    from RAOFF/DECOFF to TRAOFF/TDECOFF, so change the translation code
+    to reflect this.
+
 2004-12-02  Brad Cavanagh  <b.cavanagh@jach.hawaii.edu>
 
 	* HdrTrans/JCMT_GSD.pm, HdrTrans/JCMT_GSD_DB.pm: Back
