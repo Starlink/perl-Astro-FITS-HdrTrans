@@ -35,12 +35,6 @@ package Astro::FITS::HdrTrans::MICHELLE;
 Astro::FITS::HdrTrans::MICHELLE - Translate FITS headers into generic
 headers and back again
 
-=head1 SYNOPSIS
-
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
-
-  %FITS_headers = transate_to_FITS(\%generic_headers, \@header_array);
-
 =head1 DESCRIPTION
 
 Converts information contained in MICHELLE FITS headers to and from
@@ -54,7 +48,15 @@ headers.
 use strict;
 use vars qw/ $VERSION /;
 
-'$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
+$VERSION = '0.01';
+
+require Exporter;
+
+our @ISA = qw/Exporter/;
+our @EXPORT_OK = qw( valid_class );
+our %EXPORT_TAGS = (
+                    'all' => [ qw( @EXPORT_OK ) ],
+                   );
 
 # P R E D E C L A R A T I O N S --------------------------------------------
 
@@ -68,80 +70,45 @@ $Id$
 
 =head1 METHODS
 
+These methods provide an interface to the class, allowing the base
+class to determine if this class is the appropriate one to use for
+the given headers.
+
 =over 4
 
-=item B<translate_from_FITS>
+=item B<valid_class>
 
-Converts a hash containing MICHELLE FITS headers into a hash containing
-generic headers.
+  $valid = valid_class( \%headers );
 
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
+This method takes one argument: a reference to a hash containing
+the untranslated headers.
 
-The C<header_array> argument is used to supply a list of generic
-header names.
+This method returns true (1) or false (0) depending on if the headers
+can be translated by this method.
+
+For this class, the method will return true if the B<INSTRUME> header
+exists, and its value matches the regular expression C</^cgs4/i>, or
+if the B<INSTRUMENT> header exists, and its value matches the
+regular expression C</^cgs4$/i>.
 
 =back
 
 =cut
 
-sub translate_from_FITS {
-  my $FITS_header = shift;
-  my $header_array = shift;
-  my %generic_header;
-  for my $key ( @$header_array ) {
-    if(exists($hdr{$key}) ) {
-      $generic_header{$key} = $FITS_header->{$hdr{$key}};
-    } else {
-      my $subname = "to_" . $key;
-      if(exists(&$subname) ) {
-        no strict 'refs'; # EEP!
-        $generic_header{$key} = &$subname($FITS_header);
-      }
-    }
+sub valid_class {
+  my $headers = shift;
+
+  if( exists( $headers->{'INSTRUME'} ) &&
+      defined( $headers->{'INSTRUME'} ) &&
+      $headers->{'INSTRUME'} =~ /^michelle/i ) {
+    return 1;
+  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
+           defined( $headers->{'INSTRUMENT'} ) &&
+           $headers->{'INSTRUMENT'} =~ /^michelle$/i ) {
+    return 1;
+  } else {
+    return 0;
   }
-  return %generic_header;
-
-}
-
-=over 4
-
-=item B<translate_to_FITS>
-
-Converts a hash containing generic headers into a hash containing
-FITS headers
-
-  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
-
-The C<header_array> argument is used to supply a list of generic
-header names.
-
-=back
-
-=cut
-
-sub translate_to_FITS {
-  my $generic_header = shift;
-  my $header_array = shift;
-  my %FITS_header;
-
-  for my $key ( @$header_array ) {
-
-    if( exists($hdr{$key}) ) {
-      $FITS_header{$hdr{$key}} = $generic_header->{$key};
-    } else {
-      no strict 'refs'; # EEP EEP!
-      my $subname = "from_" . $key;
-      if(exists(&$subname) ) {
-        my %new = &$subname($generic_header);
-        for my $newkey ( keys %new ) {
-          $FITS_header{$newkey} = $new{$newkey};
-        }
-      }
-    }
-  }
-
-  return %FITS_header;
-
 }
 
 =head1 TRANSLATION METHODS
@@ -259,7 +226,7 @@ sub from_POLARIMETRY {
 
 =item B<to_UTDATE>
 
-Converts FITS header values into one unified UT start date value.
+Converts FITS header values into C<Time::Piece> object.
 
 =cut
 
@@ -268,8 +235,7 @@ sub to_UTDATE {
   my $return;
   if(exists($FITS_headers->{UTDATE})) {
     my $utdate = $FITS_headers->{UTDATE};
-    $utdate =~ /(\d{4})(\d{2})(\d{2})/;
-    $return = join '-', $1, $2, $3;
+    $return = Time::Piece->strptime( $utdate, "%Y%m%d" );
   }
 
   return $return;
@@ -277,22 +243,31 @@ sub to_UTDATE {
 
 =item B<from_UTDATE>
 
-Converts UT date in the form C<yyyy-mm-dd> to C<yyyymmdd>.
+Converts UT date in C<Time::Piece> object into C<yyyymmdd> format
+for UTDATE header.
 
 =cut
 
 sub from_UTDATE {
   my $generic_headers = shift;
   my %return_hash;
-  my $date = $generic_headers->{UTDATE};
-  $date =~ s/-//g;
-  $return_hash{UTDATE} = $date;
+
+  if( exists( $generic_headers->{UTDATE} ) ) {
+    my $date = $generic_headers->{UTDATE};
+    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+    $return_hash{'UTDATE'} = sprintf("%4d%02d%02d",
+                                     $date->year,
+                                     $date->mon,
+                                     $date->mday,
+                                    );
+  }
   return %return_hash;
 }
 
 =item B<to_UTSTART>
 
-Removes the 'Z' from the end of the beginning observation time.
+Converts FITS header UT date/time values for the start of the
+observation into a C<Time::Piece> object.
 
 =cut
 
@@ -300,7 +275,8 @@ sub to_UTSTART {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{'DATE-OBS'})) {
-    ($return = $FITS_headers->{'DATE-OBS'}) =~ s/Z//;
+    my $date_obs = $FITS_headers->{'DATE-OBS'};
+    $return = Time::Piece->strptime( $date_obs, "%Y-%m-%dT%TZ" );
   }
   return $return;
 }
@@ -315,7 +291,9 @@ sub from_UTSTART {
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
-    $return_hash{'DATE-OBS'} = $generic_headers->{UTSTART} . "Z";
+    my $date = $generic_headers->{UTSTART};
+    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+    $return_hash{'DATE-OBS'} = $date->datetime . "Z";
   }
   return %return_hash;
 }
@@ -330,7 +308,8 @@ sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{'DATE-END'})) {
-    ($return = $FITS_headers->{'DATE-END'}) =~ s/Z//;
+    my $date_end = $FITS_headers->{'DATE-END'};
+    $return = Time::Piece->strptime( $date_end, "%Y-%m-%dT%TZ" );
   }
   return $return;
 }
@@ -345,7 +324,9 @@ sub from_UTEND {
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
-    $return_hash{'DATE-END'} = $generic_headers->{UTEND} . "Z";
+    my $date = $generic_headers->{UTEND};
+    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+    $return_hash{'DATE-END'} = $date->datetime . "Z";
   }
   return %return_hash;
 }
@@ -396,55 +377,57 @@ Keys are generic headers, values are FITS headers.
 =cut
 
 %hdr = (
-            AIRMASS_START        => "AMSTART",
-            AIRMASS_END          => "AMEND",
-            CHOP_ANGLE           => "CHPANGLE",
-            CHOP_THROW           => "CHPTHROW",
-            CONFIGURATION_INDEX  => "CNFINDEX",
-            DEC_BASE             => "DECBASE",
-            DEC_SCALE            => "PIXELSIZ",
-            DEC_TELESCOPE_OFFSET => "TDECOFF",
-            DETECTOR_INDEX       => "DINDEX",
-            DETECTOR_READ_TYPE   => "DETMODE",
-            DR_GROUP             => "GRPNUM",
-            DR_RECIPE            => "RECIPE",
-            EQUINOX              => "EQUINOX",
-            EXPOSURE_TIME        => "EXP_TIME",
-            FILTER               => "FILTER",
-            GAIN                 => "GAIN",
-            GRATING_DISPERSION   => "GRATDISP",
-            GRATING_NAME         => "GRATNAME",
-            GRATING_ORDER        => "GRATORD",
-            GRATING_WAVELENGTH   => "GRATPOS",
-            INSTRUMENT           => "INSTRUME",
-            MSBID                => "MSBID",
-            NSCAN_POSITIONS      => "DETNINCR",
-            NUMBER_OF_EXPOSURES  => "NEXP",
-            NUMBER_OF_OFFSETS    => "NOFFSETS",
-            NUMBER_OF_READS      => "NREADS",
-            OBJECT               => "OBJECT",
-            OBSERVATION_MODE     => "CAMERA",
-            OBSERVATION_NUMBER   => "OBSNUM",
-            OBSERVATION_TYPE     => "OBSTYPE",
-            PROJECT              => "PROJECT",
-            RA_SCALE             => "PIXELSIZ",
-            RA_TELESCOPE_OFFSET  => "TRAOFF",
-            ROTATION             => "CROTA2",
-            SAMPLING             => "SAMPLING",
-            SCAN_INCREMENT       => "DETINCR",
-            SLIT_ANGLE           => "SLITANG",
-            SLIT_NAME            => "SLITNAME",
-            SPEED_GAIN           => "SPD_GAIN",
-            STANDARD             => "STANDARD",
-            TELESCOPE            => "TELESCOP",
-            WAVEPLATE_ANGLE      => "WPLANGLE",
-            X_DIM                => "DCOLUMNS",
-            Y_DIM                => "DROWS",
-            X_LOWER_BOUND        => "RDOUT_X1",
-            X_UPPER_BOUND        => "RDOUT_X2",
-            Y_LOWER_BOUND        => "RDOUT_Y1",
-            Y_LOWER_BOUND        => "RDOUT_Y2"
-          );
+        AIRMASS_START        => "AMSTART",
+        AIRMASS_END          => "AMEND",
+        CHOP_ANGLE           => "CHPANGLE",
+        CHOP_THROW           => "CHPTHROW",
+        CONFIGURATION_INDEX  => "CNFINDEX",
+        DEC_BASE             => "DECBASE",
+        DEC_SCALE            => "CDELT2",
+        DEC_TELESCOPE_OFFSET => "TDECOFF",
+        DETECTOR_INDEX       => "DINDEX",
+        DETECTOR_READ_TYPE   => "DETMODE",
+        DR_GROUP             => "GRPNUM",
+        DR_RECIPE            => "RECIPE",
+        EQUINOX              => "EQUINOX",
+        EXPOSURE_TIME        => "EXP_TIME",
+        FILTER               => "FILTER",
+        GAIN                 => "GAIN",
+        GRATING_DISPERSION   => "GRATDISP",
+        GRATING_NAME         => "GRATNAME",
+        GRATING_ORDER        => "GRATORD",
+        GRATING_WAVELENGTH   => "GRATPOS",
+        INSTRUMENT           => "INSTRUME",
+        MSBID                => "MSBID",
+        NSCAN_POSITIONS      => "DETNINCR",
+        NUMBER_OF_EXPOSURES  => "NEXP",
+        NUMBER_OF_OFFSETS    => "NOFFSETS",
+        NUMBER_OF_READS      => "NREADS",
+        OBJECT               => "OBJECT",
+        OBSERVATION_MODE     => "CAMERA",
+        OBSERVATION_NUMBER   => "OBSNUM",
+        OBSERVATION_TYPE     => "OBSTYPE",
+        PROJECT              => "PROJECT",
+        RA_SCALE             => "CDELT1",
+        RA_TELESCOPE_OFFSET  => "TRAOFF",
+        ROTATION             => "CROTA2",
+        SAMPLING             => "SAMPLING",
+        SCAN_INCREMENT       => "DETINCR",
+        SLIT_ANGLE           => "SLITANG",
+        SLIT_NAME            => "SLITNAME",
+        SPEED_GAIN           => "SPD_GAIN",
+        STANDARD             => "STANDARD",
+        TELESCOPE            => "TELESCOP",
+        WAVEPLATE_ANGLE      => "WPLANGLE",
+        X_BASE               => "CRPIX1",
+        Y_BASE               => "CRPIX2",
+        X_DIM                => "DCOLUMNS",
+        Y_DIM                => "DROWS",
+        X_LOWER_BOUND        => "RDOUT_X1",
+        X_UPPER_BOUND        => "RDOUT_X2",
+        Y_LOWER_BOUND        => "RDOUT_Y1",
+        Y_LOWER_BOUND        => "RDOUT_Y2"
+       );
 
 =back
 
@@ -454,7 +437,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2002 Particle Physics and Astronomy Research Council.
+Copyright (C) 2002-2004 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it
