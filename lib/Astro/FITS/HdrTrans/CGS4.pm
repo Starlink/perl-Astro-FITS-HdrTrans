@@ -356,7 +356,7 @@ sub from_RA_BASE {
   my $generic_headers = shift;
   my %return_hash;
   if( exists( $generic_headers->{RA_BASE} ) &&
-      defined( $generic_header->{RA_BASE} ) ) {
+      defined( $generic_headers->{RA_BASE} ) ) {
     $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
   }
   return %return_hash;
