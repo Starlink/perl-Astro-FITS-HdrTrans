@@ -1,6 +1,7 @@
 MANIFEST
 README
 Makefile.PL
+ChangeLog
 lib/Astro/FITS/HdrTrans.pm
 lib/Astro/FITS/HdrTrans/CGS4.pm
 lib/Astro/FITS/HdrTrans/IRCAM.pm
