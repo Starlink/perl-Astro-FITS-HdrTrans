@@ -130,28 +130,6 @@ sub to_INST_DHS {
   return "HET_GSD";
 }
 
-=item B<to_INSTRUMENT>
-
-Sets the C<INSTRUMENT> generic header. For RxA3i, sets the value
-to RXA3.
-
-=cut
-
-sub to_INSTRUMENT {
-  my $FITS_headers = shift;
-  my $return;
-
-  if( exists( $FITS_headers->{'C1RCV'} ) ) {
-    $return = $FITS_headers->{'C1RCV'};
-    if( $return =~ /^rxa3/i ) {
-      $return = "RXA3";
-    } elsif( $return =~ /^rxb/i ) {
-      $return = "RXB3";
-    }
-  }
-  return $return;
-}
-
 =item B<to_COORDINATE_UNITS>
 
 Sets the C<COORDINATE_UNITS> generic header to "decimal".
@@ -419,6 +397,7 @@ Keys are generic headers, values are FITS headers.
         FREQUENCY_RESOLUTION => "C12FR",
         FRONTEND => "C1RCV",
         HUMIDITY => "C5RH",
+        INSTRUMENT => "C1RCV",
         NUMBER_OF_CYCLES => "C3NCI",
         NUMBER_OF_SUBSCANS => "C3NIS",
         OBJECT => "C1SNA1",
