@@ -92,7 +92,8 @@ sub valid_class {
 
   if( exists( $headers->{'FRONTEND'} ) &&
       defined( $headers->{'FRONTEND'} ) &&
-      $headers->{'FRONTEND'} =~ /^rx(a|b|w)/i ) {
+      ( $headers->{'FRONTEND'} =~ /^rx(a|b|w)/i ||
+        $headers->{'FRONTEND'} =~ /^fts/i ) ) {
     return 1;
   } else {
     return 0;

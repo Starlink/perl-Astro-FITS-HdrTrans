@@ -81,7 +81,7 @@ This method returns true (1) or false (0) depending on if the headers
 can be translated by this method.
 
 For this class, the method will return true if the B<C1RCV> header exists
-and matches the regular expression C</^rx(a|b|w)/i>.
+and matches the regular expression C</^rx(a|b|w)/i> or C</^fts/i>.
 
 =back
 
@@ -92,7 +92,8 @@ sub valid_class {
 
   if( exists( $headers->{'C1RCV'} ) &&
       defined( $headers->{'C1RCV'} ) &&
-      $headers->{'C1RCV'} =~ /^rx(a|b|w)/i ) {
+      ( $headers->{'C1RCV'} =~ /^rx(a|b|w)/i ||
+        $headers->{'C1RCV'} =~ /^fts/i ) ) {
     return 1;
   } else {
     return 0;
