@@ -551,7 +551,6 @@ Keys are generic headers, values are FITS headers.
             NUMBER_OF_EXPOSURES  => "EXP_NO",
             OBJECT               => "OBJECT",
             OBSERVATION_NUMBER   => "RUN",
-            OBSERVATION_TYPE     => "OBSTYPE",
             POLARIMETER          => "POL_CONN",
             PROJECT              => "PROJ_ID",
             RA_TELESCOPE_OFFSET  => "MAP_X",
