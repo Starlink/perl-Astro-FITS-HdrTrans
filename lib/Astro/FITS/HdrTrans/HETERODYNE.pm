@@ -289,9 +289,10 @@ sub to_UTSTART {
   my $FITS_headers = shift;
 
   my $return;
-  if( exists( $FITS_headers->{'UT'}) && defined( $FITS_headers->{'UT'} ) ) {
-    my $t = Time::Piece->strptime($FITS_headers->{'UT'},
-                                  "%b%t%d%t%Y%t%I:%M%p",);
+  if( exists( $FITS_headers->{'LONGDATE'}) && defined( $FITS_headers->{'LONGDATE'} ) ) {
+    my $date = $FITS_headers->{'LONGDATE'};
+    $date =~ s/(:)\d\d\d(AM|PM)\s+/$2/i;
+    my $t = Time::Piece->strptime($date, "%b%n%d%n%Y%n%I:%M:%S%p",);
     $return = $t->datetime;
   } elsif ( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
             exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
@@ -316,10 +317,10 @@ headers) into standard ISO 8601 format.
 sub to_UTEND {
   my $FITS_headers = shift;
   my ($return, $t, $expt);
-  if( exists( $FITS_headers->{'UT'} ) && defined( $FITS_headers->{'UT'} ) ) {
-    $t = Time::Piece->strptime($FITS_headers->{'UT'},
-                                  "%b%t%d%t%Y%t%I:%M%p",);
-
+  if( exists( $FITS_headers->{'LONGDATE'}) && defined( $FITS_headers->{'LONGDATE'} ) ) {
+    my $date = $FITS_headers->{'LONGDATE'};
+    $date =~ s/(:)\d\d\d(AM|PM)\s+/$2/i;
+    $t = Time::Piece->strptime($date, "%b%t%d%t%Y%t%I:%M:%S%p");
   } elsif( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
            exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
     my $hour = int( $FITS_headers->{'C3UT'} );
@@ -330,32 +331,8 @@ sub to_UTEND {
                               "%Y-%m-%dT%T");
   }
 
+  $expt = to_EXPOSURE_TIME( $FITS_headers );
 
-  if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) &&
-      exists( $FITS_headers->{'NOSCANS'} ) && defined( $FITS_headers->{'NOSCANS'} ) &&
-      exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
-      exists( $FITS_headers->{'NOCYCPTS'} ) && defined( $FITS_headers->{'NOCYCPTS'} ) &&
-      exists( $FITS_headers->{'NOCYCLES'} ) && defined( $FITS_headers->{'NOCYCLES'} ) ) {
-
-    my $obsmode = uc( $FITS_headers->{'OBSMODE'} );
-    my $noscans = uc( $FITS_headers->{'NOSCANS'} );
-    my $cycllen = uc( $FITS_headers->{'CYCLLEN'} );
-    my $nocycpts = uc( $FITS_headers->{'NOCYCPTS'} );
-    my $nocycles = uc( $FITS_headers->{'NOCYCLES'} );
-
-    if( $obsmode eq 'RASTER' ) {
-      $expt = $noscans * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
-    } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
-      my $runnr = $FITS_headers->{'SCAN'};
-      #print "obsnum: $runnr\nObsmode: $obsmode\nnoscans: $noscans\nnocycles: $nocycles\ncycllen: $cycllen\n";
-
-      $expt = $noscans * $cycllen * $nocycles;
-      #print "expt: $expt\n";
-    } else {
-      # This supports pattern and grid
-      $expt = $nocycles * $cycllen * $noscans;
-    }
-  }
   $t += $expt;
   $return = $t->datetime;
 
@@ -455,6 +432,7 @@ Keys are database headers, values are file headers.
                     NOSCANS => "C3NSAMPL",
                     CYCLLEN => "C3CL",
                     NOCYCPTS => "C3NCP",
+                    RESTFRQ1 => "C12RF",
                     C3DAT => "C3DAT",
                     C3UT => "C3UT",
                    );
