@@ -460,19 +460,27 @@ sub from_UTDATE {
 =item B<to_UTSTART>
 
 Combines C<UTDATE> and C<UTSTART> into a unified C<UTSTART>
-generic header.
+generic header. If those headers do not exist, uses C<DATE-OBS>.
 
 =cut
 
 sub to_UTSTART {
   my $FITS_headers = shift;
   my $return;
-  my $utdate = $FITS_headers->{'UTDATE'};
-  my $utstart = $FITS_headers->{'UTSTART'};
-  my ($year, $month, $day) = split /:/, $utdate;
-  my ($hour, $minute, $second) = split /:/, $utstart;
-  $return = sprintf("%04d-%02d-%02dT%02d:%02d:%02d",
-                    $year, $month, $day, $hour, $minute, $second);
+  if( exists( $FITS_headers->{'UTDATE'} ) &&
+      defined( $FITS_headers->{'UTDATE'} ) ) {
+    my $utdate = $FITS_headers->{'UTDATE'};
+    my $utstart = $FITS_headers->{'UTSTART'};
+    my ($year, $month, $day) = split /:/, $utdate;
+    my ($hour, $minute, $second) = split /:/, $utstart;
+    $return = sprintf("%04d-%02d-%02dT%02d:%02d:%02d",
+                      $year, $month, $day, $hour, $minute, $second);
+  } elsif( exists( $FITS_headers->{'DATE'} ) &&
+           defined( $FITS_headers->{'DATE'} ) &&
+           $FITS_headers->{'DATE'} =~ /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/ ) {
+    $return = $FITS_headers->{'DATE'};
+  }
+
   return $return;
 }
 
@@ -492,6 +500,7 @@ sub from_UTSTART {
     $generic_headers->{UTSTART} =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
     $return_hash{'UTDATE'} = join ':', int($1), int($2), int($3);
     $return_hash{'UTSTART'} = join ':', int($4), $5, $6;
+    $return_hash{'DATE'} = "$1-$2-$3T$4:$5:$6";
   }
   return %return_hash;
 }
