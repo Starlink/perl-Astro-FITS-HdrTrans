@@ -337,7 +337,7 @@ Keys are generic headers, values are FITS headers.
             DR_GROUP             => "GRPNUM",
             DR_RECIPE            => "RECIPE",
             EQUINOX              => "EQUINOX",
-            EXPOSURE_TIME        => "EXP_TIME",
+            EXPOSURE_TIME        => "INT_TIME",
             FILTER               => "FILTER",
             GAIN                 => "GAIN",
             INSTRUMENT           => "INSTRUME",
