@@ -57,7 +57,7 @@ use warnings;
 use warnings::register;
 
 use Carp;
-use Time::Piece;
+use Time::Piece ':override';
 
 use vars qw/ $VERSION /;
 
@@ -66,7 +66,7 @@ $VERSION = '0.03';
 require Exporter;
 
 our @ISA = qw/Exporter/;
-our @EXPORT_OK = qw( translate_from_FITS translate_to_FITS push_class @generic_headers );
+our @EXPORT_OK = qw( translate_from_FITS translate_to_FITS push_class @generic_headers _fix_local_date );
 
 our %EXPORT_TAGS = (
                     'all' => [ qw( @EXPORT_OK ) ],
@@ -237,7 +237,7 @@ Values in this list can be added to using the C<push_class> method.
 
 =cut
 
-my @valid_classes = qw/ IRCAM CGS4 JCMT_GSD /;
+my @valid_classes = qw/ IRCAM CGS4 UIST UFTI JCMT_GSD JCMT_GSD_DB SCUBA UKIRTDB /;
 
 =head1 PUBLIC METHODS
 
@@ -316,6 +316,7 @@ sub translate_from_FITS {
     if( exists( &$method ) ) {
       no strict 'refs';
       if( &$method( $FITS_header ) ) {
+        print "Class $class matches\n" if $DEBUG;
         $result{$subclass}++;
       }
     } else {
@@ -355,8 +356,6 @@ sub translate_from_FITS {
       $evalstring .=   "  }\n";
       $evalstring .=   "}\n";
 
-      print $evalstring if $DEBUG;
-
       eval $evalstring;
       if( $@ ) { croak "Could not run header translation eval: $@"; }
     }
@@ -365,21 +364,30 @@ sub translate_from_FITS {
   # Do the check on UTSTART, UTEND, and UTDATE. These must
   # be Time::Piece objects.
   if( exists( $generic_header{'UTSTART'} ) &&
-      defined( $generic_header{'UTSTART'} ) &&
-      ! UNIVERSAL::isa( $generic_header{'UTSTART'}, "Time::Piece" ) ) {
-    warnings::warnif( "Warning: UTSTART generic header is not a Time::Piece object" );
+      defined( $generic_header{'UTSTART'} ) ) {
+    if( ! UNIVERSAL::isa( $generic_header{'UTSTART'}, "Time::Piece" ) ) {
+      warnings::warnif( "Warning: UTSTART generic header is not a Time::Piece object" );
+    } else {
+      $generic_header{'UTSTART'} = _fix_local_date( $generic_header{'UTSTART'} );
+    }
   }
 
   if( exists( $generic_header{'UTEND'} ) &&
-      defined( $generic_header{'UTEND'} ) &&
-      ! UNIVERSAL::isa( $generic_header{'UTEND'}, "Time::Piece" ) ) {
-    warnings::warnif( "Warning: UTEND generic header is not a Time::Piece object" );
+      defined( $generic_header{'UTEND'} ) ) {
+    if( ! UNIVERSAL::isa( $generic_header{'UTEND'}, "Time::Piece" ) ) {
+      warnings::warnif( "Warning: UTEND generic header is not a Time::Piece object" );
+    } else {
+      $generic_header{'UTEND'} = _fix_local_date( $generic_header{'UTEND'} );
+    }
   }
 
   if( exists( $generic_header{'UTDATE'} ) &&
-      defined( $generic_header{'UTDATE'} ) &&
-      ! UNIVERSAL::isa( $generic_header{'UTDATE'}, "Time::Piece" ) ) {
-    warnings::warnif( "Warning: UTDATE generic header is not a Time::Piece object" );
+      defined( $generic_header{'UTDATE'} ) ) {
+    if( ! UNIVERSAL::isa( $generic_header{'UTDATE'}, "Time::Piece" ) ) {
+      warnings::warnif( "Warning: UTDATE generic header is not a Time::Piece object" );
+    } else {
+      $generic_header{'UTDATE'} = _fix_local_date( $generic_header{'UTDATE'} );
+    }
   }
 
   return %generic_header;
@@ -508,6 +516,9 @@ sub translate_to_FITS {
 
   # Do the translation.
   my $class = "Astro::FITS::HdrTrans::" . $subclasses[0];
+
+  print "Using class $class for header translation.\n" if $DEBUG;
+
   eval "require $class";
   if( $@ ) { croak "Could not load module $class: $@"; }
   {
@@ -527,8 +538,6 @@ sub translate_to_FITS {
       $evalstring .=   "    }\n";
       $evalstring .=   "  }\n";
       $evalstring .=   "}\n";
-
-      print $evalstring if $DEBUG;
 
       eval $evalstring;
       if( $@ ) { croak "Could not run header translation eval: $@"; };
@@ -563,6 +572,35 @@ sub push_class {
 
   return 1;
 
+}
+
+=head1 PRIVATE METHODS
+
+These methods are private.
+
+=item B<_fix_local_date>
+
+Because of inconsistancies in Time::Piece, a returned date may be
+in localtime rather than UTC. This method converts these dates into
+UTC.
+
+=cut
+
+sub _fix_local_date {
+  my $date = shift;
+
+  if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) {
+    croak "Must pass Time::Piece object to _fix_local_date";
+  }
+
+  if( $date->[Time::Piece::c_islocal] ) {
+    my $epoch = $date->epoch;
+    my $tzoffset = $date->tzoffset;
+    $epoch += $tzoffset->seconds;
+    $date = gmtime( $epoch );
+  }
+
+  return $date;
 }
 
 =head1 GENERIC HEADERS
