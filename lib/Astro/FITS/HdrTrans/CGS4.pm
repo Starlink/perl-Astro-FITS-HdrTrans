@@ -169,9 +169,9 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =over 4
 
-=item B<to_INST-DHS>
+=item B<to_INST_DHS>
 
-Sets the INST-DHS header.
+Sets the INST_DHS header.
 
 =cut
 
