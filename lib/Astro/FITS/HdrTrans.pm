@@ -61,7 +61,7 @@ use Time::Piece;
 
 use vars qw/ $VERSION /;
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 require Exporter;
 
@@ -106,20 +106,26 @@ of these headers are not C<Time::Piece> objects.
 
 our @generic_headers = qw( AIRMASS_START
                            AIRMASS_END
+                           ALTITUDE
+                           AMBIENT_TEMPERATURE
                            AZIMUTH_START
                            AZIMUTH_END
                            BACKEND
+                           BACKEND_SECTIONS
                            BOLOMETERS
                            CAMERA
                            CHOP_ANGLE
                            CHOP_COORDINATE_SYSTEM
+                           CHOP_FREQUENCY
                            CHOP_THROW
                            CONFIGURATION_INDEX
+                           COORDINATE_SYSTEM
                            COORDINATE_UNITS
                            COORDINATE_TYPE
                            CYCLE_LENGTH
                            DEC_BASE
                            DEC_SCALE
+                           DEC_SCALE_UNITS
                            DEC_TELESCOPE_OFFSET
                            DETECTOR_BIAS
                            DETECTOR_INDEX
@@ -134,10 +140,13 @@ our @generic_headers = qw( AIRMASS_START
                            FILENAME
                            FILTER
                            GAIN
+                           GALACTIC_LATITUDE
+                           GALACTIC_LONGITUDE
                            GRATING_DISPERSION
                            GRATING_NAME
                            GRATING_ORDER
                            GRATING_WAVELENGTH
+                           HUMIDITY
                            INSTRUMENT
                            INST_DHS
                            LATITUDE
@@ -151,15 +160,19 @@ our @generic_headers = qw( AIRMASS_START
                            NUMBER_OF_OFFSETS
                            NUMBER_OF_READS
                            NUMBER_OF_SUBFRAMES
+                           NUMBER_OF_SUBSCANS
                            OBJECT
                            OBSERVATION_MODE
                            OBSERVATION_NUMBER
                            OBSERVATION_TYPE
+                           POLARIMETER
                            POLARIMETRY
                            PROJECT
                            RA_BASE
                            RA_SCALE
+                           RA_SCALE_UNITS
                            RA_TELESCOPE_OFFSET
+                           RECEIVER_TEMPERATURE
                            REST_FREQUENCY
                            ROTATION
                            SAMPLING
@@ -170,19 +183,26 @@ our @generic_headers = qw( AIRMASS_START
                            SLIT_WIDTH
                            SPEED_GAIN
                            STANDARD
+                           SWITCH_MODE
+                           SYSTEM_TEMPERATURE
                            SYSTEM_VELOCITY
                            TAU
                            TELESCOPE
+                           USER_AZIMUTH_CORRECTION
+                           USER_ELEVATION_CORRECTION
                            UTDATE
                            UTEND
                            UTSTART
                            VELOCITY
-                           VELSYS
+                           VELOCITY_REFERENCE_FRAME
+                           VELOCITY_TYPE
                            WAVEPLATE_ANGLE
                            X_BASE
                            Y_BASE
                            X_OFFSET
                            Y_OFFSET
+                           X_REQUESTED
+                           Y_REQUESTED
                            X_SCALE
                            Y_SCALE
                            X_DIM
@@ -191,6 +211,8 @@ our @generic_headers = qw( AIRMASS_START
                            X_UPPER_BOUND
                            Y_LOWER_BOUND
                            Y_UPPER_BOUND
+                           ZENITH_DISTANCE_START
+                           ZENITH_DISTANCE_END
                          );
 
 =head1 PRIVATE VARIABLES
@@ -215,7 +237,7 @@ Values in this list can be added to using the C<push_class> method.
 
 =cut
 
-my @valid_classes = qw/ IRCAM CGS4 /;
+my @valid_classes = qw/ IRCAM CGS4 JCMT_GSD /;
 
 =head1 PUBLIC METHODS
 
@@ -558,11 +580,17 @@ a scalar in any format.
 =item ALTITUDE - Telescope altitude. Must be in meters above mean
 sea level.
 
+=item AMBIENT_TEMPERATURE - Ambient temperature at the telescope.
+
+=item APERTURE - Aperture.
+
 =item AZIMUTH_START - Telescope azimuth at the start of the observation.
 
 =item AZIMUTH_END - Telescope azimuth at the end of the observation.
 
 =item BACKEND - Backend used.
+
+=item BACKEND_SECTIONS - Number of backend sections.
 
 =item BOLOMETERS - Number of bolometers used in array.
 
@@ -571,6 +599,8 @@ sea level.
 =item CHOP_ANGLE - Chop angle.
 
 =item CHOP_COORDINATE_SYSTEM - Coordinate system used for chopping.
+
+=item CHOP_FREQUENCY - Frequency of chop.
 
 =item CHOP_THROW - Distance of chop throw.
 
@@ -603,8 +633,6 @@ be in arcseconds.
 
 =item DR_RECIPE - Data reduction recipe to be used.
 
-=item ELEVATION - Elevation of telescope above sea level.
-
 =item ELEVATION_START - Telescope elevation at the start of the observation.
 Must be in degrees. 90 is zenith, 0 is horizon.
 
@@ -622,6 +650,10 @@ decimal seconds.
 
 =item FILTER - Filter in which observation was taken.
 
+=item FRONTEND - Name of frontend used.
+
+=item FREQUENCY_RESOLUTION - Frequency resolution.
+
 =item GAIN - Detector gain.
 
 =item GALACTIC_LATITUDE - Galactic latitude of observation. Must be a
@@ -637,6 +669,8 @@ a colon-separated sexagesimal string (ie. -21:34:12).
 =item GRATING_ORDER - Order of grating/grism used.
 
 =item GRATING_WAVELENGTH - Central wavelength of grating/grism used.
+
+=item HUMIDITY - Relative humidity.
 
 =item INSTRUMENT - Instrument name.
 
@@ -667,6 +701,8 @@ sexagesimal string (ie. -155:28:13.18).
 
 =item NUMBER_OF_SUBFRAMES - Number of subframes.
 
+=item NUMBER_OF_SUBSCANS - Number of subscans.
+
 =item OBJECT - Object name.
 
 =item OBSERVATION_MODE - Mode of observation for multi-mode instruments.
@@ -674,6 +710,8 @@ sexagesimal string (ie. -155:28:13.18).
 =item OBSERVATION_NUMBER - Number of observation.
 
 =item OBSERVATION_TYPE - Type of observation (ie. DARK, FLAT, etc.)
+
+=item POLARIMETER - Is the polarimeter in the beam?
 
 =item POLARIMETRY - Polarimetry mode?
 
@@ -688,6 +726,8 @@ a colon-delimited sexagesimal string (ie. 00:42:44.31).
 
 =item RA_TELESCOPE_OFFSET - Offset in right ascension from base position.
 Must be in arcseconds.
+
+=item RECEIVER_TEMPERATURE - Receiver temperature.
 
 =item REST_FREQUENCY - Rest frequency of spectral line.
 
@@ -710,11 +750,21 @@ frame's y axis, measured counter-clockwise.
 
 =item STANDARD - Is observation of a standard?
 
+=item SWITCH_MODE - Switching mode.
+
+=item SYSTEM_TEMPERATURE - System temperature.
+
 =item SYSTEM_VELOCITY - System velocity.
 
 =item TAU - Atmospheric extinction at time of observation.
 
 =item TELESCOPE - Name of telescope.
+
+=item USER_AZIMUTH_CORRECTION - Correction in azimuth input by
+the user.
+
+=item USER_ELEVATION_CORRECTION - Correction in elevation input
+by the user.
 
 =item UTDATE - UT date on which observation was taken. Must be
 a Time::Piece object.
@@ -725,9 +775,12 @@ object.
 =item UTSTART - Start time of observation. Must be a Time::Piece
 object.
 
-=item VELOCITY -
+=item VELOCITY - Radial velocity of the source.
 
-=item VELSYS -
+=item VELOCITY_REFERENCE_FRAME - Velocity frame of reference.
+
+=item VELOCITY_TYPE - Type of velocity, typically radio, optical,
+or relativistic.
 
 =item WAVEPLATE_ANGLE - Polarimetry waveplate angle.
 
@@ -738,6 +791,10 @@ object.
 =item X_OFFSET - Offset in x-direction from base position.
 
 =item Y_OFFSET - Offset in y-direction from base position.
+
+=item X_REQUESTED - Requested x-position of observation.
+
+=item Y_REQUESTED - Requested y-position of observation.
 
 =item X_SCALE - Pixel scale in x-direction.
 
