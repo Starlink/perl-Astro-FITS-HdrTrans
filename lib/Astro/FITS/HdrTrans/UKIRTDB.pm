@@ -310,6 +310,34 @@ sub to_SPEED_GAIN {
   return $return;
 }
 
+=item B<to_STANDARD>
+
+Converts either the C<STANDARD> header (if it exists) or uses the
+C<OBJECT> header to determine if an observation is of a standard.
+If the C<OBJECT> header starts with either B<BS> or B<FS>, it is
+assumed to be a standard.
+
+=cut
+
+sub to_STANDARD {
+  my $FITS_headers = shift;
+  my $return;
+
+  if( exists( $FITS_headers->{'STANDARD'} ) ) {
+    if($FITS_headers->{'STANDARD'} =~ /^[tf]$/i) {
+      $return = (uc($FITS_headers->{'STANDARD'}) eq 'T');
+    } elsif($FITS_headers->{'STANDARD'} =~ /^[01]$/) {
+      $return = $FITS_headers->{'STANDARD'};
+    } else {
+      $return = 0;
+    }
+  } elsif( exists( $FITS_headers->{'OBJECT'} ) ) {
+    $return = ($FITS_headers->{'OBJECT'} =~ /^[bf]s/i);
+  } else {
+    $return = 0;
+  }
+}
+
 =item B<to_UTSTART>
 
 Strips the 'Z' from the C<DATE-OBS> header, or if that header does
