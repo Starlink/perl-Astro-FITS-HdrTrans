@@ -339,6 +339,12 @@ sub to_STANDARD {
     } else {
       $return = 0;
     };
+  } elsif( exists( $FITS_headers->{'RECIPE'} ) ) {
+    if($FITS_headers->{'RECIPE'} =~ /^standard/i ) {
+      $return = 1;
+    } else {
+      $return = 0;
+    }
   } else {
     $return = 0;
   }
