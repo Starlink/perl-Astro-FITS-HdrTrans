@@ -481,6 +481,7 @@ Keys are generic headers, values are FITS headers.
 %hdr = (
             AIRMASS_START        => "AMSTART",
             AIRMASS_END          => "AMEND",
+            BOLOMETERS           => "BOLOMS",
             CHOP_ANGLE           => "CHOP_PA",
             CHOP_THROW           => "CHOP_THR",
             DEC_BASE             => "LAT",
@@ -496,8 +497,10 @@ Keys are generic headers, values are FITS headers.
             OBSERVATION_TYPE     => "OBSTYPE",
             RA_TELESCOPE_OFFSET  => "MAP_X",
             SCAN_INCREMENT       => "SAMPLE_DX",
+            SEEING               => "SEEING",
             SPEED_GAIN           => "SPD_GAIN",
             STANDARD             => "STANDARD",
+            TAU                  => "TAU_225",
             TELESCOPE            => "TELESCOP",
             X_BASE               => "LONG",
             Y_BASE               => "LAT",
