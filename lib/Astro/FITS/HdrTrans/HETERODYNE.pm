@@ -436,6 +436,7 @@ Keys are database headers, values are file headers.
                     NSCAN => "C3NSAMPL",
                     CYCLLEN => "C3CL",
                     NOCYCPTS => "C3NCP",
+                    NCYCPTS => "C6NP",
                     RESTFRQ1 => "C12RF",
                     C3DAT => "C3DAT",
                     C3UT => "C3UT",
