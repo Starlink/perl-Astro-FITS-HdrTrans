@@ -55,8 +55,6 @@ use vars qw/ $VERSION @generic_headers /;
 
 use Switch;
 
-use Data::Dumper;
-
 '$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
 
 # M E T H O D S ------------------------------------------------------------
@@ -83,8 +81,6 @@ sub translate_from_FITS {
 
   my $instrument;
   my %generic_header;
-
-#print Dumper $FITS_header;
 
   # Determine the instrument name so we can use the appropriate subclass
   # for header translations. We're going to apply a little bit of logic
