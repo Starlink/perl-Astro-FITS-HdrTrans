@@ -1,3 +1,10 @@
+2004-09-13  Brad Cavanagh  <b.cavanagh@jach.hawaii.edu>
+
+	* HdrTrans.pm: add WFCAM to list of supported instruments,
+	add TILE_NUMBER translated header
+
+	* HdrTrans/WFCAM.pm: initial addition
+
 2004-03-08  Brad Cavanagh  <b.cavanagh@jach.hawaii.edu>
 
 	* HdrTrans/JCMT_GSD.pm, HdrTrans/JCMT_GSD_DB.pm: Added
