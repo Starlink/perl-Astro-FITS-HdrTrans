@@ -114,6 +114,7 @@ sub translate_from_FITS {
   return %generic_header;
 
 }
+
 =over 4
 
 =item B<translate_to_FITS>
@@ -155,7 +156,7 @@ sub translate_to_FITS {
 
 }
 
-=over4
+=over 4
 
 =item B<pretranslate_file_headers>
 
@@ -259,7 +260,7 @@ sub to_TELESCOPE {
 
 =item B<to_UTDATE>
 
-Translates the C<UT> header into a standard YYYY-MM-DD format.
+Translates the C<UT> or C<C3DAT> header into a standard YYYY-MM-DD format.
 
 =cut
 
@@ -270,13 +271,17 @@ sub to_UTDATE {
     my $t = Time::Piece->strptime($FITS_headers->{'UT'},
                                   "%b%t%d%t%Y%t%I:%M%p",);
     $return = $t->ymd;
+  } elsif( exists( $FITS_headers->{'C3DAT'} ) ) {
+    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d\d)/;
+    $return = "$1-$2-$3";
   }
   return $return;
 }
 
 =item B<to_UTSTART>
 
-Translates the C<UT> header into standard ISO 8601 format.
+Translates the C<UT> header (for database lookups) or the C<C3DAT> and C<C3UT>
+headers (for file headers) into standard ISO 8601 format.
 
 =cut
 
@@ -286,8 +291,14 @@ sub to_UTSTART {
   if( exists( $FITS_headers->{'UT'}) && defined( $FITS_headers->{'UT'} ) ) {
     my $t = Time::Piece->strptime($FITS_headers->{'UT'},
                                   "%b%t%d%t%Y%t%I:%M%p",);
-
     $return = $t->datetime;
+  } elsif ( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
+            exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
+    my $hour = int( $FITS_headers->{'C3UT'} );
+    my $minute = int ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 );
+    my $second = int ( ( ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 ) - $minute ) * 60 );
+    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d\d)/;
+    $return = sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $3, $hour, $minute, $second ) ;
   }
   return $return;
 
@@ -295,21 +306,90 @@ sub to_UTSTART {
 
 =item B<to_UTEND>
 
-Translates the C<UT> and C<SAMPRAT> headers into standard ISO 8601 format.
+Translates the C<UT> and C<SAMPRAT> headers (for database lookups) or the
+C<C3DAT>, C<C3UT>, C<C3NIS>, C<C3CL>, C<C3NCP>, and C<C3NCI> (from file
+headers) into standard ISO 8601 format.
 
 =cut
 
 sub to_UTEND {
   my $FITS_headers = shift;
-  my $return;
-  if( exists( $FITS_headers->{'UT'} ) && defined( $FITS_headers->{'UT'} ) &&
-      exists( $FITS_headers->{'SAMPRAT'} ) && defined( $FITS_headers->{'SAMPRAT'} ) ) {
-    my $t = Time::Piece->strptime($FITS_headers->{'UT'},
+  my ($return, $t, $expt);
+
+  if( exists( $FITS_headers->{'UT'} ) && defined( $FITS_headers->{'UT'} ) ) {
+    $t = Time::Piece->strptime($FITS_headers->{'UT'},
                                   "%b%t%d%t%Y%t%I:%M%p",);
-    $t += $FITS_headers->{'SAMPRAT'};
-    $return = $t->datetime;
+
+  } elsif( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
+           exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
+    my $hour = int( $FITS_headers->{'C3UT'} );
+    my $minute = int ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 );
+    my $second = int ( ( ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 ) - $minute ) * 60 );
+    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d\d)/;
+    $t = Time::Piece->strptime(sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $3, $hour, $minute, $second ),
+                              "%y-%m-%dT%H:%M:%S");
   }
+
+  if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) &&
+      exists( $FITS_headers->{'NOSCANS'} ) && defined( $FITS_headers->{'NOSCANS'} ) &&
+      exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
+      exists( $FITS_headers->{'NOCYCPTS'} ) && defined( $FITS_headers->{'NOCYCPTS'} ) &&
+      exists( $FITS_headers->{'NOCYCLES'} ) && defined( $FITS_headers->{'NOCYCLES'} ) ) {
+
+    my $obsmode = uc( $FITS_headers->{'OBSMODE'} );
+    my $noscans = uc( $FITS_headers->{'NOSCANS'} );
+    my $cycllen = uc( $FITS_headers->{'CYCLLEN'} );
+    my $nocycpts = uc( $FITS_headers->{'NOCYCPTS'} );
+    my $nocycles = uc( $FITS_headers->{'NOCYCLES'} );
+
+    if( $obsmode eq 'RASTER' ) {
+      $expt = $noscans * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
+    } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
+my $runnr = $FITS_headers->{'SCAN'};
+print "obsnum: $runnr\nObsmode: $obsmode\nnoscans: $noscans\nnocycles: $nocycles\ncycllen: $cycllen\n";
+
+      $expt = $noscans * $cycllen;
+print "expt: $expt\n";
+    } else {
+      $expt = $nocycles * $cycllen;
+    }
+  }
+  $t += $expt;
+  $return = $t->datetime;
+
   return $return;
+
+}
+
+=item B<to_EXPOSURE_TIME>
+
+=cut
+
+sub to_EXPOSURE_TIME {
+  my $FITS_headers = shift;
+  my $expt;
+
+  if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) &&
+      exists( $FITS_headers->{'NOSCANS'} ) && defined( $FITS_headers->{'NOSCANS'} ) &&
+      exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
+      exists( $FITS_headers->{'NOCYCPTS'} ) && defined( $FITS_headers->{'NOCYCPTS'} ) &&
+      exists( $FITS_headers->{'NOCYCLES'} ) && defined( $FITS_headers->{'NOCYCLES'} ) ) {
+
+    my $obsmode = uc( $FITS_headers->{'OBSMODE'} );
+    my $noscans = uc( $FITS_headers->{'NOSCANS'} );
+    my $cycllen = uc( $FITS_headers->{'CYCLLEN'} );
+    my $nocycpts = uc( $FITS_headers->{'NOCYCPTS'} );
+    my $nocycles = uc( $FITS_headers->{'NOCYCLES'} );
+    if( $obsmode eq 'RASTER' ) {
+      $expt = $noscans * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
+    } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
+      $expt = $noscans * $cycllen;
+    } else {
+      $expt = $nocycles * $cycllen;
+    }
+  }
+
+  return $expt;
 
 }
 
@@ -369,6 +449,11 @@ Keys are database headers, values are file headers.
                     VREF => "C12VREF",
                     SAMPRAT => "C3SRT",
                     NOCYCLES => "C3NCI",
+                    NOSCANS => "C3NIS",
+                    CYCLLEN => "C3CL",
+                    NOCYCPTS => "C3NCP",
+                    C3DAT => "C3DAT",
+                    C3UT => "C3UT",
                    );
 
 =item B<%hdr>
@@ -385,7 +470,6 @@ Keys are generic headers, values are FITS headers.
         COORDINATE_TYPE => "FRAME",
         CYCLE_LENGTH => "CYCLLEN",
         DEC_BASE => "DECDATE",
-        EXPOSURE_TIME => "SAMPRAT",
         FILENAME => "GSDFILE",
         INSTRUMENT => "FRONTEND",
         NUMBER_OF_CYCLES => "NOCYCLES",
