@@ -230,7 +230,6 @@ sub to_SAMPLING {
     my $detincr = $FITS_headers->{DETINCR} || 1;
     my $detnincr = $FITS_headers->{DETNINCR} || 1;
     $return = int ( 1 / $detincr ) . 'x' . int ( $detincr * $detnincr );
-    }
   }
   return $return;
 }
