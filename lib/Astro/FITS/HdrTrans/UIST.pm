@@ -362,6 +362,38 @@ sub from_X_BASE {
   return %return_hash;
 }
 
+=item B<to_RA_BASE>
+
+Converts the decimal hours in the FITS header C<RABASE> into
+decimal degrees for the generic header C<RA_BASE>.
+
+=cut
+
+sub to_RA_BASE {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{RABASE})) {
+    $return = $FITS_headers->{RABASE} * 15;
+  }
+  return $return;
+}
+
+=item B<from_RA_BASE>
+
+Converts the decimal degrees in the generic header C<RA_BASE>
+into decimal hours for the FITS header C<RABASE>.
+
+=cut
+
+sub from_RA_BASE {
+  my $generic_headers = shift;
+  my %return_hash;
+  if(exists($generic_headers->{RA_BASE})) {
+    $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
+  }
+  return %return_hash;
+}
+
 =back
 
 =head1 VARIABLES
@@ -402,7 +434,6 @@ Keys are generic headers, values are FITS headers.
             OBSERVATION_NUMBER   => "OBSNUM",
             OBSERVATION_TYPE     => "OBSTYPE",
             PROJECT              => "PROJECT",
-            RA_BASE              => "RABASE",
             RA_SCALE             => "PIXLSIZE",
             RA_TELESCOPE_OFFSET  => "TRAOFF",
             SLIT_ANGLE           => "SLIT_PA",
