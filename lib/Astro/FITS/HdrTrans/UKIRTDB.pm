@@ -90,9 +90,7 @@ sub translate_from_FITS {
   my $FITS_header = shift;
   my $header_array = shift;
   my %generic_header;
-  use Data::Dumper;
-print Dumper $FITS_header;
-exit;
+
   for my $key ( @$header_array ) {
 
     if(exists($hdr{$key}) ) {
