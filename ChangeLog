@@ -1,3 +1,9 @@
+2004-12-02  Brad Cavanagh  <b.cavanagh@jach.hawaii.edu>
+
+	* HdrTrans/JCMT_GSD.pm, HdrTrans/JCMT_GSD_DB.pm: Back
+	out the previous change. to_INSTRUMENT method now
+	renames RXA3I to RXA3, RXB to RXB3.
+
 2004-11-30  Brad Cavanagh  <b.cavanagh@jach.hawaii.edu>
 
 	* HdrTrans/JCMT_GSD.pm, HdrTrans/JCMT_GSD_DB.pm: Back
