@@ -53,6 +53,7 @@ use strict;
 
 use Switch;
 use Data::Dumper;
+use Carp;
 
 our $VERSION;
 '$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
@@ -193,7 +194,7 @@ sub translate_from_FITS {
 
     # We couldn't find an instrument header, so we can't do header
     # translations. Alas.
-    die "Could not find instrument header in FITS headers.\n";
+    croak "Could not find instrument header in FITS headers.\n";
 
   }
 
@@ -233,7 +234,7 @@ sub translate_from_FITS {
                     %generic_header = Astro::FITS::HdrTrans::UKIRTDB::translate_from_FITS($FITS_header, \@generic_headers);
                    }
     else {
-      die "Instrument $instrument not currently supported.\n";
+      croak "Instrument $instrument not currently supported.\n";
     }
   } # end SWITCH
 
@@ -261,7 +262,7 @@ sub translate_to_FITS {
 
     $instrument = $generic_header->{INSTRUMENT};
   } else {
-    die "Instrument not found in header.\n";
+    croak "Instrument not found in header.\n";
   }
 
   switch ( uc( $instrument ) ) {
@@ -294,7 +295,7 @@ sub translate_to_FITS {
                     %FITS_header = Astro::FITS::HdrTrans::UKIRTDB::translate_to_FITS($generic_header, \@generic_headers);
                    }
     else {
-      die "Instrument $instrument not currently supported.\n";
+      croak "Instrument $instrument not currently supported.\n";
     }
   } # end SWITCH
 
