@@ -96,7 +96,8 @@ sub translate_from_FITS {
   } else {
     %db_headers = %{$FITS_header};
   }
-
+  use Data::Dumper;
+print Dumper \%db_headers;
   for my $key ( @$header_array ) {
     if(exists($hdr{$key}) ) {
       $generic_header{$key} = $db_headers{$hdr{$key}};
@@ -272,8 +273,9 @@ sub to_UTDATE {
                                   "%b%t%d%t%Y%t%I:%M%p",);
     $return = $t->ymd;
   } elsif( exists( $FITS_headers->{'C3DAT'} ) ) {
-    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d\d)/;
-    $return = "$1-$2-$3";
+    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d?)/;
+    my $day = (length($3) == 2) ? $3 : $3 . "0";
+    $return = "$1-$2-$day";
   }
   return $return;
 }
@@ -299,8 +301,9 @@ sub to_UTSTART {
     my $hour = int( $FITS_headers->{'C3UT'} );
     my $minute = int ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 );
     my $second = int ( ( ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 ) - $minute ) * 60 );
-    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d\d)/;
-    $return = sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $3, $hour, $minute, $second ) ;
+    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d?)/;
+    my $day = (length($3) == 2) ? $3 : $3 . "0";
+    $return = sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $day, $hour, $minute, $second ) ;
   }
   return $return;
 
@@ -326,8 +329,9 @@ sub to_UTEND {
     my $hour = int( $FITS_headers->{'C3UT'} );
     my $minute = int ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 );
     my $second = int ( ( ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 ) - $minute ) * 60 );
-    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d\d)/;
-    $t = Time::Piece->strptime(sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $3, $hour, $minute, $second ),
+    $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d?)/;
+    my $day = (length($3) == 2) ? $3 : $3 . "0";
+    $t = Time::Piece->strptime(sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $day, $hour, $minute, $second ),
                               "%Y-%m-%dT%T");
   }
 
