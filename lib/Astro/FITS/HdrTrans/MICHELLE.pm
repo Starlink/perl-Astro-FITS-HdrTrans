@@ -295,6 +295,8 @@ sub from_UTSTART {
   if(exists($generic_headers->{UTSTART})) {
     my $date = $generic_headers->{UTSTART};
     if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+    # Unlike UFTI and UIST, we always have the Z because UKIRT
+    # no longer has MICHELLE
     $return_hash{'DATE-OBS'} = $date->datetime . "Z";
   }
   return %return_hash;
@@ -328,6 +330,8 @@ sub from_UTEND {
   if(exists($generic_headers->{UTEND})) {
     my $date = $generic_headers->{UTEND};
     if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+    # Unlike UFTI and UIST, we always have the Z because UKIRT
+    # no longer has MICHELLE
     $return_hash{'DATE-END'} = $date->datetime . "Z";
   }
   return %return_hash;

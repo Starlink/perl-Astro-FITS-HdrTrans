@@ -288,6 +288,12 @@ sub from_UTSTART {
   if(exists($generic_headers->{UTSTART})) {
     my $date = $generic_headers->{UTSTART};
     $return_hash{'DATE-OBS'} = $date->datetime;
+
+    # prior to April 2005 the UKIRT FITS headers had a trailing Z
+    # Part of the ISO8601 standard but not part of the FITS standard
+    # (which always assumes UTC)
+    $return_hash{'DATE-OBS'} .= "Z"
+      if $date->epoch < 1112662116;
   }
   return %return_hash;
 }
@@ -322,6 +328,12 @@ sub from_UTEND {
   if(exists($generic_headers->{UTEND})) {
     my $date = $generic_headers->{UTEND};
     $return_hash{'DATE-END'} = $date->datetime;
+
+    # prior to April 2005 the UKIRT FITS headers had a trailing Z
+    # Part of the ISO8601 standard but not part of the FITS standard
+    # (which always assumes UTC)
+    $return_hash{'DATE-END'} .= "Z"
+      if $date->epoch < 1112662116;
   }
   return %return_hash;
 }
