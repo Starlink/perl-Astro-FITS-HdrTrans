@@ -267,6 +267,12 @@ headers in the instrument-specific subclasses.
                        UTEND
                        UTSTART
                        WAVEPLATE_ANGLE
+                       X_BASE
+                       Y_BASE
+                       X_OFFSET
+                       Y_OFFSET
+                       X_SCALE
+                       Y_SCALE
                        X_DIM
                        Y_DIM
                        X_LOWER_BOUND
