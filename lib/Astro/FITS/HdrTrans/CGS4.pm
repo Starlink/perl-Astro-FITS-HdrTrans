@@ -227,16 +227,12 @@ sub to_SAMPLING {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{DETINCR}) && exists($FITS_headers->{DETNINCR})) {
-    my $detincr = $FITS_headers->{DETINCR};
-    my $detnincr = $FITS_headers->{DETNINCR};
-    if($detnincr == 6) {
-      $return = "3x2";
-    } elsif( $detnincr == 4 ) {
-      $return = "2x2";
-    } else {
-      $return = "1x1";
+    my $detincr = $FITS_headers->{DETINCR} || 1;
+    my $detnincr = $FITS_headers->{DETNINCR} || 1;
+    $return = int ( 1 / $detincr ) . 'x' . int ( $detincr * $detnincr );
     }
   }
+  return $return;
 }
 
 =item B<to_UTDATE>
