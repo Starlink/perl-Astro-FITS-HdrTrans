@@ -54,8 +54,6 @@ headers.
 use strict;
 use vars qw/ $VERSION /;
 
-use Data::Dumper;
-
 '$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
 
 # P R E D E C L A R A T I O N S --------------------------------------------
