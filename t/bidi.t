@@ -31,13 +31,17 @@ use Test::More;
 use File::Spec;
 use Scalar::Util qw/ looks_like_number /;
 
+# For detailed comparison
+use Data::Dumper;
+$Data::Dumper::Sortkeys = 1;
+
 eval {
   require Astro::FITS::Header;
 };
 if ($@) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 344;
+  plan tests => 379;
 }
 
 require_ok( "Astro::FITS::HdrTrans" );
@@ -52,7 +56,8 @@ my %COUNT = (
 	     cgs4 => 44,
 	     michelle => 55,
 	     ircam => 37,
-	     scuba => 30,
+	     scuba => 29,
+             wfcam => 34,
 	    );
 
 
@@ -60,8 +65,10 @@ my $datadir = File::Spec->catdir( "t","data");
 
 opendir my $dh, $datadir or die "Unable to locate header data directory: $!";
 
-for my $hdrfile (readdir $dh) {
+for my $hdrfile (sort readdir $dh) {
   next unless $hdrfile =~ /\.hdr$/;
+  #next unless $hdrfile eq 'gsd_ras.hdr';
+  print "# Processing file $hdrfile...\n";
 
   # get the ref instrument name
   my $inst = $hdrfile;
@@ -82,6 +89,10 @@ for my $hdrfile (readdir $dh) {
   # and back to FITS
   my %nfits = Astro::FITS::HdrTrans::translate_to_FITS( \%generic );
 
+  # for testing, dump the contents of the new FITS header
+  # This allows simple comparison with alternate implementations
+  # print Dumper(\%nfits);
+
   # Now count the number of headers
   my @keys = keys %nfits;
   is( scalar(@keys), $COUNT{$inst},
@@ -93,7 +104,7 @@ for my $hdrfile (readdir $dh) {
   # way is for the reference data file to include exactly the keys
   # that are needed for translation (retaining the full header as a
   # reference). We would then compare %nfits to %hdr
-  for my $nkey (keys %nfits) {
+  for my $nkey (sort keys %nfits) {
 
     my $refval = $hdr{$nkey};
     my $thisval = $nfits{$nkey};
@@ -106,11 +117,6 @@ for my $hdrfile (readdir $dh) {
       print "# Key $nkey had a value of '" .
          (defined $thisval ? $thisval : "<UNDEF>") ."'\n";
       next;
-    }
-
-    if ($nkey eq 'POLARISE' || $nkey eq 'STANDARD') {
-#      use Data::Dumper;
-#      print Dumper($item, $thisval,$refval);
     }
 
     if ($item->type eq 'FLOAT') {
