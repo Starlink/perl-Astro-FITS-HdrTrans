@@ -184,13 +184,14 @@ undef.
 sub to_CHOP_COORDINATE_SYSTEM {
   my $FITS_headers = shift;
   my $return;
+
   if(exists($FITS_headers->{'CHOP_CRD'})) {
     my $fits_eq = $FITS_headers->{'CHOP_CRD'};
-    if( $fits_eq =~ /LO/ ) {
+    if( $fits_eq =~ /LO/i ) {
       $return = "Tracking";
-    } elsif( $fits_eq =~ /AZ/ ) {
+    } elsif( $fits_eq =~ /AZ/i ) {
       $return = "Alt/Az";
-    } elsif( $fits_eq =~ /NA/ ) {
+    } elsif( $fits_eq =~ /NA/i ) {
       $return = "Focal Plane";
     }
   }
@@ -210,11 +211,11 @@ sub to_COORDINATE_TYPE {
   my $return;
   if(exists($FITS_headers->{'CENT_CRD'})) {
     my $fits_eq = $FITS_headers->{'CENT_CRD'};
-    if( $fits_eq =~ /RB/ ) {
+    if( $fits_eq =~ /RB/i ) {
       $return = "B1950";
-    } elsif( $fits_eq =~ /RJ/ ) {
+    } elsif( $fits_eq =~ /RJ/i ) {
       $return = "J2000";
-    } elsif( $fits_eq =~ /AZ/ ) {
+    } elsif( $fits_eq =~ /AZ/i ) {
       $return = "galactic";
     }
   }
@@ -317,7 +318,7 @@ is C<PHOTOM>, otherwise returns C<imaging>.
 sub to_OBSERVATION_MODE {
   my $FITS_headers = shift;
   my $return;
-  if($FITS_headers->{'MODE'} =~ /PHOTOM/) {
+  if($FITS_headers->{'MODE'} =~ /PHOTOM/i) {
     $return = "photometry";
   } else {
     $return = "imaging";
@@ -338,7 +339,7 @@ sub to_OBSERVATION_TYPE {
   my $FITS_headers = shift;
   my $return;
   my $mode = $FITS_headers->{'MODE'};
-  if($mode =~ /PHOTOM|MAP|POLPHOT|POLMAP/) {
+  if($mode =~ /PHOTOM|MAP|POLPHOT|POLMAP/i) {
     $return = "OBJECT";
   } else {
     $return = $mode;
@@ -358,7 +359,7 @@ sub to_POLARIMETRY {
   my $FITS_headers = shift;
   my $return;
   my $mode = $FITS_headers->{'MODE'};
-  if($mode =~ /POLMAP|POLPHOT/) {
+  if($mode =~ /POLMAP|POLPHOT/i) {
     $return = 1;
   } else {
     $return = 0;
