@@ -195,6 +195,8 @@ sub to_POLARIMETRY {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{'POLARISE'})) {
+    # allow a boolean to pass straight through
+    $return = $FITS_headers->{POLARISE};
     if($FITS_headers->{'POLARISE'} eq 'Y') {
       $return = 1;
     } else {
@@ -216,9 +218,9 @@ sub from_POLARIMETRY {
   my %return_hash;
   if(exists($generic_headers->{'POLARIMETRY'})) {
     if($generic_headers->{'POLARIMETRY'}) {
-      $return_hash{'POLARISE'} = 'Y';
+      $return_hash{'POLARISE'} = '1';
     } else {
-      $return_hash{'POLARISE'} = 'N';
+      $return_hash{'POLARISE'} = '0';
     }
   }
   return %return_hash;
@@ -386,7 +388,7 @@ Keys are generic headers, values are FITS headers.
         DEC_SCALE            => "CDELT2",
         DEC_TELESCOPE_OFFSET => "TDECOFF",
         DETECTOR_INDEX       => "DINDEX",
-        DETECTOR_READ_TYPE   => "DETMODE",
+        DETECTOR_READ_TYPE   => "DET_MODE",
         DR_GROUP             => "GRPNUM",
         DR_RECIPE            => "RECIPE",
         EQUINOX              => "EQUINOX",
@@ -404,7 +406,7 @@ Keys are generic headers, values are FITS headers.
         NUMBER_OF_OFFSETS    => "NOFFSETS",
         NUMBER_OF_READS      => "NREADS",
         OBJECT               => "OBJECT",
-        OBSERVATION_MODE     => "CAMERA",
+        OBSERVATION_MODE     => "INSTMODE",
         OBSERVATION_NUMBER   => "OBSNUM",
         OBSERVATION_TYPE     => "OBSTYPE",
         PROJECT              => "PROJECT",
