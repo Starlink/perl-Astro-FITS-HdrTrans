@@ -221,6 +221,13 @@ sub translate_from_FITS {
   # Special instrument-handling (can't really put this elsewhere)
   if( $instrument =~ /ircam/i ) { $instrument = "IRCAM"; }
 
+  # Untaint
+  if ($instrument =~ /^(\w+)$/) {
+    $instrument = $1;
+  } else {
+    croak "Instrument name looks a bit strange to me: $instrument\n";
+  }
+
   # Do the translation.
   my $class = "Astro::FITS::HdrTrans::" . uc( $instrument );
   eval "require $class";
@@ -255,6 +262,13 @@ sub translate_to_FITS {
     $instrument = $generic_header->{INSTRUMENT};
   } else {
     croak "Instrument not found in header.\n";
+  }
+
+  # Untaint
+  if ($instrument =~ /^(\w+)$/) {
+    $instrument = $1;
+  } else {
+    croak "Instrument name looks a bit strange to me: $instrument\n";
   }
 
   # Do the translation.
