@@ -352,17 +352,21 @@ sub to_EXPOSURE_TIME {
       exists( $FITS_headers->{'NSCAN'} ) && defined( $FITS_headers->{'NSCAN'} ) &&
       exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
       exists( $FITS_headers->{'NOCYCPTS'} ) && defined( $FITS_headers->{'NOCYCPTS'} ) &&
-      exists( $FITS_headers->{'NOCYCLES'} ) && defined( $FITS_headers->{'NOCYCLES'} ) ) {
+      exists( $FITS_headers->{'NOCYCLES'} ) && defined( $FITS_headers->{'NOCYCLES'} ) &&
+      exists( $FITS_headers->{'NCYCPTS'} ) && defined( $FITS_headers->{'NCYCPTS'} ) ) {
 
     my $obsmode = uc( $FITS_headers->{'OBSMODE'} );
     my $nscan = uc( $FITS_headers->{'NSCAN'} );
     my $cycllen = uc( $FITS_headers->{'CYCLLEN'} );
     my $nocycpts = uc( $FITS_headers->{'NOCYCPTS'} );
     my $nocycles = uc( $FITS_headers->{'NOCYCLES'} );
+    my $ncycpts = uc( $FITS_headers->{'NCYCPTS'} );
     if( $obsmode eq 'RASTER' ) {
       $expt = $nscan * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
     } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
       $expt = $nscan * $cycllen * $nocycles;
+    } elsif ( ( $obsmode eq 'SAMPLE' ) ) {
+      $expt = $ncycpts * $cycllen * $nscan / 2;
     } else {
       # This supports pattern and grid
       $expt = $nocycles * $cycllen * $nscan;
