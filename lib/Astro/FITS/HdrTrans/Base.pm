@@ -413,6 +413,10 @@ C<Astro::FITS::HdrTrans::MyNewInst> to automatically append itself to
 the list of known classes if the module is explicitly loaded by the
 user (rather than dynamically loaded to test the headers).
 
+Some generic keywords actually return scalar objects. Any new instruments
+must consistently return compatible objects. For example, UTDATE,
+UTSTART and UTEND return (currently) Time::Piece objects.
+
 =head1 REVISION
 
  $Id$
