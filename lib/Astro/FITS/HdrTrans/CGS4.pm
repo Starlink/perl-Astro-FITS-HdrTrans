@@ -35,12 +35,6 @@ package Astro::FITS::HdrTrans::CGS4;
 Astro::FITS::HdrTrans::CGS4 - Translate FITS headers into generic
 headers and back again
 
-=head1 SYNOPSIS
-
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
-
-  %FITS_headers = transate_to_FITS(\%generic_headers, \@header_array);
-
 =head1 DESCRIPTION
 
 Converts information contained in CGS4 FITS headers to and from
@@ -432,7 +426,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2002 Particle Physics and Astronomy Research Council.
+Copyright (C) 2003 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it
