@@ -70,6 +70,72 @@ $Id$
 
 =head1 METHODS
 
+These methods provide an interface to the class, allowing the base
+class to determine if this class is the appropriate one to use for
+the given headers.
+
+=over 4
+
+=item B<valid_class>
+
+  $valid = valid_class( \%headers );
+
+This method takes one argument: a reference to a hash containing
+the untranslated headers.
+
+This method returns true (1) or false (0) depending on if the headers
+can be translated by this method.
+
+For this class, the method will return true if the B<INSTRUME> header
+exists, and its value matches the regular expression C</^uist/i>, or
+if the C<INSTRUMENT> header exists and its value matches the regular
+expression C</^uist$/i>.
+
+=back
+
+=cut
+
+sub valid_class {
+  my $headers = shift;
+
+  print "BEING ASKED\n";
+  print "FITS: ". $headers->{INSTRUME} ."\n";
+  print "GEN : ". $headers->{INSTRUMENT} ."\n";
+
+
+  if( exists( $headers->{'INSTRUME'} ) &&
+      defined( $headers->{'INSTRUME'} ) &&
+      $headers->{'INSTRUME'} =~ /^iris2$/i ) {
+    return 1;
+  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
+           defined( $headers->{'INSTRUMENT'} ) &&
+           $headers->{'INSTRUMENT'} =~ /^iris2$/i ) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+=back
+
+=head1 TRANSLATION METHODS
+
+These methods provide many-to-one mappings between FITS headers and
+generic headers. An example of a method defined in this section would
+be one that converts UT date and UT hour FITS headers into one combined
+UT datetime generic header. These mappings can also use calculations,
+for example converting a zenith distance to airmass.
+
+These methods are named backwards from the C<translate_from_FITS> and
+C<translate_to_FITS> methods in that we are translating to and from
+generic headers. As an example, a method to convert to a generic airmass
+header would be named C<to_AIRMASS>.
+
+The format of these methods is C<to_HEADER> and C<from_HEADER>.
+C<to_> methods accept a hash reference as an argument and return a scalar
+value (typically a string). C<from_> methods accept a hash reference
+as an argument and return a hash.
+
 =over 4
 
 =item B<translate_from_FITS>
