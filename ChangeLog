@@ -1,3 +1,8 @@
+2005-03-17  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
+  * HdrTrans/UFTI.pm, HdrTrans/UKIRTDB.pm, HdrTrans/UIST.pm,
+    HdrTrans/WFCAM.pm: Handle DATE-OBS and DATE-END headers
+    in ISO8601 format.
+
 2005-03-16  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
   * HdrTrans/CGS4.pm: Header keywords for telescope offsets were changed
     from RAOFF/DECOFF to TRAOFF/TDECOFF, so change the translation code
