@@ -90,7 +90,9 @@ sub translate_from_FITS {
   my $FITS_header = shift;
   my $header_array = shift;
   my %generic_header;
-
+  use Data::Dumper;
+print Dumper $FITS_header;
+exit;
   for my $key ( @$header_array ) {
 
     if(exists($hdr{$key}) ) {
@@ -276,7 +278,7 @@ sub to_UTEND {
 
 =item B<from_UTEND>
 
-Converts the C<UTSTART> generic header into C<UT_DATE>, C<RUTSTART>
+Converts the C<UTEND> generic header into C<UT_DATE>, C<RUTEND>
 and C<DATE-END> database headers.
 
 =cut
@@ -347,7 +349,7 @@ Keys are generic headers, values are FITS headers.
             CONFIGURATION_INDEX  => "CNFINDEX",
             DEC_BASE             => "DECBASE",
             DEC_SCALE            => "PIXELSIZ",
-            DEC_TELESCOPE_OFFSET => "TDECOFF",
+            DEC_TELESCOPE_OFFSET => "DECOFF",
             DETECTOR_READ_TYPE   => "MODE",
             EQUINOX              => "EQUINOX",
             EXPOSURE_TIME        => "EXPOSED",
@@ -361,7 +363,7 @@ Keys are generic headers, values are FITS headers.
             PROJECT              => "PROJECT",
             RA_BASE              => "RABASE",
             RA_SCALE             => "PIXELSIZ",
-            RA_TELESCOPE_OFFSET  => "TRAOFF",
+            RA_TELESCOPE_OFFSET  => "RAOFF",
             TELESCOPE            => "TELESCOP",
             UTDATE               => "UT_DATE",
             WAVEPLATE_ANGLE      => "WPLANGLE",
