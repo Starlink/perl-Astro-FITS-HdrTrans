@@ -218,6 +218,7 @@ headers in the instrument-specific subclasses.
 
 @generic_headers = qw( AIRMASS_START
                        AIRMASS_END
+                       BOLOMETERS
                        CHOP_ANGLE
                        CHOP_THROW
                        CONFIGURATION_INDEX
@@ -229,6 +230,8 @@ headers in the instrument-specific subclasses.
                        DETECTOR_BIAS
                        DETECTOR_INDEX
                        DETECTOR_READ_TYPE
+                       DR_GROUP
+                       DR_RECIPE
                        EQUINOX
                        EXPOSURE_TIME
                        FILTER
@@ -258,14 +261,18 @@ headers in the instrument-specific subclasses.
                        RA_TELESCOPE_OFFSET
                        ROTATION
                        SCAN_INCREMENT
+                       SEEING
                        SLIT_ANGLE
                        SLIT_NAME
                        SPEED_GAIN
                        STANDARD
+                       SYSTEM_VELOCITY
+                       TAU
                        TELESCOPE
                        UTDATE
                        UTEND
                        UTSTART
+                       VELOCITY
                        WAVEPLATE_ANGLE
                        X_BASE
                        Y_BASE
