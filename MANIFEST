@@ -6,4 +6,5 @@ lib/Astro/FITS/HdrTrans/IRCAM.pm
 lib/Astro/FITS/HdrTrans/IRIS2.pm
 lib/Astro/FITS/HdrTrans/MICHELLE.pm
 lib/Astro/FITS/HdrTrans/UFTI.pm
+lib/Astro/FITS/HdrTrans/SCUBA.pm
 
