@@ -9,3 +9,4 @@ lib/Astro/FITS/HdrTrans/UFTI.pm
 lib/Astro/FITS/HdrTrans/SCUBA.pm
 lib/Astro/FITS/HdrTrans/UKIRTDB.pm
 t/1_compile.t
+t/translate.t
