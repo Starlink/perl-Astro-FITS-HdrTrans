@@ -70,82 +70,45 @@ $Id$
 
 =head1 METHODS
 
+These methods provide an interface to the class, allowing the base
+class to determine if this class is the appropriate one to use for
+the given headers.
+
 =over 4
 
-=item B<translate_from_FITS>
+=item B<valid_class>
 
-Converts a hash containing UKIRTDB headers into a hash containing
-generic headers.
+  $valid = valid_class( \%headers );
 
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
+This method takes one argument: a reference to a hash containing
+the untranslated headers.
 
-The C<header_array> argument is used to supply a list of generic
-header names.
+This method returns true (1) or false (0) depending on if the headers
+can be translated by this method.
+
+For this class, the method will return true if the B<INSTRUME> header
+exists, and its value matches the regular expression C</^cgs4/i>, or
+if the B<INSTRUMENT> header exists, and its value matches the
+regular expression C</^cgs4$/i>.
 
 =back
 
 =cut
 
-sub translate_from_FITS {
-  my $FITS_header = shift;
-  my $header_array = shift;
-  my %generic_header;
+sub valid_class {
+  my $headers = shift;
 
-  for my $key ( @$header_array ) {
-
-    if(exists($hdr{$key}) ) {
-      $generic_header{$key} = $FITS_header->{$hdr{$key}};
-    } else {
-      my $subname = "to_" . $key;
-      if(exists(&$subname) ) {
-        no strict 'refs'; # EEP!
-        $generic_header{$key} = &$subname($FITS_header);
-      }
-    }
+  if( exists( $headers->{'INSTRUME'} ) &&
+      defined( $headers->{'INSTRUME'} ) &&
+      $headers->{'INSTRUME'} =~ /^ukirtdb/i ) {
+    return 1;
+  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
+           defined( $headers->{'INSTRUMENT'} ) &&
+           $headers->{'INSTRUMENT'} =~ /^ukirtdb$/i ) {
+    return 1;
+  } else {
+    return 0;
   }
-  return %generic_header;
-
-}
-
-=over 4
-
-=item B<translate_to_FITS>
-
-Converts a hash containing generic headers into a hash containing
-FITS headers
-
-  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
-
-The C<header_array> argument is used to supply a list of generic
-header names.
-
-=back
-
-=cut
-
-sub translate_to_FITS {
-  my $generic_header = shift;
-  my $header_array = shift;
-  my %FITS_header;
-
-  for my $key ( @$header_array ) {
-
-    if( exists($hdr{$key}) ) {
-      $FITS_header{$hdr{$key}} = $generic_header->{$key};
-    } else {
-      no strict 'refs'; # EEP EEP!
-      my $subname = "from_" . $key;
-      if(exists(&$subname) ) {
-        my %new = &$subname($generic_header);
-        for my $newkey ( keys %new ) {
-          $FITS_header{$newkey} = $new{$newkey};
-        }
-      }
-    }
-  }
-
-  return %FITS_header;
-
 }
 
 =head1 TRANSLATION METHODS
@@ -376,6 +339,22 @@ sub to_STANDARD {
 
 }
 
+=item B<to_UTDATE>
+
+=cut
+
+sub to_UTDATE {
+  my $FITS_headers = shift;
+  my $return;
+
+  if( exists( $FITS_headers->{'UT_DATE'} ) ) {
+    $return = Time::Piece->strptime( $FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p" );
+  }
+
+  return $return;
+
+}
+
 =item B<to_UTSTART>
 
 Strips the 'Z' from the C<DATE-OBS> header, or if that header does
@@ -389,7 +368,7 @@ sub to_UTSTART {
   my $return;
 
   if( exists( $FITS_headers->{'DATE_OBS'} ) ) {
-    ( $return = $FITS_headers->{'DATE_OBS'} ) =~ s/Z//;
+    $return = Time::Piece->strptime( $FITS_headers->{'DATE_OBS'}, "%Y-%m-%dT%TZ" );
 
   } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
           exists($FITS_headers->{'RUTSTART'}) && defined( $FITS_headers->{'RUTSTART'} ) ) {
@@ -398,8 +377,9 @@ sub to_UTSTART {
     my $hour = int($FITS_headers->{'RUTSTART'});
     my $minute = int( ( $FITS_headers->{'RUTSTART'} - $hour ) * 60 );
     my $second = int( ( ( ( $FITS_headers->{'RUTSTART'} - $hour ) * 60) - $minute ) * 60 );
-    $return = $t->ymd . "T" . $hour . ":" . $minute . ":" . $second;
+    $return = Time::Piece->strptime( $t->ymd . "T$hour:$minute:$second", "%Y-%m-%dT%T" );
   }
+
   return $return;
 }
 
@@ -436,17 +416,20 @@ C<UTEND> header.
 sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
+
   if( exists( $FITS_headers->{'DATE_END'} ) ) {
-    ( $return = $FITS_headers->{'DATE_END'} ) =~ s/Z//;
-  } elsif(exists($FITS_headers->{'UT_DATE'}) &&
-     exists($FITS_headers->{'RUTEND'}) ) {
+    $return = Time::Piece->strptime( $FITS_headers->{'DATE_END'}, "%Y-%m-%dT%TZ" );
+
+  } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
+          exists($FITS_headers->{'RUTEND'}) && defined( $FITS_headers->{'RUTEND'} ) ) {
     # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
     my $t = Time::Piece->strptime($FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p");
     my $hour = int($FITS_headers->{'RUTEND'});
     my $minute = int( ( $FITS_headers->{'RUTEND'} - $hour ) * 60 );
     my $second = int( ( ( ( $FITS_headers->{'RUTEND'} - $hour ) * 60) - $minute ) * 60 );
-    $return = $t->ymd . "T" . $hour . ":" . $minute . ":" . $second;
+    $return = Time::Piece->strptime( $t->ymd . "T$hour:$minute:$second", "%Y-%m-%dT%T" );
   }
+
   return $return;
 }
 
@@ -576,7 +559,6 @@ Keys are generic headers, values are FITS headers.
             RA_SCALE             => "PIXELSIZ",
             RA_TELESCOPE_OFFSET  => "RAOFF",
             TELESCOPE            => "TELESCOP",
-            UTDATE               => "UT_DATE",
             WAVEPLATE_ANGLE      => "WPLANGLE",
             Y_BASE               => "DECBASE",
             X_DIM                => "DCOLUMNS",
