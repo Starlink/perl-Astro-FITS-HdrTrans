@@ -145,6 +145,8 @@ sub to_INSTRUMENT {
     $return = $FITS_headers->{'C1RCV'};
     if( $return =~ /^rxa3/i ) {
       $return = "RXA3";
+    } elsif( $return =~ /^rxb/i ) {
+      $return = "RXB3";
     }
   }
   return $return;
