@@ -188,6 +188,110 @@ sub to_POLARIMETRY {
   return $return;
 }
 
+=item B<to_DEC_TELESCOPE_OFFSET>
+
+The header keyword for the Dec telescope offset changed from DECOFF to
+TDECOFF on 20050315, so switch on this date to use the proper header.
+
+=cut
+
+sub to_DEC_TELESCOPE_OFFSET {
+  my $FITS_headers = shift;
+  my $return;
+  if( exists( $FITS_headers->{IDATE} ) && defined( $FITS_headers->{IDATE} ) ) {
+    if( $FITS_headers->{IDATE} < 20050315 ) {
+      $return = $FITS_headers->{DECOFF};
+    } else {
+      $return = $FITS_headers->{TDECOFF};
+    }
+  }
+  return $return;
+}
+
+=item B<from_DEC_TELESCOPE_OFFSET>
+
+The header keyword for the Dec telescope offset changed from DECOFF to
+TDECOFF on 20050315, so return the proper keyword depending on observation
+date.
+
+=cut
+
+sub from_DEC_TELESCOPE_OFFSET {
+  my $generic_headers = shift;
+  my %return;
+  if( exists( $generic_headers->{UTDATE} ) &&
+      defined( $generic_headers->{UTDATE} ) &&
+      UNIVERSAL::isa( $generic_headers->{UTDATE}, "Time::Piece" ) ) {
+    my $ut = $generic_headers->{UTDATE}->ymd;
+    $ut =~ s/-//g;
+    if( exists( $generic_headers->{DEC_TELESCOPE_OFFSET} ) &&
+        defined( $generic_headers->{DEC_TELESCOPE_OFFSET} ) ) {
+      if( $ut < 20050315 ) {
+        $return{'DECOFF'} = $generic_headers->{DEC_TELESCOPE_OFFSET};
+      } else {
+        $return{'TDECOFF'} = $generic_headers->{DEC_TELESCOPE_OFFSET};
+      }
+    }
+  } else {
+    if( exists( $generic_headers->{DEC_TELESCOPE_OFFSET} ) &&
+        defined( $generic_headers->{DEC_TELESCOPE_OFFSET} ) ) {
+      $return{'TDECOFF'} = $generic_headers->{DEC_TELESCOPE_OFFSET};
+    }
+  }
+}
+
+=item B<to_RA_TELESCOPE_OFFSET>
+
+The header keyword for the RA telescope offset changed from RAOFF to
+TRAOFF on 20050315, so switch on this date to use the proper header.
+
+=cut
+
+sub to_RA_TELESCOPE_OFFSET {
+  my $FITS_headers = shift;
+  my $return;
+  if( exists( $FITS_headers->{IDATE} ) && defined( $FITS_headers->{IDATE} ) ) {
+    if( $FITS_headers->{IDATE} < 20050315 ) {
+      $return = $FITS_headers->{RAOFF};
+    } else {
+      $return = $FITS_headers->{TRAOFF};
+    }
+  }
+  return $return;
+}
+
+=item B<from_RA_TELESCOPE_OFFSET>
+
+The header keyword for the RA telescope offset changed from RAOFF to
+TRAOFF on 20050315, so return the proper keyword depending on observation
+date.
+
+=cut
+
+sub from_RA_TELESCOPE_OFFSET {
+  my $generic_headers = shift;
+  my %return;
+  if( exists( $generic_headers->{UTDATE} ) &&
+      defined( $generic_headers->{UTDATE} ) &&
+      UNIVERSAL::isa( $generic_headers->{UTDATE}, "Time::Piece" ) ) {
+    my $ut = $generic_headers->{UTDATE}->ymd;
+    $ut =~ s/-//g;
+    if( exists( $generic_headers->{RA_TELESCOPE_OFFSET} ) &&
+        defined( $generic_headers->{RA_TELESCOPE_OFFSET} ) ) {
+      if( $ut < 20050315 ) {
+        $return{'RAOFF'} = $generic_headers->{RA_TELESCOPE_OFFSET};
+      } else {
+        $return{'TRAOFF'} = $generic_headers->{RA_TELESCOPE_OFFSET};
+      }
+    }
+  } else {
+    if( exists( $generic_headers->{RA_TELESCOPE_OFFSET} ) &&
+        defined( $generic_headers->{RA_TELESCOPE_OFFSET} ) ) {
+      $return{'TRAOFF'} = $generic_headers->{RA_TELESCOPE_OFFSET};
+    }
+  }
+}
+
 =item B<to_SAMPLING>
 
 Converts FITS header values in C<DETINCR> and C<DETNINCR> to a single
@@ -381,7 +485,6 @@ Keys are generic headers, values are FITS headers.
             AIRMASS_END          => "AMEND",
             CONFIGURATION_INDEX  => "CNFINDEX",
             DEC_BASE             => "DECBASE",
-            DEC_TELESCOPE_OFFSET => "DECOFF",
             DETECTOR_INDEX       => "DINDEX",
             DETECTOR_READ_TYPE   => "MODE",
             DR_GROUP             => "GRPNUM",
@@ -403,7 +506,6 @@ Keys are generic headers, values are FITS headers.
             OBSERVATION_NUMBER   => "OBSNUM",
             OBSERVATION_TYPE     => "OBSTYPE",
             PROJECT              => "PROJECT",
-            RA_TELESCOPE_OFFSET  => "RAOFF",
             SCAN_INCREMENT       => "DETINCR",
             SLIT_ANGLE           => "SANGLE",
             SLIT_NAME            => "SLIT",
