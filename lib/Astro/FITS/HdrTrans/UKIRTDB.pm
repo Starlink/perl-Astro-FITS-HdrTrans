@@ -184,8 +184,10 @@ sub to_EXPOSURE_TIME {
 
   if( exists( $FITS_headers->{'EXPOSED'} ) && defined( $FITS_headers->{'EXPOSED'} ) ) {
     $return = $FITS_headers->{'EXPOSED'};
-  } elsif( exists( $FITS_headers->{'EXPOSED'} ) && defined( $FITS_headers->{'EXPOSED'} ) ) {
+  } elsif( exists( $FITS_headers->{'DEXPTIME'} ) && defined( $FITS_headers->{'DEXPTIME'} ) ) {
     $return = $FITS_headers->{'DEXPTIME'};
+  } elsif( exists( $FITS_headers->{'EXP_TIME'} ) && defined( $FITS_headers->{'EXP_TIME'} ) ) {
+    $return = $FITS_headers->{'EXP_TIME'};
   }
   return $return;
 }
@@ -220,6 +222,94 @@ sub to_COORDINATE_UNITS {
   "degrees";
 }
 
+=item B<to_GRATING_NAME>
+
+=cut
+
+sub to_GRATING_NAME {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{GRATING})) {
+    $return = $FITS_headers->{GRATING};
+  } elsif(exists($FITS_headers->{GRISM})) {
+    $return = $FITS_headers->{GRISM};
+  }
+  return $return;
+}
+
+=item B<to_GRATING_WAVELENGTH>
+
+=cut
+
+sub to_GRATING_WAVELENGTH {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{GLAMBDA})) {
+    $return = $FITS_headers->{GLAMBDA};
+  } elsif(exists($FITS_headers->{CENWAVL})) {
+    $return = $FITS_headers->{CENWAVL};
+  }
+  return $return;
+}
+
+=item B<to_SLIT_ANGLE>
+
+Converts either the C<SANGLE> or the C<SLIT_PA> header into the C<SLIT_ANGLE>
+generic header.
+
+=cut
+
+sub to_SLIT_ANGLE {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{'SANGLE'})) {
+    $return = $FITS_headers->{'SANGLE'};
+  } elsif(exists($FITS_headers->{'SLIT_PA'} )) {
+    $return = $FITS_headers->{'SLIT_PA'};
+  }
+  return $return;
+
+}
+
+=item B<to_SLIT_NAME>
+
+Converts either the C<SLIT> or the C<SLITNAME> header into the C<SLIT_NAME>
+generic header.
+
+=cut
+
+sub to_SLIT_NAME {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{'SLIT'})) {
+    $return = $FITS_headers->{'SLIT'};
+  } elsif(exists($FITS_headers->{'SLITNAME'} )) {
+    $return = $FITS_headers->{'SLITNAME'};
+  }
+  return $return;
+
+}
+
+=item B<to_SPEED_GAIN>
+
+=cut
+
+sub to_SPEED_GAIN {
+  my $FITS_headers = shift;
+  my $return;
+
+  if( exists( $FITS_headers->{'SPD_GAIN'} ) ) {
+    $return = $FITS_headers->{'SPD_GAIN'};
+  } elsif( exists( $FITS_headers->{'WAVEFORM'} ) ) {
+    if( $FITS_headers->{'WAVEFORM'} =~ /^thermal/i ) {
+      $return = 'thermal';
+    } else {
+      $return = 'normal';
+    }
+  }
+  return $return;
+}
+
 =item B<to_UTSTART>
 
 Strips the 'Z' from the C<DATE-OBS> header, or if that header does
@@ -231,8 +321,6 @@ C<UTSTART> header.
 sub to_UTSTART {
   my $FITS_headers = shift;
   my $return;
-
-#  if($FITS_headers->{'RUN'} == 16) { use Data::Dumper; print Dumper $FITS_headers; }
 
   if( exists( $FITS_headers->{'DATE_OBS'} ) ) {
     ( $return = $FITS_headers->{'DATE_OBS'} ) =~ s/Z//;
@@ -366,6 +454,7 @@ Keys are generic headers, values are FITS headers.
 %hdr = (
             AIRMASS_START        => "AMSTART",
             AIRMASS_END          => "AMEND",
+            CAMERA               => "CAMLENS",
             CONFIGURATION_INDEX  => "CNFINDEX",
             DEC_BASE             => "DECBASE",
             DEC_SCALE            => "PIXELSIZ",
@@ -377,21 +466,18 @@ Keys are generic headers, values are FITS headers.
             FILTER               => "FILTER",
             GAIN                 => "DEPERDN",
             GRATING_DISPERSION   => "GDISP",
-            GRATING_NAME         => "GRATING",
             GRATING_ORDER        => "GORDER",
-            GRATING_WAVELENGTH   => "GLAMBDA",
             INSTRUMENT           => "INSTRUME",
             MSBID                => "MSBID",
             NUMBER_OF_EXPOSURES  => "NEXP",
             OBJECT               => "OBJECT",
+            OBSERVATION_MODE     => "INSTMODE",
             OBSERVATION_NUMBER   => "RUN",
             OBSERVATION_TYPE     => "OBSTYPE",
             PROJECT              => "PROJECT",
             RA_BASE              => "RABASE",
             RA_SCALE             => "PIXELSIZ",
             RA_TELESCOPE_OFFSET  => "RAOFF",
-            SLIT_ANGLE           => "SANGLE",
-            SLIT_NAME            => "SLIT",
             TELESCOPE            => "TELESCOP",
             UTDATE               => "UT_DATE",
             WAVEPLATE_ANGLE      => "WPLANGLE",
