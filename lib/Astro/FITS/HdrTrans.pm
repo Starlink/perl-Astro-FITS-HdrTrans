@@ -95,6 +95,7 @@ our @generic_headers = qw( AIRMASS_START
                        AZIMUTH_END
                        BACKEND
                        BOLOMETERS
+                       CAMERA
                        CHOP_ANGLE
                        CHOP_COORDINATE_SYSTEM
                        CHOP_THROW
@@ -120,6 +121,7 @@ our @generic_headers = qw( AIRMASS_START
                        GRATING_ORDER
                        GRATING_WAVELENGTH
                        INSTRUMENT
+                       INST_DHS
                        LATITUDE
                        LONGITUDE
                        MSBID
@@ -204,12 +206,12 @@ sub translate_from_FITS {
   } elsif ( ( defined( $FITS_header->{INST} ) &&
               length( $FITS_header->{INST} . "" ) != 0 ) ) {
     $instrument = $FITS_header->{INST};
-  } elsif ( ( defined( $FITS_header->{C1FTYP} ) &&
-              length( $FITS_header->{C1FTYP} . "" ) != 0 ) ) {
-    $instrument = $FITS_header->{C1FTYP};
-  } elsif ( ( defined( $FITS_header->{FRONTYPE} ) &&
-              length( $FITS_header->{FRONTYPE} . "" ) != 0 ) ) {
-    $instrument = $FITS_header->{FRONTYPE};
+  } elsif ( ( defined( $FITS_header->{C1BKE} ) &&
+              length( $FITS_header->{C1BKE} . "" ) != 0 ) ) {
+    $instrument = $FITS_header->{C1BKE};
+  } elsif ( ( defined( $FITS_header->{BACKEND} ) &&
+              length( $FITS_header->{BACKEND} . "" ) != 0 ) ) {
+    $instrument = $FITS_header->{BACKEND};
   } else {
 
     # We couldn't find an instrument header, so we can't do header
@@ -220,10 +222,11 @@ sub translate_from_FITS {
 
   # Special instrument-handling (can't really put this elsewhere)
   if( $instrument =~ /ircam/i ) { $instrument = "IRCAM"; }
+  if( $instrument =~ /das|cbe|ifd/i ) { $instrument = "JCMT_GSD"; }
 
   # Untaint
   if ($instrument =~ /^(\w+)$/) {
-    $instrument = $1;
+    $instrument = uc($1);
   } else {
     croak "Instrument name looks a bit strange to me: $instrument\n";
   }
@@ -256,7 +259,13 @@ sub translate_to_FITS {
   my $instrument;
   my %FITS_header;
 
-  if( ( defined( $generic_header->{INSTRUMENT} ) ) &&
+  if( ( defined( $generic_header->{BACKEND} ) ) &&
+      ( length( $generic_header->{BACKEND} . "" ) != 0 ) &&
+      $generic_header->{BACKEND} =~ /CBE|DAS|IFD/i ) {
+
+    $instrument = "JCMT_GSD";
+
+  } elsif( ( defined( $generic_header->{INSTRUMENT} ) ) &&
       ( length( $generic_header->{INSTRUMENT} . "" ) != 0 ) ) {
 
     $instrument = $generic_header->{INSTRUMENT};
