@@ -37,9 +37,9 @@ headers and back again
 
 =head1 SYNOPSIS
 
-  %generic_headers = translate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
 
-  %FITS_headers = transate_to_FITS(\%generic_headers);
+  %FITS_headers = transate_to_FITS(\%generic_headers, \@header_array);
 
 =head1 DESCRIPTION
 
@@ -53,6 +53,8 @@ headers.
 
 use strict;
 use vars qw/ $VERSION /;
+use Data::Dumper;
+use Time::Piece;
 
 '$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
 
@@ -75,7 +77,10 @@ $Id$
 Converts a hash containing UKIRTDB headers into a hash containing
 generic headers.
 
-  %generic_headers = translate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
+
+The C<header_array> argument is used to supply a list of generic
+header names.
 
 =back
 
@@ -83,9 +88,10 @@ generic headers.
 
 sub translate_from_FITS {
   my $FITS_header = shift;
+  my $header_array = shift;
   my %generic_header;
 
-  for my $key ( @Astro::FITS::HdrTrans::generic_headers ) {
+  for my $key ( @$header_array ) {
 
     if(exists($hdr{$key}) ) {
       $generic_header{$key} = $FITS_header->{$hdr{$key}};
@@ -108,7 +114,10 @@ sub translate_from_FITS {
 Converts a hash containing generic headers into a hash containing
 FITS headers
 
-  %FITS_headers = translate_to_FITS(\%generic_headers);
+  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
+
+The C<header_array> argument is used to supply a list of generic
+header names.
 
 =back
 
@@ -116,9 +125,10 @@ FITS headers
 
 sub translate_to_FITS {
   my $generic_header = shift;
+  my $header_array = shift;
   my %FITS_header;
 
-  for my $key ( @Astro::FITS::HdrTrans::generic_headers ) {
+  for my $key ( @$header_array ) {
 
     if( exists($hdr{$key}) ) {
       $FITS_header{$hdr{$key}} = $generic_header->{$key};
@@ -193,22 +203,30 @@ sub to_COORDINATE_UNITS {
 
 =item B<to_UTSTART>
 
-Removes the 'Z' from the end of the beginning observation time.
+Combines the C<UT_DATE> and C<RUTSTART> headers into a unified
+C<UTSTART> header.
 
 =cut
 
 sub to_UTSTART {
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{'DATE_OBS'})) {
-    ($return = $FITS_headers->{'DATE_OBS'}) =~ s/Z//;
+  if(exists($FITS_headers->{'UT_DATE'}) &&
+     exists($FITS_headers->{'RUTSTART'}) ) {
+    # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
+    my $t = Time::Piece->strptime($FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p");
+    my $hour = int($FITS_headers->{'RUTSTART'});
+    my $minute = int( ( $FITS_headers->{'RUTSTART'} - $hour ) * 60 );
+    my $second = int( ( ( ( $FITS_headers->{'RUTSTART'} - $hour ) * 60) - $minute ) * 60 );
+    $return = $t->ymd . "T" . $hour . ":" . $minute . ":" . $second;
   }
   return $return;
 }
 
 =item B<from_UTSTART>
 
-Adds a 'Z' to the end of the beginning observation time.
+Converts the C<UTSTART> generic header into C<UT_DATE> and C<RUTSTART>
+database headers.
 
 =cut
 
@@ -216,29 +234,42 @@ sub from_UTSTART {
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
-    $return_hash{'DATE-OBS'} = $generic_headers->{UTSTART} . "Z";
+    my $t = ORAC::General->parse_date( $generic_headers->{'UTSTART'} );
+    my $month = $t->month;
+    $month =~ /^(.{3})/;
+    $month = $1;
+    $return_hash{'UT_DATE'} = $month . " " . $t->mday . " " . $t->year;
+    $return_hash{'RUTSTART'} = $t->hour + ($t->min / 60) + ($t->sec / 3600);
   }
   return %return_hash;
 }
 
 =item B<to_UTEND>
 
-Removes the 'Z' from the end of the ending observation time.
+Combines the C<UT_DATE> and C<RUTEND> headers into a unified
+C<UTEND> header.
 
 =cut
 
 sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{'DATE-END'})) {
-    ($return = $FITS_headers->{'DATE-END'}) =~ s/Z//;
+  if(exists($FITS_headers->{'UT_DATE'}) &&
+     exists($FITS_headers->{'RUTEND'}) ) {
+    # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
+    my $t = Time::Piece->strptime($FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p");
+    my $hour = int($FITS_headers->{'RUTEND'});
+    my $minute = int( ( $FITS_headers->{'RUTEND'} - $hour ) * 60 );
+    my $second = int( ( ( ( $FITS_headers->{'RUTEND'} - $hour ) * 60) - $minute ) * 60 );
+    $return = $t->ymd . "T" . $hour . ":" . $minute . ":" . $second;
   }
   return $return;
 }
 
 =item B<from_UTEND>
 
-Adds a 'Z' to the end of the ending observation time.
+Converts the C<UTSTART> generic header into C<UT_DATE> and C<RUTSTART>
+database headers.
 
 =cut
 
@@ -246,7 +277,12 @@ sub from_UTEND {
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
-    $return_hash{'DATE-END'} = $generic_headers->{UTEND} . "Z";
+    my $t = ORAC::General->parse_date( $generic_headers->{'UTEND'} );
+    my $month = $t->month;
+    $month =~ /^(.{3})/;
+    $month = $1;
+    $return_hash{'UT_DATE'} = $month . " " . $t->mday . " " . $t->year;
+    $return_hash{'RUTEND'} = $t->hour + ($t->min / 60) + ($t->sec / 3600);
   }
   return %return_hash;
 }
