@@ -161,6 +161,44 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =over 4
 
+=item B<to_COORDINATE_TYPE>
+
+Converts the C<EQUINOX> FITS header into B1950 or J2000, depending
+on equinox value, and sets the C<COORDINATE_TYPE> generic header.
+
+=cut
+
+sub to_COORDINATE_TYPE {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{EQUINOX})) {
+    if($FITS_headers->{EQUINOX} =~ /1950/) {
+      $return = "B1950";
+    } elsif ($FITS_headers->{EQUINOX} =~ /2000/) {
+      $return = "J2000";
+    }
+  }
+  return $return;
+}
+
+=item B<to_COORDINATE_UNITS>
+
+Sets the C<COORDINATE_UNITS> generic header to "degrees".
+
+=cut
+
+sub to_COORDINATE_UNITS {
+  "degrees";
+}
+
+=item B<to_POLARIMETRY>
+
+=cut
+
+sub to_POLARIMETRY {
+
+}
+
 =item B<to_UTDATE>
 
 Converts FITS header values into standard UT date value of the form
@@ -287,6 +325,39 @@ sub from_UTEND {
   return %return_hash;
 }
 
+=item B<to_X_BASE>
+
+Converts the decimal hours in the FITS header C<RABASE> into
+decimal degrees for the generic header C<X_BASE>.
+
+=cut
+
+sub to_X_BASE {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{RABASE})) {
+    $return = $FITS_headers * 15;
+  }
+  return $return;
+}
+
+=item B<from_X_BASE>
+
+Converts the decimal degrees in the generic header C<X_BASE>
+into decimal hours for the FITS header C<RABASE>.
+
+=cut
+
+sub from_X_BASE {
+  my $generic_headers = shift;
+  my %return_hash;
+  if(exists($generic_headers->{X_BASE})) {
+    $return_hash{'RABASE'} = $generic_headers->{X_BASE} / 15;
+  }
+  return %return_hash;
+}
+
+
 =back
 
 =head1 VARIABLES
@@ -305,6 +376,7 @@ Keys are generic headers, values are FITS headers.
             AIRMASS_END          => "AMEND",
             CONFIGURATION_INDEX  => "CNFINDEX",
             DEC_BASE             => "DECBASE",
+            DEC_SCALE            => "PIXELSIZ",
             DEC_TELESCOPE_OFFSET => "DECOFF",
             DETECTOR_INDEX       => "DINDEX",
             DETECTOR_READ_TYPE   => "DETMODE",
@@ -324,6 +396,7 @@ Keys are generic headers, values are FITS headers.
             OBSERVATION_NUMBER   => "OBSNUM",
             OBSERVATION_TYPE     => "OBSTYPE",
             RA_BASE              => "RABASE",
+            RA_SCALE             => "PIXELSIZ",
             RA_TELESCOPE_OFFSET  => "RAOFF",
             ROTATION             => "CROTA2",
             SCAN_INCREMENT       => "DETINCR",
@@ -333,6 +406,11 @@ Keys are generic headers, values are FITS headers.
             STANDARD             => "STANDARD",
             TELESCOPE            => "TELESCOP",
             WAVEPLATE_ANGLE      => "WPLANGLE",
+            Y_BASE               => "DECBASE",
+            X_OFFSET             => "RAOFF",
+            Y_OFFSET             => "DECOFF",
+            X_SCALE              => "PIXELSIZ",
+            Y_SCALE              => "PIXELSIZ",
             X_DIM                => "DCOLUMNS",
             Y_DIM                => "DROWS",
             X_LOWER_BOUND        => "RDOUT_X1",

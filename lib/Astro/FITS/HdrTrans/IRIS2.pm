@@ -229,6 +229,36 @@ sub from_AIRMASS_END {
   return %return_hash;
 }
 
+=item B<to_COORDINATE_TYPE>
+
+Converts the C<EQUINOX> FITS header into B1950 or J2000, depending
+on equinox value, and sets the C<COORDINATE_TYPE> generic header.
+
+=cut
+
+sub to_COORDINATE_TYPE {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{EQUINOX})) {
+    if($FITS_headers->{EQUINOX} =~ /1950/) {
+      $return = "B1950";
+    } elsif ($FITS_headers->{EQUINOX} =~ /2000/) {
+      $return = "J2000";
+    }
+  }
+  return $return;
+}
+
+=item B<to_COORDINATE_UNITS>
+
+Sets the C<COORDINATE_UNITS> generic header to "degrees".
+
+=cut
+
+sub to_COORDINATE_UNITS {
+  "degrees";
+}
+
 =item B<to_UTDATE>
 
 Converts FITS header values into standard UT date value of the form
@@ -358,6 +388,38 @@ sub from_UTEND {
   return %return_hash;
 }
 
+=item B<to_X_BASE>
+
+Converts the decimal hours in the FITS header C<RABASE> into
+decimal degrees for the generic header C<X_BASE>.
+
+=cut
+
+sub to_X_BASE {
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{RABASE})) {
+    $return = $FITS_headers * 15;
+  }
+  return $return;
+}
+
+=item B<from_X_BASE>
+
+Converts the decimal degrees in the generic header C<X_BASE>
+into decimal hours for the FITS header C<RABASE>.
+
+=cut
+
+sub from_X_BASE {
+  my $generic_headers = shift;
+  my %return_hash;
+  if(exists($generic_headers->{X_BASE})) {
+    $return_hash{'RABASE'} = $generic_headers->{X_BASE} / 15;
+  }
+  return %return_hash;
+}
+
 =item B<to_ROTATION>
 
 Converts a linear transformation matrix into a single rotation angle. This angle
@@ -365,7 +427,7 @@ is measured counter-clockwise from the positive x-axis.
 
 =cut
 
-# ROTATION, DEC_SCALE, and RA_SCALE conversions courtesy Micah Johnson, from
+# ROTATION, X_SCALE, and Y_SCALE conversions courtesy Micah Johnson, from
 # the cdelrot.pl script supplied for use with XIMAGE.
 
 sub to_ROTATION {
@@ -390,14 +452,14 @@ sub to_ROTATION {
   return $return;
 }
 
-=item B<to_DEC_SCALE>
+=item B<to_Y_SCALE>
 
 Converts a linear transformation matrix into a pixel scale in the declination
 axis. Results are in arcseconds per pixel.
 
 =cut
 
-sub to_DEC_SCALE {
+sub to_Y_SCALE {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{CD1_1}) &&
@@ -415,14 +477,14 @@ sub to_DEC_SCALE {
   return $return;
 }
 
-=item B<to_RA_SCALE>
+=item B<to_X_SCALE>
 
 Converts a linear transformation matrix into a pixel scale in the right
 ascension axis. Results are in arcseconds per pixel.
 
 =cut
 
-sub to_RA_SCALE {
+sub to_X_SCALE {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{CD1_2}) &&
@@ -480,6 +542,9 @@ Keys are generic headers, values are FITS headers.
             STANDARD             => "STANDARD",
             TELESCOPE            => "TELESCOP",
             WAVEPLATE_ANGLE      => "WPLANGLE",
+            Y_BASE               => "DECBASE",
+            X_OFFSET             => "RAOFF",
+            Y_OFFSET             => "DECOFF",
             X_DIM                => "DCOLUMNS",
             Y_DIM                => "DROWS",
             X_LOWER_BOUND        => "RDOUT_X1",
