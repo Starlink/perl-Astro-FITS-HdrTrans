@@ -93,6 +93,7 @@ our @generic_headers = qw( AIRMASS_START
                        ALTITUDE_END
                        AZIMUTH_START
                        AZIMUTH_END
+                       BACKEND
                        BOLOMETERS
                        CHOP_ANGLE
                        CHOP_COORDINATE_SYSTEM
@@ -100,6 +101,7 @@ our @generic_headers = qw( AIRMASS_START
                        CONFIGURATION_INDEX
                        COORDINATE_UNITS
                        COORDINATE_TYPE
+                       CYCLE_LENGTH
                        DEC_BASE
                        DEC_SCALE
                        DEC_TELESCOPE_OFFSET
@@ -123,6 +125,7 @@ our @generic_headers = qw( AIRMASS_START
                        MSBID
                        NSCAN_POSITIONS
                        NUMBER_OF_COADDS
+                       NUMBER_OF_CYCLES
                        NUMBER_OF_DETECTORS
                        NUMBER_OF_EXPOSURES
                        NUMBER_OF_OFFSETS
@@ -137,6 +140,7 @@ our @generic_headers = qw( AIRMASS_START
                        RA_BASE
                        RA_SCALE
                        RA_TELESCOPE_OFFSET
+                       REST_FREQUENCY
                        ROTATION
                        SAMPLING
                        SCAN_INCREMENT
@@ -153,6 +157,7 @@ our @generic_headers = qw( AIRMASS_START
                        UTEND
                        UTSTART
                        VELOCITY
+                       VELSYS
                        WAVEPLATE_ANGLE
                        X_BASE
                        Y_BASE
@@ -199,6 +204,12 @@ sub translate_from_FITS {
   } elsif ( ( defined( $FITS_header->{INST} ) &&
               length( $FITS_header->{INST} . "" ) != 0 ) ) {
     $instrument = $FITS_header->{INST};
+  } elsif ( ( defined( $FITS_header->{C1FTYP} ) &&
+              length( $FITS_header->{C1FTYP} . "" ) != 0 ) ) {
+    $instrument = $FITS_header->{C1FTYP};
+  } elsif ( ( defined( $FITS_header->{FRONTYPE} ) &&
+              length( $FITS_header->{FRONTYPE} . "" ) != 0 ) ) {
+    $instrument = $FITS_header->{FRONTYPE};
   } else {
 
     # We couldn't find an instrument header, so we can't do header
@@ -207,49 +218,17 @@ sub translate_from_FITS {
 
   }
 
-  # We should now have an instrument for which we can make header translations.
+  # Special instrument-handling (can't really put this elsewhere)
+  if( $instrument =~ /ircam/i ) { $instrument = "IRCAM"; }
 
-  # Let's do this in a giant switch statement instead of trying to
-  # be fancy and tricky. Yes, this'll get messy when more instruments are
-  # added later on...
-
-  switch ( uc( $instrument ) ) {
-    case "MICHELLE" {
-                     require Astro::FITS::HdrTrans::MICHELLE;
-                     %generic_header = Astro::FITS::HdrTrans::MICHELLE::translate_from_FITS($FITS_header, \@generic_headers);
-                    }
-    case "UFTI" {
-                 require Astro::FITS::HdrTrans::UFTI;
-                 %generic_header = Astro::FITS::HdrTrans::UFTI::translate_from_FITS($FITS_header, \@generic_headers);
-                }
-    case "CGS4" {
-                 require Astro::FITS::HdrTrans::CGS4;
-                 %generic_header = Astro::FITS::HdrTrans::CGS4::translate_from_FITS($FITS_header, \@generic_headers);
-                }
-    case /ircam(.)?/i {
-                   require Astro::FITS::HdrTrans::IRCAM;
-                   %generic_header = Astro::FITS::HdrTrans::IRCAM::translate_from_FITS($FITS_header, \@generic_headers);
-                  }
-    case "UIST" {
-                 require Astro::FITS::HdrTrans::UIST;
-                 %generic_header = Astro::FITS::HdrTrans::UIST::translate_from_FITS($FITS_header, \@generic_headers);
-                }
-    case "IRIS2" {
-                  require Astro::FITS::HdrTrans::IRIS2;
-                  %generic_header = Astro::FITS::HdrTrans::IRIS2::translate_from_FITS($FITS_header, \@generic_headers);
-                 }
-    case "SCUBA" {
-                  require Astro::FITS::HdrTrans::SCUBA;
-                  %generic_header = Astro::FITS::HdrTrans::SCUBA::translate_from_FITS($FITS_header, \@generic_headers);
-                 }
-    case "UKIRTDB" {
-                    require Astro::FITS::HdrTrans::UKIRTDB;
-                    %generic_header = Astro::FITS::HdrTrans::UKIRTDB::translate_from_FITS($FITS_header, \@generic_headers);
-                   }
-    else {
-      croak "Instrument $instrument not currently supported.\n";
-    }
-  } # end SWITCH
+  # Do the translation.
+  my $class = "Astro::FITS::HdrTrans::" . uc( $instrument );
+  eval "require $class";
+  if( $@ ) { croak "Could not load module $class"; }
+  {
+    no strict 'refs';
+    %generic_header = &{$class."::translate_from_FITS"}( $FITS_header, \@generic_headers);
+  }
 
   return %generic_header;
 
@@ -278,43 +257,14 @@ sub translate_to_FITS {
     croak "Instrument not found in header.\n";
   }
 
-  switch ( uc( $instrument ) ) {
-    case "MICHELLE" {
-                     require Astro::FITS::HdrTrans::MICHELLE;
-                     %FITS_header = Astro::FITS::HdrTrans::MICHELLE::translate_to_FITS($generic_header, \@generic_headers);
-                    }
-    case "UFTI" {
-                 require Astro::FITS::HdrTrans::UFTI;
-                 %FITS_header = Astro::FITS::HdrTrans::UFTI::translate_to_FITS($generic_header, \@generic_headers);
-                }
-    case "CGS4" {
-                 require Astro::FITS::HdrTrans::CGS4;
-                 %FITS_header = Astro::FITS::HdrTrans::CGS4::translate_to_FITS($generic_header, \@generic_headers);
-                }
-    case "IRCAM" {
-                  require Astro::FITS::HdrTrans::IRCAM;
-                  %FITS_header = Astro::FITS::HdrTrans::IRCAM::translate_to_FITS($generic_header, \@generic_headers);
-                 }
-    case "UIST" {
-                 require Astro::FITS::HdrTrans::UIST;
-                 %FITS_header = Astro::FITS::HdrTrans::UIST::translate_to_FITS($generic_header, \@generic_headers);
-                }
-    case "IRIS2" {
-                  require Astro::FITS::HdrTrans::IRIS2;
-                  %FITS_header = Astro::FITS::HdrTrans::IRIS2::translate_to_FITS($generic_header, \@generic_headers);
-                 }
-    case "SCUBA" {
-                  require Astro::FITS::HdrTrans::SCUBA;
-                  %FITS_header = Astro::FITS::HdrTrans::SCUBA::translate_to_FITS($generic_header, \@generic_headers);
-                 }
-    case "UKIRTDB" {
-                    require Astro::FITS::HdrTrans::UKIRTDB;
-                    %FITS_header = Astro::FITS::HdrTrans::UKIRTDB::translate_to_FITS($generic_header, \@generic_headers);
-                   }
-    else {
-      croak "Instrument $instrument not currently supported.\n";
-    }
-  } # end SWITCH
+  # Do the translation.
+  my $class = "Astro::FITS::HdrTrans::" . uc( $instrument );
+  eval "require $class";
+  if( $@ ) { croak "Could not load module $class: $@"; }
+  {
+    no strict 'refs';
+    %FITS_header = &{$class."::translate_to_FITS"}( $generic_header, \@generic_headers);
+  }
 
   return %FITS_header;
 
