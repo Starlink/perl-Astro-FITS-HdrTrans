@@ -326,27 +326,47 @@ sub to_STANDARD {
   if( exists( $FITS_headers->{'STANDARD'} ) &&
       length( $FITS_headers->{'STANDARD'} . "") > 0 ) {
 
-    if($FITS_headers->{'STANDARD'} =~ /^[tf]$/i) {
-      $return = (uc($FITS_headers->{'STANDARD'}) eq 'T');
-    } elsif($FITS_headers->{'STANDARD'} =~ /^[01]$/) {
-      $return = $FITS_headers->{'STANDARD'};
+    if( exists( $FITS_headers->{'OBJECT'} ) ) {
+
+      if( ( uc( $FITS_headers->{'STANDARD'} ) eq 'T' ) ||
+          ( $FITS_headers->{'STANDARD'} == 1 ) ||
+          ( $FITS_headers->{'OBJECT'} =~ /^[bf]s/i ) ) {
+        $return = 1;
+      } else {
+        $return = 0;
+      }
+
     } else {
-      $return = 0;
+
+      if($FITS_headers->{'STANDARD'} =~ /^[tf]$/i) {
+        $return = (uc($FITS_headers->{'STANDARD'}) eq 'T');
+      } elsif($FITS_headers->{'STANDARD'} =~ /^[01]$/) {
+        $return = $FITS_headers->{'STANDARD'};
+      } else {
+        $return = 0;
+      }
     }
+
   } elsif( exists( $FITS_headers->{'OBJECT'} ) ) {
+
     if($FITS_headers->{'OBJECT'} =~ /^[bf]s/i ) {
       $return = 1;
     } else {
       $return = 0;
-    };
+    }
+
   } elsif( exists( $FITS_headers->{'RECIPE'} ) ) {
+
     if($FITS_headers->{'RECIPE'} =~ /^standard/i ) {
       $return = 1;
     } else {
       $return = 0;
     }
+
   } else {
+
     $return = 0;
+
   }
 }
 
