@@ -83,7 +83,7 @@ sub wanted {
   # is it a module
   return unless $pm =~ /\.pm$/;
 
-  print "pm is $pm\n";
+#  print "pm is $pm\n";
 
 
 
