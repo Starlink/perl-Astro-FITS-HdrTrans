@@ -257,7 +257,7 @@ Converts UT date in the form C<yyyy-mm-dd> to C<yyyymmdd>.
 sub from_UTDATE {
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_header->{UTDATE})) {
+  if(exists($generic_headers->{UTDATE})) {
     my $date = $generic_headers->{UTDATE};
     $date =~ s/-/:/g;
     $return_hash{UTDATE} = $date;
@@ -312,7 +312,7 @@ sub from_UTSTART {
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
     my $date = $generic_headers->{UTSTART};
-    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/
+    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
     my ($year, $month, $day, $hour, $minute, $second) = ($1, $2, $3, $4, $5, $6);
     $return_hash{UTDATE} = join ':', $year, $month, $date;
     $return_hash{UTSTART} = join ':', $hour, $minute, $second;
@@ -350,7 +350,7 @@ sub from_UTEND {
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
     my $date = $generic_headers->{UTEND};
-    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/
+    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
     my ($year, $month, $day, $hour, $minute, $second) = ($1, $2, $3, $4, $5, $6);
     $return_hash{UTDATE} = join ':', $year, $month, $date;
     $return_hash{UTEND} = join ':', $hour, $minute, $second;
@@ -447,7 +447,7 @@ Keys are generic headers, values are FITS headers.
 
 =cut
 
-our %hdr = (
+%hdr = (
             AIRMASS_START        => "AMSTART",
             AIRMASS_END          => "AMEND",
             CONFIGURATION_INDEX  => "CNFINDEX",

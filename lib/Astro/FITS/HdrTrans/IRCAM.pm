@@ -189,7 +189,7 @@ Converts UT date in the form C<yyyy-mm-dd> to C<yyyymmdd>.
 sub from_UTDATE {
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_header->{UTDATE})) {
+  if(exists($generic_headers->{UTDATE})) {
     my $date = $generic_headers->{UTDATE};
     $date =~ s/-//g;
     $return_hash{IDATE} = $date;
@@ -213,9 +213,9 @@ sub to_UTSTART {
     my $utdechour = $FITS_headers->{RUTSTART};
     $utdate =~ /(\d{4})(\d{2})(\d{2})/;
     $utdate = join '-', $1, $2, $3;
-    $uthour = int($utdechour);
-    $utminute = int( ( $utdechour - $uthour ) * 60 );
-    $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
+    my $uthour = int($utdechour);
+    my $utminute = int( ( $utdechour - $uthour ) * 60 );
+    my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
     $uttime = join ':', $uthour, $utminute, $utsecond;
     $return = $utdate . "T" . $uttime;
   }
@@ -234,7 +234,7 @@ sub from_UTSTART {
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
     my $date = $generic_headers->{UTSTART};
-    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/
+    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
     my ($year, $month, $day, $hour, $minute, $second) = ($1, $2, $3, $4, $5, $6);
     $return_hash{IDATE} = join '', $year, $month, $date;
     $return_hash{RUTSTART} = $hour + ( $minute / 60 ) + ( $second / 3600 );
@@ -258,9 +258,9 @@ sub to_UTEND {
     my $utdechour = $FITS_headers->{RUTEND};
     $utdate =~ /(\d{4})(\d{2})(\d{2})/;
     $utdate = join '-', $1, $2, $3;
-    $uthour = int($utdechour);
-    $utminute = int( ( $utdechour - $uthour ) * 60 );
-    $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
+    my $uthour = int($utdechour);
+    my $utminute = int( ( $utdechour - $uthour ) * 60 );
+    my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
     $uttime = join ':', $uthour, $utminute, $utsecond;
     $return = $utdate . "T" . $uttime;
   }
@@ -279,7 +279,7 @@ sub from_UTEND {
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
     my $date = $generic_headers->{UTEND};
-    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/
+    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
     my ($year, $month, $day, $hour, $minute, $second) = ($1, $2, $3, $4, $5, $6);
     $return_hash{IDATE} = join '', $year, $month, $date;
     $return_hash{RUTEND} = $hour + ( $minute / 60 ) + ( $second / 3600 );
@@ -300,7 +300,7 @@ Keys are generic headers, values are FITS headers.
 
 =cut
 
-our %hdr = (
+%hdr = (
             AIRMASS_START        => "AMSTART",
             AIRMASS_END          => "AMEND",
             CONFIGURATION_INDEX  => "CNFINDEX",

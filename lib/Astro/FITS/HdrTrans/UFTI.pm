@@ -234,7 +234,7 @@ Keys are generic headers, values are FITS headers.
 
 =cut
 
-our %hdr = (
+%hdr = (
             AIRMASS_START        => "AMSTART",
             AIRMASS_END          => "AMEND",
             CONFIGURATION_INDEX  => "CNFINDEX",
