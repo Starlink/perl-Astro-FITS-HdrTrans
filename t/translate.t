@@ -13,7 +13,7 @@ my @test_classes = qw/ IRIS2 INGRID /;
 
 my $push_array_return = Astro::FITS::HdrTrans::push_class( \@test_classes );
 
-ok( !$push_array_return, "push_class with array ref" );
+ok( $push_array_return, "push_class with array ref" );
 
 # Test push_class with scalar.
 my $test_class = "ISAAC";
