@@ -230,6 +230,8 @@ sub to_COORDINATE_TYPE {
       $return = "J2000";
     } elsif( $fits_eq =~ /AZ/i ) {
       $return = "galactic";
+    } elsif( $fits_eq =~ /planet/i ) {
+      $return = "planet";
     }
   }
   return $return;
