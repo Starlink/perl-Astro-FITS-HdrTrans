@@ -515,12 +515,15 @@ sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
 
-  my $utdate = $FITS_headers->{'UTDATE'};
-  my $utend = $FITS_headers->{'UTEND'};
-  my ($year, $month, $day) = split /:/, $utdate;
-  my ($hour, $minute, $second) = split /:/, $utend;
-  $return = sprintf("%04d-%02d-%02dT%02d:%02d:%02d",
-                    $year, $month, $day, $hour, $minute, $second);
+  if( exists( $FITS_headers->{'UTDATE'} ) &&
+      defined( $FITS_headers->{'UTDATE'} ) ) {
+    my $utdate = $FITS_headers->{'UTDATE'};
+    my $utend = $FITS_headers->{'UTEND'};
+    my ($year, $month, $day) = split /:/, $utdate;
+    my ($hour, $minute, $second) = split /:/, $utend;
+    $return = sprintf("%04d-%02d-%02dT%02d:%02d:%02d",
+                      $year, $month, $day, $hour, $minute, $second);
+  }
 
   return $return;
 }
