@@ -11,6 +11,8 @@ WriteMakefile(
                'PREREQ_PM'      => { 
                                     Switch => 0,
                                     'Math::Trig' => 0,
+                                    'Test::More' => 0,
+                                    'Time::Piece' => 0,
                                    },
                'dist'           => { COMPRESS => "gzip -9f"},
                ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
