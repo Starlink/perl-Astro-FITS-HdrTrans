@@ -23,7 +23,7 @@ package Astro::FITS::HdrTrans::IRCAM;
 #     $Id$
 
 #  Copyright:
-#     Copyright (C) 2002 Particle Physics and Astronomy Research Council.
+#     Copyright (C) 2003 Particle Physics and Astronomy Research Council.
 #     All Rights Reserved.
 
 #-
@@ -35,17 +35,10 @@ package Astro::FITS::HdrTrans::IRCAM;
 Astro::FITS::HdrTrans::IRCAM - Translate FITS headers into generic
 headers and back again
 
-=head1 SYNOPSIS
-
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
-
-  %FITS_headers = transate_to_FITS(\%generic_headers, \@header_array);
-
 =head1 DESCRIPTION
 
-Converts information contained in IRCAM FITS headers to and from
-generic headers. See Astro::FITS::HdrTrans for a list of generic
-headers.
+Describes conversions between generic headers and those for the United
+Kingdom Infrared Telescope IRCAM infrared camera.
 
 =cut
 
@@ -54,7 +47,15 @@ headers.
 use strict;
 use vars qw/ $VERSION /;
 
-'$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
+$VERSION = '0.01';
+
+require Exporter;
+
+our @ISA = qw/Exporter/;
+our @EXPORT_OK = qw( valid_class );
+our %EXPORT_TAGS = (
+                    'all' => [ qw( @EXPORT_OK ) ],
+                   );
 
 # P R E D E C L A R A T I O N S --------------------------------------------
 
@@ -68,82 +69,43 @@ $Id$
 
 =head1 METHODS
 
+These methods provide an interface to the class, allowing the base
+class to determine if this class is the appropriate one to use for
+the given headers.
+
 =over 4
 
-=item B<translate_from_FITS>
+=item B<valid_class>
 
-Converts a hash containing IRCAM FITS headers into a hash containing
-generic headers.
+  $valid = valid_class( \%headers );
 
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
+This method takes one argument: a reference to a hash containing
+the untranslated headers.
 
-The C<header_array> argument is used to supply a list of generic
-header names.
+This method returns true (1) or false (0) depending on if the headers
+can be translated by this method.
+
+For this class, the method will return true if the B<INSTRUME> header
+exists, and its value matches the regular expression C</^ircam/i>.
 
 =back
 
 =cut
 
-sub translate_from_FITS {
-  my $FITS_header = shift;
-  my $header_array = shift;;
-  my %generic_header;
+sub valid_class {
+  my $headers = shift;
 
-  for my $key ( @$header_array ) {
-
-    if(exists($hdr{$key}) ) {
-      $generic_header{$key} = $FITS_header->{$hdr{$key}};
-    } else {
-      my $subname = "to_" . $key;
-      if(exists(&$subname) ) {
-        no strict 'refs'; # EEP!
-        $generic_header{$key} = &$subname($FITS_header);
-      }
-    }
+  if( exists( $headers->{'INSTRUME'} ) &&
+      defined( $headers->{'INSTRUME'} ) &&
+      $headers->{'INSTRUME'} =~ /^ircam/i ) {
+    return 1;
+  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
+           defined( $headers->{'INSTRUMENT'} ) &&
+           $headers->{'INSTRUMENT'} =~ /^ircam$/i ) {
+    return 1;
+  } else {
+    return 0;
   }
-  return %generic_header;
-
-}
-
-=over 4
-
-=item B<translate_to_FITS>
-
-Converts a hash containing generic headers into a hash containing
-FITS headers
-
-  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
-
-The C<header_array> argument is used to supply a list of generic
-header names.
-
-=back
-
-=cut
-
-sub translate_to_FITS {
-  my $generic_header = shift;
-  my $header_array = shift;
-  my %FITS_header;
-
-  for my $key ( @$header_array ) {
-
-    if( exists($hdr{$key}) ) {
-      $FITS_header{$hdr{$key}} = $generic_header->{$key};
-    } else {
-      no strict 'refs'; # EEP EEP!
-      my $subname = "from_" . $key;
-      if(exists(&$subname) ) {
-        my %new = &$subname($generic_header);
-        for my $newkey ( keys %new ) {
-          $FITS_header{$newkey} = $new{$newkey};
-        }
-      }
-    }
-  }
-
-  return %FITS_header;
-
 }
 
 =head1 TRANSLATION METHODS
@@ -162,10 +124,7 @@ header would be named C<to_AIRMASS>.
 The format of these methods is C<to_HEADER> and C<from_HEADER>.
 C<to_> methods accept a hash reference as an argument and return a scalar
 value (typically a string). C<from_> methods accept a hash reference
-as an argument and return a hash. All UT datetimes should be in
-standard ISO 8601 datetime format, which is C<YYYY-MM-DDThh:mm:ss>.
-See http://www.cl.cam.ac.uk/~mgk25/iso-time.html for a brief overview
-of ISO 8601. Dates should be in YYYY-MM-DD format.
+as an argument and return a hash.
 
 =over 4
 
@@ -229,8 +188,7 @@ sub to_POLARIMETRY {
 
 =item B<to_UTDATE>
 
-Converts FITS header values into standard UT date value of the form
-YYYY-MM-DD.
+Converts FITS header values into C<Time::Piece> object.
 
 =cut
 
@@ -239,8 +197,7 @@ sub to_UTDATE {
   my $return;
   if(exists($FITS_headers->{IDATE})) {
     my $utdate = $FITS_headers->{IDATE};
-    $utdate =~ /(\d{4})(\d{2})(\d{2})/;
-    $return = join '-', $1, $2, $3;
+    $return = Time::Piece->strptime( $utdate, "%Y%m%d" );
   }
 
   return $return;
@@ -248,7 +205,8 @@ sub to_UTDATE {
 
 =item B<from_UTDATE>
 
-Converts UT date in the form C<yyyy-mm-dd> to C<yyyymmdd>.
+Converts UT date in C<Time::Piece> object into C<YYYYMMDD> format
+for IDATE header.
 
 =cut
 
@@ -257,8 +215,8 @@ sub from_UTDATE {
   my %return_hash;
   if(exists($generic_headers->{UTDATE})) {
     my $date = $generic_headers->{UTDATE};
-    $date =~ s/-//g;
-    $return_hash{IDATE} = $date;
+    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+    $return_hash{IDATE} = sprintf("%4d%02d%02d", $date->year, $date->mon, $date->mday);
   }
   return %return_hash;
 }
@@ -266,7 +224,7 @@ sub from_UTDATE {
 =item B<to_UTSTART>
 
 Converts FITS header UT date/time values for the start of the observation
-into an ISO 8601 formatted date.
+into a C<Time::Piece> object.
 
 =cut
 
@@ -283,14 +241,14 @@ sub to_UTSTART {
     my $utminute = int( ( $utdechour - $uthour ) * 60 );
     my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
     $uttime = join ':', $uthour, $utminute, $utsecond;
-    $return = $utdate . "T" . $uttime;
+    $return = Time::Piece->strptime( $utdate . "T" . $uttime, "%Y-%m-%dT%T" );
   }
   return $return;
 }
 
 =item B<from_UTSTART>
 
-Converts an ISO 8601 formatted date into two FITS headers for IRCAM: IDATE
+Converts a C<Time::Piece> object into two FITS headers for IRCAM: IDATE
 (in the format YYYYMMDD) and RUTSTART (decimal hours).
 
 =cut
@@ -300,10 +258,9 @@ sub from_UTSTART {
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
     my $date = $generic_headers->{UTSTART};
-    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
-    my ($year, $month, $day, $hour, $minute, $second) = ($1, $2, $3, $4, $5, $6);
-    $return_hash{IDATE} = join '', $year, $month, $date;
-    $return_hash{RUTSTART} = $hour + ( $minute / 60 ) + ( $second / 3600 );
+    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+    $return_hash{IDATE} = sprintf("%4d%02d%02d", $date->year, $date->mon, $date->mday);
+    $return_hash{RUTSTART} = $date->hour + ( $date->minute / 60 ) + ( $date->second / 3600 );
   }
   return %return_hash;
 }
@@ -311,7 +268,7 @@ sub from_UTSTART {
 =item B<to_UTEND>
 
 Converts FITS header UT date/time values for the end of the observation into
-an ISO 8601-formatted date.
+a C<Time::Piece> object.
 
 =cut
 
@@ -328,14 +285,14 @@ sub to_UTEND {
     my $utminute = int( ( $utdechour - $uthour ) * 60 );
     my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
     $uttime = join ':', $uthour, $utminute, $utsecond;
-    $return = $utdate . "T" . $uttime;
+    $return = Time::Piece->strptime( $utdate . "T" . $uttime, "%Y-%m-%dT%T" );
   }
   return $return;
 }
 
 =item B<from_UTEND>
 
-Converts an ISO 8601 formatted date into two FITS headers for IRCAM: IDATE
+Converts a C<Time::Piece> object into two FITS headers for IRCAM: IDATE
 (in the format YYYYMMDD) and RUTEND (decimal hours).
 
 =cut
@@ -345,10 +302,9 @@ sub from_UTEND {
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
     my $date = $generic_headers->{UTEND};
-    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
-    my ($year, $month, $day, $hour, $minute, $second) = ($1, $2, $3, $4, $5, $6);
-    $return_hash{IDATE} = join '', $year, $month, $date;
-    $return_hash{RUTEND} = $hour + ( $minute / 60 ) + ( $second / 3600 );
+    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+    $return_hash{IDATE} = sprintf("%4d%02d%02d", $date->year, $date->mon, $date->mday);
+    $return_hash{RUTEND} = $date->hour + ( $date->minute / 60 ) + ( $date->second / 3600 );
   }
   return %return_hash;
 }
@@ -379,7 +335,8 @@ into decimal hours for the FITS header C<RABASE>.
 sub from_RA_BASE {
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{RA_BASE})) {
+  if( exists( $generic_headers->{RA_BASE} ) &&
+      defined( $generic_headers->{RA_BASE} ) ) {
     $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
   }
   return %return_hash;
@@ -444,7 +401,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2002 Particle Physics and Astronomy Research Council.
+Copyright (C) 2003 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it
