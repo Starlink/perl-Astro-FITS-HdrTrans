@@ -259,6 +259,8 @@ containing generic headers.
 This method takes a reference to a hash containing untranslated headers,
 and a hash reference containing the following optional keys:
 
+=over 8
+
 =item *
 
 class - A reference to a list of subclasses to try to use for header
@@ -274,6 +276,8 @@ key named 'ORAC_INSTRUMENT'. The original keys will not be in the
 returned hash. If left blank, no prefix will be added.
 
 This method returns a hash of generic headers.
+
+=back
 
 =cut
 
@@ -408,6 +412,8 @@ This method takes a reference to a hash containing untranslated
 headers, and a hash reference containing the following optional
 keys:
 
+=over 8
+
 =item *
 
 class - A reference to a list of subclasses to try to use for header
@@ -424,7 +430,7 @@ that method. If left blank, no prefix will be removed.
 
 This method returns a hash of instrument-specific headers.
 
-=item 
+=back
 
 =cut
 
@@ -575,9 +581,13 @@ sub push_class {
 
 }
 
+=back
+
 =head1 PRIVATE METHODS
 
 These methods are private.
+
+=over 4
 
 =item B<_fix_local_date>
 
@@ -604,13 +614,15 @@ sub _fix_local_date {
   return $date;
 }
 
+=back
+
 =head1 GENERIC HEADERS
 
 The following is a list of currently-supported generic headers.
 If no type is defined for the header, then it is assumed to be
 a scalar in any format.
 
-=over 4
+=over 8
 
 =item AIRMASS_START - Airmass at the start of the observation.
 
@@ -859,12 +871,18 @@ or relativistic.
 
 =head1 NOTES
 
-=item * A number of the generic headers are more easily represented
-by objects. For example, all headers to do with the object coordinates
-(DEC_BASE, COORDINATE_UNITS, COORDINATE_TYPE, EPOCH, EQUINOX, and RA_BASE)
-are be better represented with a single C<Astro::Coords>
+=over 4
+
+=item *
+
+A number of the generic headers are more easily represented by
+objects. For example, all headers to do with the object coordinates
+(DEC_BASE, COORDINATE_UNITS, COORDINATE_TYPE, EPOCH, EQUINOX, and
+RA_BASE) are be better represented with a single C<Astro::Coords>
 object. Such headers will at some point be merged into a single object
 header, but for backwards compatibility will be retained.
+
+=back
 
 =head1 AUTHOR
 
@@ -872,11 +890,21 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2003 Particle Physics and Astronomy Research Council.
+Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful,but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place,Suite 330, Boston, MA  02111-1307, USA
 
 =cut
 
