@@ -52,7 +52,6 @@ headers.
 # L O A D   M O D U L E S --------------------------------------------------
 
 use strict;
-use SCUBA::ODF;
 use vars qw/ $VERSION /;
 
 '$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
