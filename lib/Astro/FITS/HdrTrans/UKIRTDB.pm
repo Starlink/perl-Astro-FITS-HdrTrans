@@ -298,7 +298,7 @@ sub to_X_BASE {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{RABASE})) {
-    $return = $FITS_headers * 15;
+    $return = $FITS_headers->{RABASE} * 15;
   }
   return $return;
 }
