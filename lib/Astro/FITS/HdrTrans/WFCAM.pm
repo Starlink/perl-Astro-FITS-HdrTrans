@@ -236,7 +236,7 @@ sub to_UTSTART {
 
 =item B<from_UTSTART>
 
-Adds a 'Z' to the end of the beginning observation time.
+Returns the date in ISO8601 format: YYYY-MM-DDThh:mm:ss.
 
 =cut
 
@@ -245,7 +245,7 @@ sub from_UTSTART {
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
     my $date = $generic_headers->{UTSTART};
-    $return_hash{'DATE-OBS'} = $date->datetime . "Z";
+    $return_hash{'DATE-OBS'} = $date->datetime;
   }
   return %return_hash;
 }
@@ -270,7 +270,7 @@ sub to_UTEND {
 
 =item B<from_UTEND>
 
-Adds a 'Z' to the end of the ending observation time.
+Returns the date in ISO8601 format: YYYY-MM-DDThh:mm:ss.
 
 =cut
 
@@ -279,7 +279,7 @@ sub from_UTEND {
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
     my $date = $generic_headers->{UTEND};
-    $return_hash{'DATE-END'} = $date->datetime . "Z";
+    $return_hash{'DATE-END'} = $date->datetime;
   }
   return %return_hash;
 }
@@ -354,7 +354,7 @@ Keys are generic headers, values are FITS headers.
             RA_TELESCOPE_OFFSET  => "TRAOFF",
             STANDARD             => "STANDARD",
             TELESCOPE            => "TELESCOP",
-	    TILE_NUMBER          => "TILENUM",
+            TILE_NUMBER          => "TILENUM",
             X_DIM                => "DCOLUMNS",
             Y_DIM                => "DROWS",
             X_LOWER_BOUND        => "RDOUT_X1",

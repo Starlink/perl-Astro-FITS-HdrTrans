@@ -357,7 +357,7 @@ sub to_UTDATE {
 
 =item B<to_UTSTART>
 
-Strips the 'Z' from the C<DATE-OBS> header, or if that header does
+Strips the optional 'Z' from the C<DATE-OBS> header, or if that header does
 not exist, combines the C<UT_DATE> and C<RUTSTART> headers into a unified
 C<UTSTART> header.
 
@@ -368,7 +368,9 @@ sub to_UTSTART {
   my $return;
 
   if( exists( $FITS_headers->{'DATE_OBS'} ) ) {
-    $return = Time::Piece->strptime( $FITS_headers->{'DATE_OBS'}, "%Y-%m-%dT%TZ" );
+    my $dateobs = $FITS_headers->{'DATE_OBS'};
+    $dateobs =~ s/Z//g;
+    $return = Time::Piece->strptime( $dateobs, "%Y-%m-%dT%T" );
 
   } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
           exists($FITS_headers->{'RUTSTART'}) && defined( $FITS_headers->{'RUTSTART'} ) ) {
@@ -400,14 +402,14 @@ sub from_UTSTART {
     $month = $1;
     $return_hash{'UT_DATE'} = $month . " " . $t->mday . " " . $t->year;
     $return_hash{'RUTSTART'} = $t->hour + ($t->min / 60) + ($t->sec / 3600);
-    $return_hash{'DATE_OBS'} = $generic_headers->{'UTSTART'} . "Z";
+    $return_hash{'DATE_OBS'} = $generic_headers->{'UTSTART'};
   }
   return %return_hash;
 }
 
 =item B<to_UTEND>
 
-Strips the 'Z' from the C<DATE-END> header, or if that header does
+Strips the optional 'Z' from the C<DATE-END> header, or if that header does
 not exist, combines the C<UT_DATE> and C<RUTEND> headers into a unified
 C<UTEND> header.
 
@@ -418,7 +420,9 @@ sub to_UTEND {
   my $return;
 
   if( exists( $FITS_headers->{'DATE_END'} ) ) {
-    $return = Time::Piece->strptime( $FITS_headers->{'DATE_END'}, "%Y-%m-%dT%TZ" );
+    my $dateend = $FITS_headers->{'DATE_END'}
+    $dateend =~ s/Z//g;
+    $return = Time::Piece->strptime( $dateend, "%Y-%m-%dT%T" );
 
   } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
           exists($FITS_headers->{'RUTEND'}) && defined( $FITS_headers->{'RUTEND'} ) ) {
@@ -450,7 +454,7 @@ sub from_UTEND {
     $month = $1;
     $return_hash{'UT_DATE'} = $month . " " . $t->mday . " " . $t->year;
     $return_hash{'RUTEND'} = $t->hour + ($t->min / 60) + ($t->sec / 3600);
-    $return_hash{'DATE_END'} = $generic_headers->{'UTEND'} . "Z";
+    $return_hash{'DATE_END'} = $generic_headers->{'UTEND'};
   }
   return %return_hash;
 }

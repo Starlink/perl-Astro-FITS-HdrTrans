@@ -267,14 +267,16 @@ sub to_UTSTART {
   my $return;
   if(exists($FITS_headers->{'DATE-OBS'})) {
     my $utstart = $FITS_headers->{'DATE-OBS'};
-    $return = Time::Piece->strptime( $utstart, "%Y-%m-%dT%TZ" );
+    $utstart =~ s/Z//g;
+    $return = Time::Piece->strptime( $utstart, "%Y-%m-%dT%T" );
   }
   return $return;
 }
 
 =item B<from_UTSTART>
 
-Adds a 'Z' to the end of the beginning observation time.
+Returns the starting observation time in ISO8601 format:
+YYYY-MM-DDThh:mm:ss.
 
 =cut
 
@@ -283,7 +285,7 @@ sub from_UTSTART {
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
     my $date = $generic_headers->{UTSTART};
-    $return_hash{'DATE-OBS'} = $date->datetime . "Z";
+    $return_hash{'DATE-OBS'} = $date->datetime;
   }
   return %return_hash;
 }
@@ -299,14 +301,16 @@ sub to_UTEND {
   my $return;
   if(exists($FITS_headers->{'DATE-END'})) {
     my $utend = $FITS_headers->{'DATE-END'};
-    $return = Time::Piece->strptime( $utend, "%Y-%m-%dT%TZ" );
+    $utend =~ s/Z//g;
+    $return = Time::Piece->strptime( $utend, "%Y-%m-%dT%T" );
   }
   return $return;
 }
 
 =item B<from_UTEND>
 
-Adds a 'Z' to the end of the ending observation time.
+Returns the ending observation time in ISO8601 format:
+YYYY-MM-DDThh:mm:ss.
 
 =cut
 
@@ -315,7 +319,7 @@ sub from_UTEND {
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
     my $date = $generic_headers->{UTEND};
-    $return_hash{'DATE-END'} = $date->datetime . "Z";
+    $return_hash{'DATE-END'} = $date->datetime;
   }
   return %return_hash;
 }
