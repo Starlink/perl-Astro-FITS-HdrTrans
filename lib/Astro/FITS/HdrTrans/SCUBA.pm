@@ -48,7 +48,7 @@ headers.
 use strict;
 use vars qw/ $VERSION /;
 
-$VERSION = '0.01';
+$VERSION = sprintf("%d.%03d", q$Revision$ =~ /(\d+)\.(\d+)/);
 
 # P R E D E C L A R A T I O N S --------------------------------------------
 
@@ -60,9 +60,9 @@ our %hdr;
 
 $Id$
 
-=head1 METHODS
+=head1 FUNCTIONS
 
-These methods provide an interface to the class, allowing the base
+These functions provide an interface to the class, allowing the base
 class to determine if this class is the appropriate one to use for
 the given headers.
 
@@ -72,7 +72,7 @@ the given headers.
 
   $valid = valid_class( \%headers );
 
-This method takes one argument: a reference to a hash containing
+This function takes one argument: a reference to a hash containing
 the untranslated headers.
 
 This method returns true (1) or false (0) depending on if the headers
