@@ -130,6 +130,10 @@ sub translate_from_FITS {
                   require Astro::FITS::HdrTrans::IRIS2;
                   %generic_header = Astro::FITS::HdrTrans::IRIS2::translate_from_FITS($FITS_header);
                  }
+    case "SCUBA" {
+                  require Astro::FITS::HdrTrans::SCUBA;
+                  %generic_header = Astro::FITS::HdrTrans::SCUBA::translate_from_FITS($FITS_header);
+                 }
     else {
       die "Instrument $instrument not currently supported.\n";
     }
@@ -183,6 +187,10 @@ sub translate_to_FITS {
                   require Astro::FITS::HdrTrans::IRIS2;
                   %FITS_header = Astro::FITS::HdrTrans::IRIS2::translate_to_FITS($generic_header);
                  }
+    case "SCUBA" {
+                  require Astro::FITS::HdrTrans::SCUBA;
+                  %FITS_header = Astro::FITS::HdrTrans::SCUBA::translate_to_FITS($generic_header);
+                 }
     else {
       die "Instrument $instrument not currently supported.\n";
     }
@@ -213,6 +221,7 @@ headers in the instrument-specific subclasses.
                        CHOP_ANGLE
                        CHOP_THROW
                        CONFIGURATION_INDEX
+                       COORDINATE_TYPE
                        DEC_BASE
                        DEC_SCALE
                        DEC_TELESCOPE_OFFSET
