@@ -313,56 +313,44 @@ sub to_SPEED_GAIN {
 =item B<to_STANDARD>
 
 Converts either the C<STANDARD> header (if it exists) or uses the
-C<OBJECT> header to determine if an observation is of a standard.
-If the C<OBJECT> header starts with either B<BS> or B<FS>, it is
-assumed to be a standard.
+C<OBJECT> or C<RECIPE> headers to determine if an observation is of a
+standard.  If the C<OBJECT> header starts with either B<BS> or B<FS>,
+I<or> the DR recipe contains the word STANDARD, it is assumed to be a
+standard.
 
 =cut
 
 sub to_STANDARD {
   my $FITS_headers = shift;
-  my $return;
+
+  # Set false as default so we do not have to repeat this in the logic
+  # below (could just use undef == false)
+  my $return = 0; # default false
 
   if( exists( $FITS_headers->{'STANDARD'} ) &&
       length( $FITS_headers->{'STANDARD'} . "") > 0 ) {
 
     if($FITS_headers->{'STANDARD'} =~ /^[tf]$/i) {
+      # Raw header read from FITS header
       $return = (uc($FITS_headers->{'STANDARD'}) eq 'T');
     } elsif($FITS_headers->{'STANDARD'} =~ /^[01]$/) {
+      # Translated header either so a true logical
       $return = $FITS_headers->{'STANDARD'};
-    } else {
-      $return = 0;
     }
 
-  } elsif( exists( $FITS_headers->{'OBJECT'} ) ) {
-
-    if( exists( $FITS_headers->{'RECIPE'} ) ) {
-
-      $return = ( ( $FITS_headers->{'OBJECT'} =~ /^[bf]s/i ) ||
-                  ( $FITS_headers->{'RECIPE'} =~ /^standard/i ) );
-
-    } else {
-      if($FITS_headers->{'OBJECT'} =~ /^[bf]s/i ) {
-        $return = 1;
-      } else {
-        $return = 0;
-      }
-
-    }
-
-  } elsif( exists( $FITS_headers->{'RECIPE'} ) ) {
-
-    if($FITS_headers->{'RECIPE'} =~ /^standard/i ) {
-      $return = 1;
-    } else {
-      $return = 0;
-    }
-
-  } else {
-
-    $return = 0;
+  } elsif ( ( exists $FITS_headers->{OBJECT} &&
+	      $FITS_headers->{'OBJECT'} =~ /^[bf]s/i ) ||
+	    ( exists( $FITS_headers->{'RECIPE'} ) &&
+	      $FITS_headers->{'RECIPE'} =~ /^standard/i
+	    )) {
+    # Either we have an object with name prefix of BS or FS or
+    # our recipe looks suspiciously like a standard.
+    $return = 1;
 
   }
+
+  return $return;
+
 }
 
 =item B<to_UTSTART>
