@@ -9,8 +9,8 @@ WriteMakefile(
                'NAME'           => 'Astro::FITS::HdrTrans',
                'VERSION_FROM'   => $file,
                'PREREQ_PM'      => { 
-                                    Switch => '2.07',
-
+                                    Switch => '0',
+                                    Math::Trig => '0',
                                    },
                'dist'           => { COMPRESS => "gzip -9f"},
                ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
