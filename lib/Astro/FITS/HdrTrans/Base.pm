@@ -50,6 +50,15 @@ Do the header translation from FITS for the specified class.
 Prefix is attached to the keys in the returned hash if it
 is defined.
 
+If a translation results in an undefined value (for example, if the
+headers can represent both imaging and spectroscopy there may be no
+requirement for a DISPERSION header), the result is not stored in the
+translated hash.
+
+A list of failed translations is available in the _UNDEFINED_TRANSLATIONS
+key in the generic hash. This points to a reference to an array of all
+the failed generic translations.
+
 =cut
 
 sub translate_from_FITS {
@@ -65,13 +74,21 @@ sub translate_from_FITS {
   my @GEN = Astro::FITS::HdrTrans->generic_headers;
 
   my %generic;
+  my @failed;
   for my $g (@GEN) {
     my $method = "to_$g";
     if ($class->can( $method )) {
-      $generic{"$prefix$g"} = $class->$method( $FITS );
+      my $result = $class->$method( $FITS );
+      if (defined $result) {
+	$generic{"$prefix$g"} = $result;
+      } else {
+	push(@failed, $g);
+      }
     }
-
   }
+
+  # store the failed translations (if we had any)
+  $generic{_UNDEFINED_TRANSLATIONS} = \@failed if @failed;
 
   return %generic;
 }
