@@ -104,7 +104,7 @@ sub translate_from_FITS {
       my $subname = "to_" . $key;
       if(exists(&$subname) ) {
         no strict 'refs'; # EEP!
-        $generic_header{$key} = &$subname($FITS_header);
+        $generic_header{$key} = &$subname(\%db_headers);
       }
     }
   }
@@ -330,6 +330,7 @@ sub to_UTEND {
                               "%Y-%m-%dT%T");
   }
 
+
   if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) &&
       exists( $FITS_headers->{'NOSCANS'} ) && defined( $FITS_headers->{'NOSCANS'} ) &&
       exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
@@ -345,13 +346,14 @@ sub to_UTEND {
     if( $obsmode eq 'RASTER' ) {
       $expt = $noscans * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
     } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
-my $runnr = $FITS_headers->{'SCAN'};
-#print "obsnum: $runnr\nObsmode: $obsmode\nnoscans: $noscans\nnocycles: $nocycles\ncycllen: $cycllen\n";
+      my $runnr = $FITS_headers->{'SCAN'};
+      #print "obsnum: $runnr\nObsmode: $obsmode\nnoscans: $noscans\nnocycles: $nocycles\ncycllen: $cycllen\n";
 
-      $expt = $noscans * $cycllen;
-#print "expt: $expt\n";
+      $expt = $noscans * $cycllen * $nocycles;
+      #print "expt: $expt\n";
     } else {
-      $expt = $nocycles * $cycllen;
+      # This supports pattern and grid
+      $expt = $nocycles * $cycllen * $noscans;
     }
   }
   $t += $expt;
@@ -383,9 +385,10 @@ sub to_EXPOSURE_TIME {
     if( $obsmode eq 'RASTER' ) {
       $expt = $noscans * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
     } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
-      $expt = $noscans * $cycllen;
+      $expt = $noscans * $cycllen * $nocycles;
     } else {
-      $expt = $nocycles * $cycllen;
+      # This supports pattern and grid
+      $expt = $nocycles * $cycllen * $noscans;
     }
   }
 
@@ -449,7 +452,7 @@ Keys are database headers, values are file headers.
                     VREF => "C12VREF",
                     SAMPRAT => "C3SRT",
                     NOCYCLES => "C3NCI",
-                    NOSCANS => "C3NIS",
+                    NOSCANS => "C3NSAMPL",
                     CYCLLEN => "C3CL",
                     NOCYCPTS => "C3NCP",
                     C3DAT => "C3DAT",
