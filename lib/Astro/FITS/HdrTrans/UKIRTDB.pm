@@ -203,7 +203,8 @@ sub to_COORDINATE_UNITS {
 
 =item B<to_UTSTART>
 
-Combines the C<UT_DATE> and C<RUTSTART> headers into a unified
+Strips the 'Z' from the C<DATE-OBS> header, or if that header does
+not exist, combines the C<UT_DATE> and C<RUTSTART> headers into a unified
 C<UTSTART> header.
 
 =cut
@@ -211,7 +212,10 @@ C<UTSTART> header.
 sub to_UTSTART {
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{'UT_DATE'}) &&
+
+  if( exists( $FITS_headers->{'DATE-OBS'} ) ) {
+    ( $return = $FITS_headers->{'DATE-OBS'} ) =~ s/Z//;
+  } elsif(exists($FITS_headers->{'UT_DATE'}) &&
      exists($FITS_headers->{'RUTSTART'}) ) {
     # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
     my $t = Time::Piece->strptime($FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p");
@@ -225,8 +229,8 @@ sub to_UTSTART {
 
 =item B<from_UTSTART>
 
-Converts the C<UTSTART> generic header into C<UT_DATE> and C<RUTSTART>
-database headers.
+Converts the C<UTSTART> generic header into C<UT_DATE>, C<RUTSTART>,
+and C<DATE-OBS> database headers.
 
 =cut
 
@@ -234,19 +238,21 @@ sub from_UTSTART {
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
-    my $t = ORAC::General->parse_date( $generic_headers->{'UTSTART'} );
+    my $t = _parse_date( $generic_headers->{'UTSTART'} );
     my $month = $t->month;
     $month =~ /^(.{3})/;
     $month = $1;
     $return_hash{'UT_DATE'} = $month . " " . $t->mday . " " . $t->year;
     $return_hash{'RUTSTART'} = $t->hour + ($t->min / 60) + ($t->sec / 3600);
+    $return_hash{'DATE-OBS'} = $generic_headers->{'UTSTART'} . "Z";
   }
   return %return_hash;
 }
 
 =item B<to_UTEND>
 
-Combines the C<UT_DATE> and C<RUTEND> headers into a unified
+Strips the 'Z' from the C<DATE-END> header, or if that header does
+not exist, combines the C<UT_DATE> and C<RUTEND> headers into a unified
 C<UTEND> header.
 
 =cut
@@ -254,7 +260,9 @@ C<UTEND> header.
 sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{'UT_DATE'}) &&
+  if( exists( $FITS_headers->{'DATE-END'} ) ) {
+    ( $return = $FITS_headers->{'DATE-END'} ) =~ s/Z//;
+  } elsif(exists($FITS_headers->{'UT_DATE'}) &&
      exists($FITS_headers->{'RUTEND'}) ) {
     # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
     my $t = Time::Piece->strptime($FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p");
@@ -268,8 +276,8 @@ sub to_UTEND {
 
 =item B<from_UTEND>
 
-Converts the C<UTSTART> generic header into C<UT_DATE> and C<RUTSTART>
-database headers.
+Converts the C<UTSTART> generic header into C<UT_DATE>, C<RUTSTART>
+and C<DATE-END> database headers.
 
 =cut
 
@@ -277,12 +285,13 @@ sub from_UTEND {
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
-    my $t = ORAC::General->parse_date( $generic_headers->{'UTEND'} );
+    my $t = _parse_date( $generic_headers->{'UTEND'} );
     my $month = $t->month;
     $month =~ /^(.{3})/;
     $month = $1;
     $return_hash{'UT_DATE'} = $month . " " . $t->mday . " " . $t->year;
     $return_hash{'RUTEND'} = $t->hour + ($t->min / 60) + ($t->sec / 3600);
+    $return_hash{'DATE-END'} = $generic_headers->{'UTEND'} . "Z";
   }
   return %return_hash;
 }
@@ -369,9 +378,91 @@ Keys are generic headers, values are FITS headers.
 
 =back
 
-=head1 AUTHOR
+=head1 INTERNAL METHODS
+
+=item B<_parse_date>
+
+Parses a string as a date. Returns a C<Time::Piece> object.
+
+  $time = _parse_date( $date );
+
+Returns C<undef> if the time could not be parsed.
+Returns the object unchanged if the argument is already a C<Time::Piece>.
+
+It will also recognize a Sybase style date: 'Mar 15 2002  7:04AM'
+and a simple YYYYMMDD.
+
+The date is assumed to be in UT.
+
+=cut
+
+sub _parse_date {
+  my $self = shift;
+  my $date = shift;
+
+  # If we already have a Time::Piece return
+  return bless $date, "Time::Piece"
+    if UNIVERSAL::isa( $date, "Time::Piece");
+
+  # We can use Time::Piece->strptime but it requires an exact
+  # format rather than working it out from context (and we don't
+  # want an additional requirement on Date::Manip or something
+  # since Time::Piece is exactly what we want for Astro::Coords)
+  # Need to fudge a little
+
+  my $format;
+
+  # Need to disambiguate ISO date from Sybase date
+  if ($date =~ /\d\d\d\d-\d\d-\d\d/) {
+    # ISO
+
+    # All arguments should have a day, month and year
+    $format = "%Y-%m-%d";
+
+    # Now check for time
+    if ($date =~ /T/) {
+      # Date and time
+      # Now format depends on the number of colons
+      my $n = ( $date =~ tr/:/:/ );
+      $format .= "T" . ($n == 2 ? "%T" : "%R");
+    }
+  } elsif ($date =~ /^\d\d\d\d\d\d\d\d\b/) {
+    # YYYYMMDD format
+    $format = "%Y%m%d";
+  } else {
+    # Assume Sybase date
+    # Mar 15 2002  7:04AM
+    $format = "%b%t%d%t%Y%t%I:%M%p";
+
+  }
+
+  # Now parse
+  # Note that this time is treated as "local" rather than "gm"
+  my $time = eval { Time::Piece->strptime( $date, $format ); };
+  if ($@) {
+    return undef;
+  } else {
+    # Note that the above constructor actually assumes the date
+    # to be parsed is a local time not UTC. To switch to UTC
+    # simply get the epoch seconds and the timezone offset
+    # and run gmtime
+    # Sometime around v1.07 of Time::Piece the behaviour changed
+    # to return UTC rather than localtime from strptime!
+    # The joys of backwards compatibility.
+    if ($time->[Time::Piece::c_islocal]) {
+      my $tzoffset = $time->tzoffset;
+      my $epoch = $time->epoch;
+      $time = gmtime( $epoch + $tzoffset->seconds );
+    }
+
+  }
+
+}
+
+=head1 AUTHORS
 
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
+Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
