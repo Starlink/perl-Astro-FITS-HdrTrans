@@ -265,7 +265,9 @@ and a hash reference containing the following optional keys:
 
 class - A reference to a list of subclasses to try to use for header
 translations. This list overrides the default list. If left blank, the
-default list will be used.
+default list will be used, as stored in C<@valid_classes>. This is sometimes
+required to break degeneracy when you know you have a limited set of
+valid instruments.
 
 =item *
 
@@ -275,9 +277,10 @@ for the instrument value, whose key is normally 'INSTRUMENT', will have a
 key named 'ORAC_INSTRUMENT'. The original keys will not be in the
 returned hash. If left blank, no prefix will be added.
 
-This method returns a hash of generic headers.
-
 =back
+
+This method returns a hash of generic headers. This function dies if
+the header translation fails in any way.
 
 =cut
 
@@ -428,9 +431,10 @@ is if you've used a prefix in the C<translate_from_FITS> call, and
 want to translate back from the generic headers returned from
 that method. If left blank, no prefix will be removed.
 
-This method returns a hash of instrument-specific headers.
-
 =back
+
+This method returns a hash of instrument-specific headers.  This
+function dies if the header translation fails in any way.
 
 =cut
 
