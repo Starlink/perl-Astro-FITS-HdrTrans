@@ -1,39 +1,10 @@
+# -*-perl-*-
+
 package Astro::FITS::HdrTrans::IRIS2;
-
-# ---------------------------------------------------------------------------
-
-#+
-#  Name:
-#    Astro::FITS::HdrTrans::IRIS2
-
-#  Purposes:
-#    Translates FITS headers into and from generic headers for the
-#    IRIS2 instrument.
-
-#  Language:
-#    Perl module
-
-#  Description:
-#    This module converts information stored in a FITS header into
-#    and from a set of generic headers
-
-#  Authors:
-#    Brad Cavanagh (b.cavanagh@jach.hawaii.edu)
-#  Revision:
-#     $Id$
-
-#  Copyright:
-#     Copyright (C) 2002 Particle Physics and Astronomy Research Council.
-#     All Rights Reserved.
-
-#-
-
-# ---------------------------------------------------------------------------
 
 =head1 NAME
 
-Astro::FITS::HdrTrans::IRIS2 - Translate FITS headers into generic
-headers and back again
+Astro::FITS::HdrTrans::IRIS2 - IRIS-2 Header translations
 
 =head1 SYNOPSIS
 
@@ -43,192 +14,116 @@ headers and back again
 
 =head1 DESCRIPTION
 
-Converts information contained in IRIS2 FITS headers to and from
+Converts information contained in AAO IRIS2 FITS headers to and from
 generic headers. See Astro::FITS::HdrTrans for a list of generic
 headers.
 
 =cut
 
-# L O A D   M O D U L E S --------------------------------------------------
-
+use 5.006;
+use warnings;
 use strict;
-use vars qw/ $VERSION /;
+use Carp;
 
 use Math::Trig qw/ acos /;
 
-'$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
+# Inherit from Base
+use base qw/ Astro::FITS::HdrTrans::Base /;
 
-# P R E D E C L A R A T I O N S --------------------------------------------
+use vars qw/ $VERSION /;
 
-our %hdr;
+# Note that we use %02 not %03 because of historical reasons
+$VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/);
 
-# M E T H O D S ------------------------------------------------------------
 
-=head1 REVISION
+# for a constant mapping, there is no FITS header, just a generic
+# header that is constant
+my %CONST_MAP = (
+		 COORDINATE_UNITS => 'degrees',
+		);
 
-$Id$
+# NULL mappings used to override base class implementations
+my @NULL_MAP = ();
+
+# unit mapping implies that the value propogates directly
+# to the output with only a keyword name change
+
+my %UNIT_MAP = (
+		CONFIGURATION_INDEX  => "CNFINDEX",
+		DEC_BASE             => "DECBASE",
+		DEC_TELESCOPE_OFFSET => "DECOFF",
+		DETECTOR_INDEX       => "DINDEX",
+		DETECTOR_READ_TYPE   => "DETMODE",
+		DR_GROUP             => "GRPNUM",
+		DR_RECIPE            => "RECIPE",
+		EQUINOX              => "EQUINOX",
+		EXPOSURE_TIME        => "DEXPTIME",
+		FILTER               => "FILTER",
+		GAIN                 => "DEPERDN",
+		GRATING_DISPERSION   => "GDISP",
+		GRATING_NAME         => "GRATING",
+		GRATING_ORDER        => "GORD",
+		GRATING_WAVELENGTH   => "GLAMBDA",
+		INSTRUMENT           => "INSTRUME",
+		NSCAN_POSITIONS      => "DETNINCR",
+		NUMBER_OF_EXPOSURES  => "NEXP",
+		NUMBER_OF_OFFSETS    => "NOFFSETS",
+		OBJECT               => "OBJECT",
+		OBSERVATION_NUMBER   => "OBSNUM",
+		OBSERVATION_TYPE     => "OBSTYPE",
+		RA_TELESCOPE_OFFSET  => "RAOFF",
+		SCAN_INCREMENT       => "DETINCR",
+		SLIT_ANGLE           => "SANGLE",
+		SLIT_NAME            => "SLIT",
+		SPEED_GAIN           => "SPD_GAIN",
+		STANDARD             => "STANDARD",
+		TELESCOPE            => "TELESCOP",
+		WAVEPLATE_ANGLE      => "WPLANGLE",
+		Y_BASE               => "DECBASE",
+		X_OFFSET             => "RAOFF",
+		Y_OFFSET             => "DECOFF",
+		X_DIM                => "DCOLUMNS",
+		Y_DIM                => "DROWS",
+		X_LOWER_BOUND        => "RDOUT_X1",
+		X_UPPER_BOUND        => "RDOUT_X2",
+		Y_LOWER_BOUND        => "RDOUT_Y1",
+		Y_UPPER_BOUND        => "RDOUT_Y2"
+	       );
+
+
+# Create the translation methods
+__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
+
 
 =head1 METHODS
 
-These methods provide an interface to the class, allowing the base
-class to determine if this class is the appropriate one to use for
-the given headers.
-
 =over 4
 
-=item B<valid_class>
+=item B<this_instrument>
 
-  $valid = valid_class( \%headers );
+The name of the instrument required to match (case insensitively)
+against the INSTRUME/INSTRUMENT keyword to allow this class to
+translate the specified headers. Called by the default
+C<can_translate> method.
 
-This method takes one argument: a reference to a hash containing
-the untranslated headers.
+  $inst = $class->this_instrument();
 
-This method returns true (1) or false (0) depending on if the headers
-can be translated by this method.
-
-For this class, the method will return true if the B<INSTRUME> header
-exists, and its value matches the regular expression C</^uist/i>, or
-if the C<INSTRUMENT> header exists and its value matches the regular
-expression C</^uist$/i>.
-
-=back
+Returns "UFTI".
 
 =cut
 
-sub valid_class {
-  my $headers = shift;
-
-  if( exists( $headers->{'INSTRUME'} ) &&
-      defined( $headers->{'INSTRUME'} ) &&
-      $headers->{'INSTRUME'} =~ /^iris2$/i ) {
-    return 1;
-  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
-           defined( $headers->{'INSTRUMENT'} ) &&
-           $headers->{'INSTRUMENT'} =~ /^iris2$/i ) {
-    return 1;
-  } else {
-    return 0;
-  }
+sub this_instrument {
+  return "IRIS2";
 }
 
-=back
+=head1 COMPLEX CONVERSIONS
 
-=head1 TRANSLATION METHODS
-
-These methods provide many-to-one mappings between FITS headers and
-generic headers. An example of a method defined in this section would
-be one that converts UT date and UT hour FITS headers into one combined
-UT datetime generic header. These mappings can also use calculations,
-for example converting a zenith distance to airmass.
-
-These methods are named backwards from the C<translate_from_FITS> and
-C<translate_to_FITS> methods in that we are translating to and from
-generic headers. As an example, a method to convert to a generic airmass
-header would be named C<to_AIRMASS>.
-
-The format of these methods is C<to_HEADER> and C<from_HEADER>.
-C<to_> methods accept a hash reference as an argument and return a scalar
-value (typically a string). C<from_> methods accept a hash reference
-as an argument and return a hash.
-
-=over 4
-
-=item B<translate_from_FITS>
-
-Converts a hash containing IRIS2 FITS headers into a hash containing
-generic headers.
-
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
-
-The C<header_array> argument is used to supply a list of generic
-header names.
-
-=back
-
-=cut
-
-sub translate_from_FITS {
-  my $FITS_header = shift;
-  my $header_array = shift;
-  my %generic_header;
-
-  for my $key ( @$header_array ) {
-
-    if(exists($hdr{$key}) ) {
-      $generic_header{$key} = $FITS_header->{$hdr{$key}};
-    } else {
-      my $subname = "to_" . $key;
-      if(exists(&$subname) ) {
-        no strict 'refs'; # EEP!
-        $generic_header{$key} = &$subname($FITS_header);
-      }
-    }
-  }
-  return %generic_header;
-
-}
-
-=over 4
-
-=item B<translate_to_FITS>
-
-Converts a hash containing generic headers into a hash containing
-FITS headers
-
-  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
-
-The C<header_array> argument is used to supply a list of generic
-header names.
-
-=back
-
-=cut
-
-sub translate_to_FITS {
-  my $generic_header = shift;
-  my $header_array = shift;
-  my %FITS_header;
-
-  for my $key ( @$header_array ) {
-
-    if( exists($hdr{$key}) ) {
-      $FITS_header{$hdr{$key}} = $generic_header->{$key};
-    } else {
-      no strict 'refs'; # EEP EEP!
-      my $subname = "from_" . $key;
-      if(exists(&$subname) ) {
-        my %new = &$subname($generic_header);
-        for my $newkey ( keys %new ) {
-          $FITS_header{$newkey} = $new{$newkey};
-        }
-      }
-    }
-  }
-
-  return %FITS_header;
-
-}
-
-=head1 TRANSLATION METHODS
-
-These methods provide many-to-one mappings between FITS headers and
-generic headers. An example of a method defined in this section would
-be one that converts UT date and UT hour FITS headers into one combined
-UT datetime generic header. These mappings can also use calculations,
-for example converting a zenith distance to airmass.
-
-These methods are named backwards from the C<translate_from_FITS> and
-C<translate_to_FITS> methods in that we are translating to and from
-generic headers. As an example, a method to convert to a generic airmass
-header would be named C<to_AIRMASS>.
-
-The format of these methods is C<to_HEADER> and C<from_HEADER>.
-C<to_> methods accept a hash reference as an argument and return a scalar
-value (typically a string). C<from_> methods accept a hash reference
-as an argument and return a hash. All UT datetimes should be in
-standard ISO 8601 datetime format, which is C<YYYY-MM-DDThh:mm:ss>.
-See http://www.cl.cam.ac.uk/~mgk25/iso-time.html for a brief overview
-of ISO 8601. Dates should be in YYYY-MM-DD format.
+These methods are more complicated than a simple mapping. We have to
+provide both from- and to-FITS conversions All these routines are
+methods and the to_ routines all take a reference to a hash and return
+the translated value (a many-to-one mapping) The from_ methods take a
+reference to a generic hash and return a translated hash (sometimes
+these are many-to-many)
 
 =over 4
 
@@ -239,6 +134,7 @@ Converts FITS header value of zenith distance into airmass value.
 =cut
 
 sub to_AIRMASS_START {
+  my $self = shift;
   my $FITS_headers = shift;
   my $pi = atan2( 1, 1 ) * 4;
   my $return;
@@ -257,6 +153,7 @@ Converts airmass into zenith distance.
 =cut
 
 sub from_AIRMASS_START {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{AIRMASS_START})) {
@@ -272,6 +169,7 @@ Converts FITS header value of zenith distance into airmass value.
 =cut
 
 sub to_AIRMASS_END {
+  my $self = shift;
   my $FITS_headers = shift;
   my $pi = atan2( 1, 1 ) * 4;
   my $return;
@@ -290,6 +188,7 @@ Converts airmass into zenith distance.
 =cut
 
 sub from_AIRMASS_END {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{AIRMASS_END})) {
@@ -306,6 +205,7 @@ on equinox value, and sets the C<COORDINATE_TYPE> generic header.
 =cut
 
 sub to_COORDINATE_TYPE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{EQUINOX})) {
@@ -318,16 +218,6 @@ sub to_COORDINATE_TYPE {
   return $return;
 }
 
-=item B<to_COORDINATE_UNITS>
-
-Sets the C<COORDINATE_UNITS> generic header to "degrees".
-
-=cut
-
-sub to_COORDINATE_UNITS {
-  "degrees";
-}
-
 =item B<to_UTDATE>
 
 Converts FITS header values into standard UT date value of the form
@@ -336,6 +226,7 @@ YYYY-MM-DD.
 =cut
 
 sub to_UTDATE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{UTDATE})) {
@@ -354,6 +245,7 @@ Converts UT date in the form C<yyyy-mm-dd> to C<yyyymmdd>.
 =cut
 
 sub from_UTDATE {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTDATE})) {
@@ -373,6 +265,7 @@ Otherwise, the observation mode is spectroscopy.
 =cut
 
 sub to_OBSERVATION_MODE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{IR2_SLIT})) {
@@ -389,6 +282,7 @@ into an ISO 8601 formatted date.
 =cut
 
 sub to_UTSTART {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{UTDATE}) && exists($FITS_headers->{UTSTART})) {
@@ -407,6 +301,7 @@ Converts an ISO 8601 formatted date into two FITS headers for IRIS2: IDATE
 =cut
 
 sub from_UTSTART {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
@@ -427,6 +322,7 @@ an ISO 8601-formatted date.
 =cut
 
 sub to_UTEND {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{UTDATE}) && exists($FITS_headers->{UTEND})) {
@@ -445,6 +341,7 @@ Converts an ISO 8601 formatted date into two FITS headers for IRIS2: IDATE
 =cut
 
 sub from_UTEND {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
@@ -465,6 +362,7 @@ decimal degrees for the generic header C<X_BASE>.
 =cut
 
 sub to_X_BASE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{RABASE})) {
@@ -481,6 +379,7 @@ into decimal hours for the FITS header C<RABASE>.
 =cut
 
 sub from_X_BASE {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{X_BASE})) {
@@ -497,6 +396,7 @@ decimal degrees for the generic header C<RA_BASE>.
 =cut
 
 sub to_RA_BASE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{RABASE})) {
@@ -513,6 +413,7 @@ into decimal hours for the FITS header C<RABASE>.
 =cut
 
 sub from_RA_BASE {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{RA_BASE})) {
@@ -532,6 +433,7 @@ is measured counter-clockwise from the positive x-axis.
 # the cdelrot.pl script supplied for use with XIMAGE.
 
 sub to_ROTATION {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{CD1_1}) &&
@@ -561,6 +463,7 @@ axis. Results are in arcseconds per pixel.
 =cut
 
 sub to_Y_SCALE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{CD1_1}) &&
@@ -586,6 +489,7 @@ ascension axis. Results are in arcseconds per pixel.
 =cut
 
 sub to_X_SCALE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{CD1_2}) &&
@@ -599,64 +503,18 @@ sub to_X_SCALE {
 
 =back
 
-=head1 VARIABLES
+=head1 REVISION
 
-=over 4
+ $Id$
 
-=item B<%hdr>
+=head1 SEE ALSO
 
-Contains one-to-one mappings between FITS headers and generic headers.
-Keys are generic headers, values are FITS headers.
-
-=cut
-
-%hdr = (
-            CONFIGURATION_INDEX  => "CNFINDEX",
-            DEC_BASE             => "DECBASE",
-            DEC_TELESCOPE_OFFSET => "DECOFF",
-            DETECTOR_INDEX       => "DINDEX",
-            DETECTOR_READ_TYPE   => "DETMODE",
-            DR_GROUP             => "GRPNUM",
-            DR_RECIPE            => "RECIPE",
-            EQUINOX              => "EQUINOX",
-            EXPOSURE_TIME        => "DEXPTIME",
-            FILTER               => "FILTER",
-            GAIN                 => "DEPERDN",
-            GRATING_DISPERSION   => "GDISP",
-            GRATING_NAME         => "GRATING",
-            GRATING_ORDER        => "GORD",
-            GRATING_WAVELENGTH   => "GLAMBDA",
-            INSTRUMENT           => "INSTRUME",
-            NSCAN_POSITIONS      => "DETNINCR",
-            NUMBER_OF_EXPOSURES  => "NEXP",
-            NUMBER_OF_OFFSETS    => "NOFFSETS",
-            OBJECT               => "OBJECT",
-            OBSERVATION_NUMBER   => "OBSNUM",
-            OBSERVATION_TYPE     => "OBSTYPE",
-            RA_TELESCOPE_OFFSET  => "RAOFF",
-            SCAN_INCREMENT       => "DETINCR",
-            SLIT_ANGLE           => "SANGLE",
-            SLIT_NAME            => "SLIT",
-            SPEED_GAIN           => "SPD_GAIN",
-            STANDARD             => "STANDARD",
-            TELESCOPE            => "TELESCOP",
-            WAVEPLATE_ANGLE      => "WPLANGLE",
-            Y_BASE               => "DECBASE",
-            X_OFFSET             => "RAOFF",
-            Y_OFFSET             => "DECOFF",
-            X_DIM                => "DCOLUMNS",
-            Y_DIM                => "DROWS",
-            X_LOWER_BOUND        => "RDOUT_X1",
-            X_UPPER_BOUND        => "RDOUT_X2",
-            Y_LOWER_BOUND        => "RDOUT_Y1",
-            Y_UPPER_BOUND        => "RDOUT_Y2"
-          );
-
-=back
+C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>.
 
 =head1 AUTHOR
 
-Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
+Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
+Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 

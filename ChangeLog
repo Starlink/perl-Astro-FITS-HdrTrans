@@ -1,3 +1,12 @@
+2005-04-05  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* All modules: Major rewriting of the internals to use inheritance
+	and method importing. This leads to much smaller individual
+	translation classes and hopefully will be easier to support with
+	less duplication of code. Note that the public function interface
+	is unchanged but the public access to variables has been removed
+	(and replaced with some class methods).
+
 2005-03-28  Tim Jenness <t.jenness@jach.hawaii.edu>
 
 	* Add GPL to all files

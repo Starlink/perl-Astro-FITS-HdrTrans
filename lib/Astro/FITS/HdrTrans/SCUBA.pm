@@ -1,39 +1,10 @@
+# -*-perl-*-
+
 package Astro::FITS::HdrTrans::SCUBA;
-
-# ---------------------------------------------------------------------------
-
-#+
-#  Name:
-#    Astro::FITS::HdrTrans::SCUBA
-
-#  Purposes:
-#    Translates FITS headers into and from generic headers for the
-#    SCUBA instrument.
-
-#  Language:
-#    Perl module
-
-#  Description:
-#    This module converts information stored in a FITS header into
-#    and from a set of generic headers
-
-#  Authors:
-#    Brad Cavanagh (b.cavanagh@jach.hawaii.edu)
-#  Revision:
-#     $Id$
-
-#  Copyright:
-#     Copyright (C) 2002 Particle Physics and Astronomy Research Council.
-#     All Rights Reserved.
-
-#-
-
-# ---------------------------------------------------------------------------
 
 =head1 NAME
 
-Astro::FITS::HdrTrans::SCUBA - Translate FITS headers into generic
-headers and back again
+Astro::FITS::HdrTrans::SCUBA - JCMT SCUBA translations
 
 =head1 DESCRIPTION
 
@@ -43,97 +14,104 @@ headers.
 
 =cut
 
-# L O A D   M O D U L E S --------------------------------------------------
-
+use 5.006;
+use warnings;
 use strict;
+use Carp;
+
+# Inherit from Base
+use base qw/ Astro::FITS::HdrTrans::Base /;
+
 use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d.%03d", q$Revision$ =~ /(\d+)\.(\d+)/);
 
-# P R E D E C L A R A T I O N S --------------------------------------------
+# for a constant mapping, there is no FITS header, just a generic
+# header that is constant
+my %CONST_MAP = (
+		 COORDINATE_UNITS  => 'sexagesimal',
+		 INSTRUMENT        => "SCUBA",
+		 INST_DHS          => 'SCUBA_SCUBA',
+		 NUMBER_OF_OFFSETS => 1,
+		 ROTATION          => 0,
+		 SLIT_ANGLE        => 0,
+		 SPEED_GAIN        => 'normal',
+		 TELESCOPE         => 'JCMT',
+		);
 
-our %hdr;
+# NULL mappings used to override base class implementations
+my @NULL_MAP = qw/ DETECTOR_INDEX WAVEPLATE_ANGLE /;
 
-# M E T H O D S ------------------------------------------------------------
+# unit mapping implies that the value propogates directly
+# to the output with only a keyword name change
 
-=head1 REVISION
+my %UNIT_MAP = (
+		AIRMASS_START        => "AMSTART",
+		AIRMASS_END          => "AMEND",
+		BOLOMETERS           => "BOLOMS",
+		CHOP_ANGLE           => "CHOP_PA",
+		CHOP_THROW           => "CHOP_THR",
+		DEC_BASE             => "LAT",
+		DEC_TELESCOPE_OFFSET => "MAP_Y",
+		DETECTOR_READ_TYPE   => "MODE",
+		DR_RECIPE            => "DRRECIPE",
+		FILENAME             => "SDFFILE",
+		FILTER               => "FILTER",
+		GAIN                 => "GAIN",
+		MSBID                => "MSBID",
+		NUMBER_OF_EXPOSURES  => "EXP_NO",
+		OBJECT               => "OBJECT",
+		OBSERVATION_NUMBER   => "RUN",
+		POLARIMETER          => "POL_CONN",
+		PROJECT              => "PROJ_ID",
+		RA_TELESCOPE_OFFSET  => "MAP_X",
+		SCAN_INCREMENT       => "SAMPLE_DX",
+		SEEING               => "SEEING",
+		STANDARD             => "STANDARD",
+		TAU                  => "TAU_225",
+		X_BASE               => "LONG",
+		Y_BASE               => "LAT",
+		X_OFFSET             => "MAP_X",
+		Y_OFFSET             => "MAP_Y"
+	       );
 
-$Id$
 
-=head1 FUNCTIONS
+# Create the translation methods
+__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 
-These functions provide an interface to the class, allowing the base
-class to determine if this class is the appropriate one to use for
-the given headers.
+=head1 METHODS
 
 =over 4
 
-=item B<valid_class>
+=item B<this_instrument>
 
-  $valid = valid_class( \%headers );
+The name of the instrument required to match (case insensitively)
+against the INSTRUME/INSTRUMENT keyword to allow this class to
+translate the specified headers. Called by the default
+C<can_translate> method.
 
-This function takes one argument: a reference to a hash containing
-the untranslated headers.
+  $inst = $class->this_instrument();
 
-This method returns true (1) or false (0) depending on if the headers
-can be translated by this method.
+Returns "SCUBA".
 
-For this class, the method will return true if the B<INSTRUME> header
-exists, and its value matches the regular expression C</^scuba/i>, or
-if the C<INSTRUMENT> header exists and its value matches the regular
-expression C</^scuba$/i>.
+=cut
+
+sub this_instrument {
+  return "SCUBA";
+}
 
 =back
 
-=cut
+=head1 COMPLEX CONVERSIONS
 
-sub valid_class {
-  my $headers = shift;
-
-  if( exists( $headers->{'INSTRUME'} ) &&
-      defined( $headers->{'INSTRUME'} ) &&
-      $headers->{'INSTRUME'} =~ /^scuba/i ) {
-    return 1;
-  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
-           defined( $headers->{'INSTRUMENT'} ) &&
-           $headers->{'INSTRUMENT'} =~ /^scuba$/i ) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
-
-=head1 TRANSLATION METHODS
-
-These methods provide many-to-one mappings between FITS headers and
-generic headers. An example of a method defined in this section would
-be one that converts UT date and UT hour FITS headers into one combined
-UT datetime generic header. These mappings can also use calculations,
-for example converting a zenith distance to airmass.
-
-These methods are named backwards from the C<translate_from_FITS> and
-C<translate_to_FITS> methods in that we are translating to and from
-generic headers. As an example, a method to convert to a generic airmass
-header would be named C<to_AIRMASS>.
-
-The format of these methods is C<to_HEADER> and C<from_HEADER>.
-C<to_> methods accept a hash reference as an argument and return a scalar
-value (typically a string). C<from_> methods accept a hash reference
-as an argument and return a hash.
+These methods are more complicated than a simple mapping. We have to
+provide both from- and to-FITS conversions All these routines are
+methods and the to_ routines all take a reference to a hash and return
+the translated value (a many-to-one mapping) The from_ methods take a
+reference to a generic hash and return a translated hash (sometimes
+these are many-to-many)
 
 =over 4
-
-=item B<to_INST_DHS>
-
-Sets the INST_DHS header.
-
-=cut
-
-sub to_INST_DHS {
-  return "SCUBA_SCUBA";
-}
-
 
 =item B<to_CHOP_COORDINATE_SYSTEM>
 
@@ -148,6 +126,7 @@ undef.
 =cut
 
 sub to_CHOP_COORDINATE_SYSTEM {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
 
@@ -173,6 +152,7 @@ the C<COORDINATE_TYPE> generic header.
 =cut
 
 sub to_COORDINATE_TYPE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{'CENT_CRD'})) {
@@ -188,16 +168,6 @@ sub to_COORDINATE_TYPE {
     }
   }
   return $return;
-}
-
-=item B<to_COORDINATE_UNITS>
-
-Sets the C<COORDINATE_UNITS> generic header to "sexagesimal".
-
-=cut
-
-sub to_COORDINATE_UNITS {
-  "sexagesimal";
 }
 
 =item B<to_EQUINOX>
@@ -220,6 +190,7 @@ translation is done:
 =cut
 
 sub to_EQUINOX {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{'CENT_CRD'})) {
@@ -245,6 +216,7 @@ equinox values for the C<CENT_CRD> header.
 =cut
 
 sub from_EQUINOX {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   my $return;
@@ -266,16 +238,6 @@ sub from_EQUINOX {
   return %return_hash;
 }
 
-=item B<to_NUMBER_OF_OFFSETS>
-
-Always returns 1.
-
-=cut
-
-sub to_NUMBER_OF_OFFSETS {
-  1;
-}
-
 =item B<to_OBSERVATION_MODE>
 
 Returns C<photometry> if the FITS header value for C<MODE>
@@ -284,6 +246,7 @@ is C<PHOTOM>, otherwise returns C<imaging>.
 =cut
 
 sub to_OBSERVATION_MODE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if( defined( $FITS_headers->{'MODE'} ) &&
@@ -305,6 +268,7 @@ copied directly to the generic header value.
 =cut
 
 sub to_OBSERVATION_TYPE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   my $mode = $FITS_headers->{'MODE'};
@@ -325,6 +289,7 @@ otherwise sets it to 'false'.
 =cut
 
 sub to_POLARIMETRY {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   my $mode = $FITS_headers->{'MODE'};
@@ -336,56 +301,6 @@ sub to_POLARIMETRY {
   return $return;
 }
 
-=item B<to_ROTATION>
-
-Always returns 0.
-
-=cut
-
-sub to_ROTATION {
-  0;
-}
-
-=item B<to_SLIT_ANGLE>
-
-Always returns 0.
-
-=cut
-
-sub to_SLIT_ANGLE {
-  0;
-}
-
-=item B<to_SPEED_GAIN>
-
-Always returns C<normal>.
-
-=cut
-
-sub to_SPEED_GAIN {
-  "normal";
-}
-
-=item B<to_TELESCOPE>
-
-Always returns C<JCMT>.
-
-=cut
-
-sub to_TELESCOPE {
-  "JCMT";
-}
-
-=item B<to_INSTRUMENT>
-
-Always returns C<SCUBA>.
-
-=cut
-
-sub to_INSTRUMENT {
-  "SCUBA";
-}
-
 =item B<to_UTDATE>
 
 Converts either the C<UTDATE> or C<DATE> header into a C<Time::Piece> object.
@@ -393,6 +308,7 @@ Converts either the C<UTDATE> or C<DATE> header into a C<Time::Piece> object.
 =cut
 
 sub to_UTDATE {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if( exists( $FITS_headers->{'UTDATE'} ) &&
@@ -415,6 +331,7 @@ for C<UTDATE> header.
 =cut
 
 sub from_UTDATE {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTDATE}) &&
@@ -433,6 +350,7 @@ generic header. If those headers do not exist, uses C<DATE>.
 =cut
 
 sub to_UTSTART {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
   if( exists( $FITS_headers->{'UTDATE'} ) &&
@@ -464,6 +382,7 @@ and C<UTSTART> FITS headers of the form C<YYYY:MM:DD> and C<HH:MM:SS>.
 =cut
 
 sub from_UTSTART {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTSTART}) &&
@@ -484,6 +403,7 @@ C<Time::Piece> object.
 =cut
 
 sub to_UTEND {
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
 
@@ -509,6 +429,7 @@ C<UTEND> FITS headers of the form C<YYYY:MM:DD> and C<HH:MM:SS>.
 =cut
 
 sub from_UTEND {
+  my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{UTEND}) &&
@@ -523,52 +444,18 @@ sub from_UTEND {
 
 =back
 
-=head1 VARIABLES
+=head1 REVISION
 
-=over 4
+ $Id$
 
-=item B<%hdr>
+=head1 SEE ALSO
 
-Contains one-to-one mappings between FITS headers and generic headers.
-Keys are generic headers, values are FITS headers.
-
-=cut
-
-%hdr = (
-            AIRMASS_START        => "AMSTART",
-            AIRMASS_END          => "AMEND",
-            BOLOMETERS           => "BOLOMS",
-            CHOP_ANGLE           => "CHOP_PA",
-            CHOP_THROW           => "CHOP_THR",
-            DEC_BASE             => "LAT",
-            DEC_TELESCOPE_OFFSET => "MAP_Y",
-            DETECTOR_READ_TYPE   => "MODE",
-            DR_RECIPE            => "DRRECIPE",
-            FILENAME             => "SDFFILE",
-            FILTER               => "FILTER",
-            GAIN                 => "GAIN",
-            MSBID                => "MSBID",
-            NUMBER_OF_EXPOSURES  => "EXP_NO",
-            OBJECT               => "OBJECT",
-            OBSERVATION_NUMBER   => "RUN",
-            POLARIMETER          => "POL_CONN",
-            PROJECT              => "PROJ_ID",
-            RA_TELESCOPE_OFFSET  => "MAP_X",
-            SCAN_INCREMENT       => "SAMPLE_DX",
-            SEEING               => "SEEING",
-            STANDARD             => "STANDARD",
-            TAU                  => "TAU_225",
-            X_BASE               => "LONG",
-            Y_BASE               => "LAT",
-            X_OFFSET             => "MAP_X",
-            Y_OFFSET             => "MAP_Y"
-          );
-
-=back
+C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>
 
 =head1 AUTHOR
 
-Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>
+Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
+Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
