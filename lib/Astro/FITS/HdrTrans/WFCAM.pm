@@ -264,7 +264,6 @@ sub to_UTEND {
     $utend =~ s/Z$//;
     $utend =~ s/(\.(\d)*)*$//;
     $return = Time::Piece->strptime( $utend, "%Y-%m-%dT%T" );
-    }
   }
   return $return;
 }
