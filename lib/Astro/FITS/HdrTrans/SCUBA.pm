@@ -161,6 +161,16 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =over 4
 
+=item B<to_COORDINATE_TYPE>
+
+Sets the C<COORDINATE_TYPE> generic header to "galactic".
+
+=cut
+
+sub to_COORDINATE_TYPE {
+  "galactic";
+}
+
 =item B<to_EQUINOX>
 
 Translates EQUINOX header into valid equinox value. The following
@@ -289,9 +299,9 @@ sub to_POLARIMETRY {
   my $return;
   my $mode = $FITS_headers->{'MODE'};
   if($mode =~ /POLMAP|POLPHOT/) {
-    $return = 'true';
+    $return = 1;
   } else {
-    $return = 'false';
+    $return = 0;
   }
   return $return;
 }
