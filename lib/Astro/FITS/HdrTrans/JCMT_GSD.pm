@@ -35,12 +35,6 @@ package Astro::FITS::HdrTrans::JCMT_GSD;
 Astro::FITS::HdrTrans::JCMT_GSD - Translantes FITS headers into
 generic headers and back again.
 
-=head1 SYNOPSIS
-
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
-
-  %FITS_headers = transate_to_FITS(\%generic_headers, \@header_array);
-
 =head1 DESCRIPTION
 
 Converts information contained in JCMT heterodyne instrument headers
@@ -54,12 +48,13 @@ generic headers.
 use strict;
 use vars qw/ $VERSION /;
 
-'$Revision$ ' =~ /.*:\s(.*)\s\$/ && ($VERSION = $1);
+$VERSION = '0.01';
+
+use Time::Piece;
 
 # P R E D E C L A R A T I O N S --------------------------------------------
 
 our %hdr;
-our %to_file_headers;
 
 # M E T H O D S ------------------------------------------------------------
 
@@ -69,137 +64,39 @@ $Id$
 
 =head1 METHODS
 
+These methods provide an interface to the class, allowing the base
+class to determine if this class is the appropriate one to use for
+the given headers
+
 =over 4
 
-=item B<translate_from_FITS>
+=item B<valid_class>
 
-Converts a hash containing heterodyne FITS headers into a hash containing
-generic headers.
+  $valid = valid_class( \%headers );
 
-  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
+This method takes one argument: a reference to a hash containing the
+untranslated headers.
 
-The C<header_array> argument is used to supply a list of generic
-header names.
+This method returns true (1) or false (0) depending on if the headers
+can be translated by this method.
+
+For this class, the method will return true if the B<C1RCV> header exists
+and matches the regular expression C</^rx(a|b|w)/i>.
 
 =back
 
 =cut
 
-sub translate_from_FITS {
-  my $FITS_header = shift;
-  my $header_array = shift;
-  my %generic_header;
-  my %db_headers;
+sub valid_class {
+  my $headers = shift;
 
-  if( exists($FITS_header->{C4EL}) ) {
-    %db_headers = pretranslate_file_headers( $FITS_header );
+  if( exists( $headers->{'C1RCV'} ) &&
+      defined( $headers->{'C1RCV'} ) &&
+      $headers->{'C1RCV'} =~ /^rx(a|b|w)/i ) {
+    return 1;
   } else {
-    %db_headers = %{$FITS_header};
+    return 0;
   }
-  for my $key ( @$header_array ) {
-    if(exists($hdr{$key}) ) {
-      $generic_header{$key} = $db_headers{$hdr{$key}};
-    } else {
-      my $subname = "to_" . $key;
-      if(exists(&$subname) ) {
-        no strict 'refs'; # EEP!
-        $generic_header{$key} = &$subname(\%db_headers);
-      }
-    }
-  }
-
-  return %generic_header;
-
-}
-
-=over 4
-
-=item B<translate_to_FITS>
-
-Converts a hash containing generic headers into a hash containing
-FITS headers
-
-  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
-
-The C<header_array> argument is used to supply a list of generic
-header names.
-
-=back
-
-=cut
-
-sub translate_to_FITS {
-  my $generic_header = shift;
-  my $header_array = shift;
-  my %FITS_header;
-
-  for my $key ( @$header_array ) {
-
-    if( exists($hdr{$key}) ) {
-      $FITS_header{$hdr{$key}} = $generic_header->{$key};
-    } else {
-      no strict 'refs'; # EEP EEP!
-      my $subname = "from_" . $key;
-      if(exists(&$subname) ) {
-        my %new = &$subname($generic_header);
-        for my $newkey ( keys %new ) {
-          $FITS_header{$newkey} = $new{$newkey};
-        }
-      }
-    }
-  }
-
-  return %FITS_header;
-
-}
-
-=over 4
-
-=item B<pretranslate_file_headers>
-
-=item B<pretranslate_db_headers>
-
-Do a pre-translation of headers from files into headers from the database and
-vice-versa.
-
-  %dbheaders = pretranslate_file_headers( \%fileheaders );
-  %fileheaders = pretranslate_db_headers( \%dbheaders );
-
-This step is necessary so that it will not be necessary to translate
-both database headers and file headers individually. Since there is
-a one-to-one mapping between database headers and file headers, we do
-this pretranslation to simplify matters.
-
-These methods take as input a hash reference and return a hash.
-
-=back
-
-=cut
-
-sub pretranslate_file_headers {
-  my $fileheaders = shift;
-
-  my %dbheaders;
-  my %to_db_headers = reverse %to_file_headers;
-
-  foreach my $filehdr (keys %to_db_headers) {
-    $dbheaders{$to_db_headers{$filehdr}} = $fileheaders->{$filehdr};
-  }
-  return %dbheaders;
-
-}
-
-sub pretranslate_db_headers {
-  my $dbheaders = shift;
-
-  my %fileheaders;
-
-  foreach my $dbhdr (keys %to_file_headers) {
-    $fileheaders{$to_file_headers{$dbhdr}} = $dbheaders->{$dbhdr};
-  }
-
-  return %fileheaders;
-
 }
 
 =head1 TRANSLATION METHODS
@@ -214,13 +111,11 @@ These methods are named backwards from the C<translate_from_FITS> and
 C<translate_to_FITS> methods in that we are translating to and from
 generic headers. As an example, a method to convert to a generic airmass
 header would be named C<to_AIRMASS>.
+
 The format of these methods is C<to_HEADER> and C<from_HEADER>.
 C<to_> methods accept a hash reference as an argument and return a scalar
 value (typically a string). C<from_> methods accept a hash reference
-as an argument and return a hash. All UT datetimes should be in
-standard ISO 8601 datetime format, which is C<YYYY-MM-DDThh:mm:ss>.
-See http://www.cl.cam.ac.uk/~mgk25/iso-time.html for a brief overview
-of ISO 8601. Dates should be in YYYY-MM-DD format.
+as an argument and return a hash.
 
 =over 4
 
@@ -231,9 +126,7 @@ Sets the INST_DHS header.
 =cut
 
 sub to_INST_DHS {
-
   return "HET_GSD";
-
 }
 
 =item B<to_COORDINATE_UNITS>
@@ -268,7 +161,7 @@ sub to_TELESCOPE {
 
 =item B<to_UTDATE>
 
-Translates the C<UT> or C<C3DAT> header into a standard YYYY-MM-DD format.
+Translates the C<C3DAT> header into a C<Time::Piece> object.
 
 =cut
 
@@ -276,22 +169,18 @@ sub to_UTDATE {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'UT'}) && defined( $FITS_headers->{'UT'} ) ) {
-    my $t = Time::Piece->strptime($FITS_headers->{'UT'},
-                                  "%b%t%d%t%Y%t%I:%M%p",);
-    $return = $t->ymd;
-  } elsif( exists( $FITS_headers->{'C3DAT'} ) ) {
+  if( exists( $FITS_headers->{'C3DAT'} ) ) {
     $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d{1,2})/;
     my $day = (length($3) == 2) ? $3 : $3 . "0";
-    $return = "$1-$2-$day";
+    my $ut = "$1-$2-$day";
+    $return = Time::Piece->strptime( $ut, "%Y-%m-%d" );
   }
   return $return;
 }
 
 =item B<to_UTSTART>
 
-Translates the C<UT> header (for database lookups) or the C<C3DAT> and C<C3UT>
-headers (for file headers) into standard ISO 8601 format.
+Translates the C<C3DAT> and C<C3UT> headers into a C<Time::Piece> object.
 
 =cut
 
@@ -299,41 +188,31 @@ sub to_UTSTART {
   my $FITS_headers = shift;
 
   my $return;
-  if( exists( $FITS_headers->{'LONGDATE'}) && defined( $FITS_headers->{'LONGDATE'} ) ) {
-    my $date = $FITS_headers->{'LONGDATE'};
-    $date =~ s/(:)\d\d\d(AM|PM)\s+/$2/i;
-    my $t = Time::Piece->strptime($date, "%b%n%d%n%Y%n%I:%M:%S%p",);
-    $return = $t->datetime;
-  } elsif ( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
-            exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
+  if ( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
+       exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
     my $hour = int( $FITS_headers->{'C3UT'} );
     my $minute = int ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 );
     my $second = int ( ( ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 ) - $minute ) * 60 );
     $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d{1,2})/;
     my $day = (length($3) == 2) ? $3 : $3 . "0";
-    $return = sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $day, $hour, $minute, $second ) ;
+    $return = Time::Piece->strptime(sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $day, $hour, $minute, $second ),
+                                    "%Y-%m-%dT%T");
   }
   return $return;
-
 }
 
 =item B<to_UTEND>
 
-Translates the C<UT> and C<SAMPRAT> headers (for database lookups) or the
-C<C3DAT>, C<C3UT>, C<C3NIS>, C<C3CL>, C<C3NCP>, and C<C3NCI> (from file
-headers) into standard ISO 8601 format.
+Translates the C<C3DAT>, C<C3UT>, C<C3NIS>, C<C3CL>, C<C3NCP>, and C<C3NCI> headers
+into a C<Time::Piece> object.
 
 =cut
 
 sub to_UTEND {
   my $FITS_headers = shift;
-  my ($return, $t, $expt);
-  if( exists( $FITS_headers->{'LONGDATE'}) && defined( $FITS_headers->{'LONGDATE'} ) ) {
-    my $date = $FITS_headers->{'LONGDATE'};
-    $date =~ s/(:)\d\d\d(AM|PM)\s+/$2/i;
-    $t = Time::Piece->strptime($date, "%b%t%d%t%Y%t%I:%M:%S%p");
-  } elsif( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
-           exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
+  my ($t, $expt);
+  if( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
+      exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
     my $hour = int( $FITS_headers->{'C3UT'} );
     my $minute = int ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 );
     my $second = int ( ( ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 ) - $minute ) * 60 );
@@ -346,9 +225,8 @@ sub to_UTEND {
   $expt = to_EXPOSURE_TIME( $FITS_headers );
 
   $t += $expt;
-  $return = $t->datetime;
 
-  return $return;
+  return $t;
 
 }
 
@@ -360,52 +238,43 @@ sub to_EXPOSURE_TIME {
   my $FITS_headers = shift;
   my $expt;
 
-  if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) &&
-      exists( $FITS_headers->{'NSCAN'} ) && defined( $FITS_headers->{'NSCAN'} ) &&
-      exists( $FITS_headers->{'CYCLLEN'} ) && defined( $FITS_headers->{'CYCLLEN'} ) &&
-      exists( $FITS_headers->{'NOCYCPTS'} ) && defined( $FITS_headers->{'NOCYCPTS'} ) &&
-      exists( $FITS_headers->{'NOCYCLES'} ) && defined( $FITS_headers->{'NOCYCLES'} ) &&
-      exists( $FITS_headers->{'NCYCPTS'} ) && defined( $FITS_headers->{'NCYCPTS'} ) && 
-      exists( $FITS_headers->{'NCYCLE'} ) && defined( $FITS_headers->{'NCYCLE'} ) ) {
+  if( exists( $FITS_headers->{'C6ST'} ) && defined( $FITS_headers->{'C6ST'} ) &&
+      exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
+      exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) &&
+      exists( $FITS_headers->{'C3NCP'} ) && defined( $FITS_headers->{'C3NCP'} ) &&
+      exists( $FITS_headers->{'C3NCI'} ) && defined( $FITS_headers->{'C3NCI'} ) &&
+      exists( $FITS_headers->{'C6NP'} ) && defined( $FITS_headers->{'C6NP'} ) &&
+      exists( $FITS_headers->{'C3NCYCLE'} ) && defined( $FITS_headers->{'C3NCYCLE'} ) ) {
 
-    my $obsmode = uc( $FITS_headers->{'OBSMODE'} );
-    my $nscan = uc( $FITS_headers->{'NSCAN'} );
-    my $cycllen = uc( $FITS_headers->{'CYCLLEN'} );
-    my $nocycpts = uc( $FITS_headers->{'NOCYCPTS'} );
-    my $nocycles = uc( $FITS_headers->{'NOCYCLES'} );
-    my $ncycpts = uc( $FITS_headers->{'NCYCPTS'} );
-    my $ncycle = uc( $FITS_headers->{'NCYCLE'} );
+    my $obsmode = uc( $FITS_headers->{'C6ST'} );
+    my $nscan = uc( $FITS_headers->{'C3NSAMPL'} );
+    my $cycllen = uc( $FITS_headers->{'C3CL'} );
+    my $nocycpts = uc( $FITS_headers->{'C3NCP'} );
+    my $nocycles = uc( $FITS_headers->{'C3NCI'} );
+    my $ncycpts = uc( $FITS_headers->{'C6NP'} );
+    my $ncycle = uc( $FITS_headers->{'C3NCYCLE'} );
 
     if( $obsmode eq 'RASTER' ) {
-#      $expt = $nscan * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
       $expt = 0.3 + $nscan * $cycllen * ( 1 + 1/sqrt($nocycpts) ) * 1.20;
-#    } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
-#      $expt = $nscan * $cycllen * $nocycles;
-#    } elsif ( ( $obsmode eq 'SAMPLE' ) ) {
-#      $expt = $ncycpts * $cycllen * $nscan / 2;
     } else {
-      # This supports pattern and grid
-#      $expt = $nocycles * $cycllen * $nscan;
       $expt = 0.3 + $nscan * $ncycle * $cycllen * 1.20;
     }
   }
-
   return $expt;
-
 }
 
-=item B<to_VELSYS>
+=item B<to_SYSTEM_VELOCITY>
 
-Translate the C<VREF> and C<VDEF> headers into one combined header.
+Translate the C<C12VREF> and C<C12VDEF> headers into one combined header.
 
 =cut
 
-sub to_VELSYS {
+sub to_SYSTEM_VELOCITY {
   my $FITS_headers = shift;
   my $return;
-  if( exists( $FITS_headers->{'VREF'} ) && defined( $FITS_headers->{'VREF'} ) &&
-      exists( $FITS_headers->{'VDEF'} ) && defined( $FITS_headers->{'VDEF'} ) ) {
-    $return = substr( $FITS_headers->{'VDEF'}, 0, 3 ) . substr( $FITS_headers->{'VREF'}, 0, 3 );
+  if( exists( $FITS_headers->{'C12VREF'} ) && defined( $FITS_headers->{'C12VREF'} ) &&
+      exists( $FITS_headers->{'C12VDEF'} ) && defined( $FITS_headers->{'C12VDEF'} ) ) {
+    $return = substr( $FITS_headers->{'C12VDEF'}, 0, 3 ) . substr( $FITS_headers->{'C12VREF'}, 0, 3 );
   }
   return $return;
 }
@@ -468,22 +337,51 @@ Keys are generic headers, values are FITS headers.
 =cut
 
 %hdr = (
-        ALTITUDE_START => "EL",
-        AZIMUTH_START => "AZ",
-        BACKEND => "BACKEND",
-        COORDINATE_TYPE => "FRAME",
-        CYCLE_LENGTH => "CYCLLEN",
-        DEC_BASE => "DECDATE",
-        FILENAME => "GSDFILE",
-        INSTRUMENT => "FRONTEND",
-        NUMBER_OF_CYCLES => "NOCYCLES",
-        OBJECT => "OBJECT",
-        OBSERVATION_MODE => "OBSMODE",
-        OBSERVATION_NUMBER => "SCAN",
-        PROJECT => "PROJID",
-        RA_BASE => "RADATE",
-        REST_FREQUENCY => "RESTFRQ1",
-        VELOCITY => "VELOCITY",
+        AMBIENT_TEMPERATURE => "C5AT",
+        APERTURE => "C7AP",
+        AZIMUTH_START => "C4AZ",
+        BACKEND => "C1BKE",
+        BACKEND_SECTIONS => "C3NRS",
+        CHOP_FREQUENCY => "C4FRQ",
+        CHOP_THROW => "C4THROW",
+        COORDINATE_SYSTEM => "C4CSC",
+        COORDINATE_TYPE => "C4LSC",
+        CYCLE_LENGTH => "C3CL",
+#        DEC_BASE => "",
+        ELEVATION_START => "C4EL",
+#        FILENAME => "GSDFILE",
+        FILTER => "C7FIL",
+        FREQUENCY_RESOLUTION => "C12FR",
+        FRONTEND => "C1RCV",
+        HUMIDITY => "C5RH",
+        INSTRUMENT => "C1RCV",
+        NUMBER_OF_CYCLES => "C3NCI",
+        NUMBER_OF_SUBSCANS => "C3NIS",
+        OBJECT => "C1SNA1",
+        OBSERVATION_MODE => "C6ST",
+        OBSERVATION_NUMBER => "C1SNO",
+        PROJECT => "C1PID",
+        RA_BASE => "C4RADATE",
+        RECEIVER_TEMPERATURE => "C12RT",
+        ROTATION => "CELL_V2Y",
+        REST_FREQUENCY => "C12RF",
+        SEEING => "C7SEEING",
+        SWITCH_MODE => "C6MODE",
+        SYSTEM_TEMPERATURE => "C12SST",
+        TAU => "C7TAU225",
+        USER_AZ_CORRECTION => "UAZ",
+        USER_EL_CORRECTION => "UEL",
+        VELOCITY => "C7VR",
+        VELOCITY_REFERENCE_FRAME => "C12VREF",
+        VELOCITY_TYPE => "C12VDEF",
+        X_BASE => "C4RX",
+        Y_BASE => "C4RY",
+        X_DIM => "C6XNP",
+        Y_DIM => "C6YNP",
+        X_REQUESTED => "C4SX",
+        Y_REQUESTED => "C4SY",
+        X_SCALE => "C6DX",
+        Y_SCALE => "C6DY",
        );
 
 =back
