@@ -91,14 +91,13 @@ sub translate_from_FITS {
   my %generic_header;
   my %db_headers;
 
-  if( exists($generic_header{C4EL}) ) {
+  if( exists($FITS_header->{C4EL}) ) {
     %db_headers = pretranslate_file_headers( $FITS_header );
   } else {
     %db_headers = %{$FITS_header};
   }
 
   for my $key ( @$header_array ) {
-
     if(exists($hdr{$key}) ) {
       $generic_header{$key} = $db_headers{$hdr{$key}};
     } else {
@@ -109,6 +108,7 @@ sub translate_from_FITS {
       }
     }
   }
+#use Data::Dumper;
 #print Dumper \%generic_header;
 #exit;
   return %generic_header;
@@ -188,7 +188,6 @@ sub pretranslate_file_headers {
   foreach my $filehdr (keys %to_db_headers) {
     $dbheaders{$to_db_headers{$filehdr}} = $fileheaders->{$filehdr};
   }
-
   return %dbheaders;
 
 }
@@ -267,6 +266,7 @@ Translates the C<UT> or C<C3DAT> header into a standard YYYY-MM-DD format.
 sub to_UTDATE {
   my $FITS_headers = shift;
   my $return;
+
   if( exists( $FITS_headers->{'UT'}) && defined( $FITS_headers->{'UT'} ) ) {
     my $t = Time::Piece->strptime($FITS_headers->{'UT'},
                                   "%b%t%d%t%Y%t%I:%M%p",);
@@ -287,6 +287,7 @@ headers (for file headers) into standard ISO 8601 format.
 
 sub to_UTSTART {
   my $FITS_headers = shift;
+
   my $return;
   if( exists( $FITS_headers->{'UT'}) && defined( $FITS_headers->{'UT'} ) ) {
     my $t = Time::Piece->strptime($FITS_headers->{'UT'},
@@ -315,7 +316,6 @@ headers) into standard ISO 8601 format.
 sub to_UTEND {
   my $FITS_headers = shift;
   my ($return, $t, $expt);
-
   if( exists( $FITS_headers->{'UT'} ) && defined( $FITS_headers->{'UT'} ) ) {
     $t = Time::Piece->strptime($FITS_headers->{'UT'},
                                   "%b%t%d%t%Y%t%I:%M%p",);
@@ -327,7 +327,7 @@ sub to_UTEND {
     my $second = int ( ( ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 ) - $minute ) * 60 );
     $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d\d)/;
     $t = Time::Piece->strptime(sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $3, $hour, $minute, $second ),
-                              "%y-%m-%dT%H:%M:%S");
+                              "%Y-%m-%dT%T");
   }
 
   if( exists( $FITS_headers->{'OBSMODE'} ) && defined( $FITS_headers->{'OBSMODE'} ) &&
@@ -346,10 +346,10 @@ sub to_UTEND {
       $expt = $noscans * $cycllen / $nocycpts * ( $nocycpts + sqrt( $nocycpts ) );
     } elsif ( ( $obsmode eq 'FIVEPOINT' ) || ( $obsmode eq 'FOCUS' ) ) {
 my $runnr = $FITS_headers->{'SCAN'};
-print "obsnum: $runnr\nObsmode: $obsmode\nnoscans: $noscans\nnocycles: $nocycles\ncycllen: $cycllen\n";
+#print "obsnum: $runnr\nObsmode: $obsmode\nnoscans: $noscans\nnocycles: $nocycles\ncycllen: $cycllen\n";
 
       $expt = $noscans * $cycllen;
-print "expt: $expt\n";
+#print "expt: $expt\n";
     } else {
       $expt = $nocycles * $cycllen;
     }
