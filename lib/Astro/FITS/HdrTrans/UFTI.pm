@@ -333,7 +333,6 @@ Keys are generic headers, values are FITS headers.
 %hdr = (
             AIRMASS_START        => "AMSTART",
             AIRMASS_END          => "AMEND",
-            CONFIGURATION_INDEX  => "CNFINDEX",
             DEC_BASE             => "DECBASE",
             DEC_SCALE            => "CDELT2",
             DEC_TELESCOPE_OFFSET => "TDECOFF",
