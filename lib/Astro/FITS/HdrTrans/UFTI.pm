@@ -270,7 +270,7 @@ sub to_X_BASE {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{RABASE})) {
-    $return = $FITS_headers * 15;
+    $return = $FITS_headers->{RABASE} * 15;
   }
   return $return;
 }
@@ -312,6 +312,8 @@ Keys are generic headers, values are FITS headers.
             DEC_SCALE            => "CDELT2",
             DEC_TELESCOPE_OFFSET => "TDECOFF",
             DETECTOR_READ_TYPE   => "MODE",
+            DR_GROUP             => "GRPNUM",
+            DR_RECIPE            => "RECIPE",
             EQUINOX              => "EQUINOX",
             EXPOSURE_TIME        => "EXP_TIME",
             FILTER               => "FILTER",
@@ -333,6 +335,8 @@ Keys are generic headers, values are FITS headers.
             TELESCOPE            => "TELESCOP",
             UTDATE               => "DATE",
             WAVEPLATE_ANGLE      => "WPLANGLE",
+            X_DIM                => "DCOLUMNS",
+            Y_DIM                => "DROWS",
             Y_BASE               => "DECBASE",
             X_OFFSET             => "RAOFF",
             Y_OFFSET             => "DECOFF",
