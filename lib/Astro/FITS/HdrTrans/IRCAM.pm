@@ -103,7 +103,7 @@ sub valid_class {
     return 1;
   } elsif( exists( $headers->{'INSTRUMENT'} ) &&
            defined( $headers->{'INSTRUMENT'} ) &&
-           $headers->{'INSTRUMENT'} =~ /^ircam$/i ) {
+           $headers->{'INSTRUMENT'} =~ /^ircam/i ) {
     return 1;
   } else {
     return 0;
