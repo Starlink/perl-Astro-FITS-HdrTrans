@@ -163,12 +163,36 @@ of ISO 8601. Dates should be in YYYY-MM-DD format.
 
 =item B<to_COORDINATE_TYPE>
 
-Sets the C<COORDINATE_TYPE> generic header to "galactic".
+Uses the C<CENT_CRD> FITS header to determine the coordinate type
+(galactic, B1950, J2000) and then places that coordinate type in
+the C<COORDINATE_TYPE> generic header.
 
 =cut
 
 sub to_COORDINATE_TYPE {
-  "galactic";
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{'CENT_CRD'})) {
+    my $fits_eq = $FITS_headers->{'CENT_CRD'};
+    if( $fits_eq =~ /RB/ ) {
+      $return = "B1950";
+    } elsif( $fits_eq =~ /RJ/ ) {
+      $return = "J2000";
+    } elsif( $fits_eq =~ /AZ/ ) {
+      $return = "galactic";
+    }
+  }
+  return $return;
+}
+
+=item B<to_COORDINATE_UNITS>
+
+Sets the C<COORDINATE_UNITS> generic header to "sexagesimal".
+
+=cut
+
+sub to_COORDINATE_UNITS {
+  "sexagesimal";
 }
 
 =item B<to_EQUINOX>
@@ -470,12 +494,15 @@ Keys are generic headers, values are FITS headers.
             OBJECT               => "OBJECT",
             OBSERVATION_NUMBER   => "RUN",
             OBSERVATION_TYPE     => "OBSTYPE",
-            RA_BASE              => "LONG",
             RA_TELESCOPE_OFFSET  => "MAP_X",
             SCAN_INCREMENT       => "SAMPLE_DX",
             SPEED_GAIN           => "SPD_GAIN",
             STANDARD             => "STANDARD",
             TELESCOPE            => "TELESCOP",
+            X_BASE               => "LONG",
+            Y_BASE               => "LAT",
+            X_OFFSET             => "MAP_X",
+            Y_OFFSET             => "MAP_Y"
           );
 
 =back
