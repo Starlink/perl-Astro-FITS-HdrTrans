@@ -37,9 +37,9 @@ headers and back again
 
 =head1 SYNOPSIS
 
-  %generic_headers = translate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
 
-  %FITS_headers = transate_to_FITS(\%generic_headers);
+  %FITS_headers = transate_to_FITS(\%generic_headers, \@header_array);
 
 =head1 DESCRIPTION
 
@@ -75,7 +75,10 @@ $Id$
 Converts a hash containing CGS4 FITS headers into a hash containing
 generic headers.
 
-  %generic_headers = translate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers, \@header_array);
+
+The C<header_array> argument is used to supply a list of generic
+header names.
 
 =back
 
@@ -83,9 +86,10 @@ generic headers.
 
 sub translate_from_FITS {
   my $FITS_header = shift;
+  my $header_array = shift;
   my %generic_header;
 
-  for my $key ( @Astro::FITS::HdrTrans::generic_headers ) {
+  for my $key ( @$header_array ) {
 
     if(exists($hdr{$key}) ) {
       $generic_header{$key} = $FITS_header->{$hdr{$key}};
@@ -108,7 +112,10 @@ sub translate_from_FITS {
 Converts a hash containing generic headers into a hash containing
 FITS headers
 
-  %FITS_headers = translate_to_FITS(\%generic_headers);
+  %FITS_headers = translate_to_FITS(\%generic_headers, \@header_array);
+
+The C<header_array> argument is used to supply a list of generic
+header names.
 
 =back
 
@@ -116,9 +123,10 @@ FITS headers
 
 sub translate_to_FITS {
   my $generic_header = shift;
+  my $header_array = shift;
   my %FITS_header;
 
-  for my $key ( @Astro::FITS::HdrTrans::generic_headers ) {
+  for my $key ( @$header_array ) {
 
     if( exists($hdr{$key}) ) {
       $FITS_header{$hdr{$key}} = $generic_header->{$key};
