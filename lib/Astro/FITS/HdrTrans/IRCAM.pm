@@ -86,7 +86,9 @@ This method returns true (1) or false (0) depending on if the headers
 can be translated by this method.
 
 For this class, the method will return true if the B<INSTRUME> header
-exists, and its value matches the regular expression C</^ircam/i>.
+exists, and its value matches the regular expression C</^ircam/i>, or
+if the C<INSTRUMENT> header exists and its value matches the regular
+expression C</^ircam$/i>.
 
 =back
 
