@@ -331,6 +331,88 @@ sub import {
 
 }
 
+=head1 WRITING A TRANSLATION CLASS
+
+In order to create a translation class for a new instrument it is
+first necessary to work out the different types of translations that
+are required; whether they are unit mappings (a simple change of
+keyword but no change in value), constant mappings (a constant is
+returned independently of the FITS header), mappings that already
+exist in another class or complex mappings that have to be explicitly
+coded.
+
+All translation classes must ultimately inherit from
+C<Astro::FITS::HdrTrans::Base>.
+
+The first step in creation of a class is to handle the "can this class
+translate the supplied headers" query that will be requested from
+the C<Astro::FITS::HdrTrans> package. If the instrument name is present
+in the standard "INSTRUME" FITS header then this can be achieved simply
+by writing a C<this_instrument> method in the subclass that will return
+the name of the instrument that can be translated. If a more complex
+decision is required it will be necessary to subclass the C<can_translate>
+method. This takes the headers that are to be translated (either in FITS
+or generic form since the method is queried for either direction) and
+returns a boolean indicating whether the class can be used.
+
+Once the class can declare it's translation instrument the next
+step is to write the actual translation methods themselves. If any
+unit- or constant-mappings are required they can be setup by defining
+the %UNIT_MAP and %CONST_MAP (the names are unimportant) hashes
+and calling the base class automated method constructor:
+
+  __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
+
+If your translations are very similar to an existing set of translations
+you can inherit from that class instead of C<Astro::FITS::HdrTrans::Base>.
+Multiple inheritance is supported if, for example, you need to
+inherit from both the standard FITS translations (eg for DATE-OBS
+processing) and from a more telescope-specific set of translations.
+
+If inheritance causes some erroneous mappings to leak through it is
+possible to disable a specific mapping by specifying a @NULL_MAP
+array to the method generation. This is an array of generic keywords.
+
+  __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP,
+                                         \@NULL_MAP );
+
+If a subset of translation methods are required from another class
+but there is no desire to inherit the full set of methods then it
+is possible to import specific translation methods from other classes.
+
+  use Astro::FITS::HdrTrans::FITS qw/ UTSTART UTEND /;
+
+would import just the DATE-OBS and DATE-END handling functions from
+the FITS class. Note that both the from- and to- translations will
+be imported.
+
+At some point you may want to write your own more complex translations.
+To do this you must write to- and from- methods. The API for all
+the from_FITS translations is identical:
+
+  $translation = $class->to_GENERIC_KEYWORD( \%fits_headers );
+
+ie given a reference to a hash of FITS headers (which can be
+a tied C<Astro::FITS::Header> object), return a scalar value which
+is the translated value.
+
+To convert from generic to FITS the interface is:
+
+  %fits_subset = $class->from_GENERIC_KEYWORD( \%generic_header );
+
+ie multiple FITS keywords and values can be returned since in some
+cases a single generic keyword is obtained by combining information
+from multiple FITS headers.
+
+Finally, if this translation module is to be part of the
+C<Astro::FITS::HdrTrans> distribution the default list of translation
+classes must be updated in C<Astro::FITS::HdrTrans>. If this is to be
+a runtime plugin, then the list of classes can be expanded at
+runtime. For example, it should be possible for
+C<Astro::FITS::HdrTrans::MyNewInst> to automatically append itself to
+the list of known classes if the module is explicitly loaded by the
+user (rather than dynamically loaded to test the headers).
+
 =head1 REVISION
 
  $Id$
