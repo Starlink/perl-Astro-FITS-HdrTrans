@@ -142,7 +142,9 @@ Returns true if the supplied headers can be handled by this class.
 
 The base class version of this method returns true if either the C<INSTRUME>
 or C<INSTRUMENT> key exist and match the value returned by the
-C<ref_instrument> method. Comparisons are case-insensitive.
+C<ref_instrument> method. Comparisons are case-insensitive and can use
+regular expressions on instrument name if provided by the base class.
+
 
 =cut
 
@@ -153,23 +155,25 @@ sub can_translate {
   # get the reference instrument string
   my $ref = $class->this_instrument();
   return 0 unless defined $ref;
-  $ref = lc($ref);
 
-  #print "Checking against $ref\n";
+  # For consistency in subsequent algorithm convert
+  # a string to a pattern match object
+  $ref = qr/^$ref$/i if not ref($ref);
 
   # check against the FITS and Generic versions.
-  if( exists( $headers->{'INSTRUME'} ) &&
-      defined( $headers->{'INSTRUME'} ) ) {
-    my $h = lc($headers->{INSTRUME});
-    return 1 if $h eq $ref;
-  } elsif( exists( $headers->{'INSTRUMENT'} ) &&
-           defined( $headers->{'INSTRUMENT'} ) ) {
-    my $h = lc($headers->{INSTRUMENT});
-    return 1 if $h eq $ref;
-  } else {
-    return 0;
+  my $inst;
+  for my $k (qw/ INSTRUME INSTRUMENT /) {
+    if (exists $headers->{$k} && defined $headers->{$k}) {
+      $inst = $headers->{$k};
+      last;
+    }
   }
-  return 0;
+
+  # no recognizable instrument
+  return 0 unless defined $inst;
+
+  # Now do the test
+  return ( $inst =~ $ref );
 }
 
 =item B<this_instrument>
@@ -178,6 +182,8 @@ Name of the instrument that can be translated by this class.
 Defaults to an empty string. The method must be subclassed.
 
  $inst = $class->this_instrument();
+
+Can return a regular expresion object (C<qr>).
 
 =cut
 

@@ -73,12 +73,12 @@ C<can_translate> method.
 
   $inst = $class->this_instrument();
 
-Returns "IRCAM3".
+Returns a pattern match for /^IRCAM\d?/".
 
 =cut
 
 sub this_instrument {
-  return "IRCAM3";
+  return qr/^IRCAM\d?/i;
 }
 
 =back
