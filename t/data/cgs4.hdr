@@ -101,8 +101,7 @@ WPLANGLE=                0.000 / [deg] IRPOL waveplate angle
 
 DETECTOR= 'fpa046  '           / Detector array used
 DROWS   =                  178 / [pixel] Number of detectors in a readout row
-DCOLUMNS=                  256 / [pixel] Number of detectors in a readout
-column
+DCOLUMNS=                  256 / [pixel] Number of detectors in a readout column
 RDOUT_X1=                    1 / Start column of array readout
 RDOUT_X2=                  256 / End   column of array readout
 RDOUT_Y1=                   45 / Start row    of array readout
