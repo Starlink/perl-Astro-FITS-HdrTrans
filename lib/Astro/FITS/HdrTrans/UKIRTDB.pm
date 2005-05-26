@@ -51,6 +51,7 @@ my %UNIT_MAP = (
 		AIRMASS_START        => "AMSTART",
 		AIRMASS_END          => "AMEND",
 		CAMERA               => "CAMLENS",
+    CAMERA_NUMBER        => "CAMNUM",
 		CONFIGURATION_INDEX  => "CNFINDEX",
 		DEC_BASE             => "DECBASE",
 		DEC_SCALE            => "PIXELSIZ",
@@ -362,6 +363,8 @@ sub to_UTSTART {
   if( exists( $FITS_headers->{'DATE_OBS'} ) ) {
     my $dateobs = $FITS_headers->{'DATE_OBS'};
     $dateobs =~ s/Z//g;
+    $dateobs =~ s/\.\d*$//;
+
     $return = Time::Piece->strptime( $dateobs, "%Y-%m-%dT%T" );
 
   } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
@@ -416,6 +419,7 @@ sub to_UTEND {
   if( exists( $FITS_headers->{'DATE_END'} ) ) {
     my $dateend = $FITS_headers->{'DATE_END'};
     $dateend =~ s/Z//g;
+    $dateend =~ s/\.\d*$//;
     $return = Time::Piece->strptime( $dateend, "%Y-%m-%dT%T" );
 
   } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
