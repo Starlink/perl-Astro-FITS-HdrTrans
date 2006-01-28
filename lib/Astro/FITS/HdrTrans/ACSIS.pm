@@ -8,13 +8,11 @@ Astro::FITS::HdrTrans::ACSIS - class for translation of JCMT ACSIS headers
 
 =head1 SYNOPSIS
 
-  use Astro::FITS::HdrTrans::UKIRT;
+  use Astro::FITS::HdrTrans::ACSIS;
 
 =head1 DESCRIPTION
 
-This class provides a generic set of translations that are common to
-instrumentation from the United Kingdom Infrared Telescope. It should
-not be used directly for translation of instrument FITS headers.
+This class provides a set of translations for ACSIS at JCMT.
 
 =cut
 
@@ -52,19 +50,40 @@ my %UNIT_MAP = (
 		AIRMASS_START      => 'AMSTART',
 		AIRMASS_END        => 'AMEND',
 		AMBIENT_TEMPERATURE=> 'ATSTART',
+    AZIMUTH_START      => 'AZSTART',
+    AZIMUTH_END        => 'AZEND',
+    BACKEND            => 'BACKEND',
 		CHOP_ANGLE         => 'CHOP_PA',
+    CHOP_COORDINATE_SYSTEM => 'CHOP_CRD',
+    CHOP_FREQUENCY     => 'CHOP_FRQ',
 		CHOP_THROW         => 'CHOP_THR',
+    DEC_BASE           => 'CRVAL2',
+    DEC_SCALE          => 'CDELT2',
+    DEC_SCALE_UNITS    => 'CUNIT2',
 		DR_RECIPE          => 'DRRECIPE',
-		INST_DHS           => 'DHS',
+    ELEVATION_START    => 'ELSTART',
+    ELEVATION_END      => 'ELEND',
+    EQUINOX            => 'EQUINOX',
+    FRONTEND           => 'INSTRUME',
+    HUMIDITY           => 'HUMSTART',
+    LATITUDE           => 'LAT-OBS',
+    LONGITUDE          => 'LONG-OBS',
 		MSBID              => 'MSBID',
 		OBJECT             => 'OBJECT',
 		OBSERVATION_NUMBER => 'OBSNUM',
 		POLARIMETER        => 'POL_CONN',
 		PROJECT            => 'PROJECT',
+    RA_BASE            => 'CRVAL1',
+    RA_SCALE           => 'CDELT1',
+    RA_SCALE_UNITS     => 'CUNIT1',
+    REST_FREQUENCY     => 'RESTFREQ',
 		SEEING             => 'SEEINGST',
 		STANDARD           => 'STANDARD',
 		SWITCH_MODE        => 'SW_MODE',
+    SYSTEM_VELOCITY    => 'VELOSYS',
 		TAU                => 'WVMTAUST',
+    TELESCOPE          => 'TELESCOP',
+    WAVEPLATE_ANGLE    => 'SKYANG',
                );
 
 # Create the translation methods
@@ -80,7 +99,7 @@ Returns true if the supplied headers can be handled by this class.
 
   $cando = $class->can_translate( \%hdrs );
 
-For this class, the method will return true if the B<DHS> header exists
+For this class, the method will return true if the B<BACKEND> header exists
 and matches 'ACSIS'.
 
 =cut
@@ -89,9 +108,9 @@ sub can_translate {
   my $self = shift;
   my $headers = shift;
 
-  if ( exists $headers->{DHS} &&
-       defined $headers->{DHS} &&
-       $headers->{DHS} =~ /^ACSIS/i
+  if ( exists $headers->{BACKEND} &&
+       defined $headers->{BACKEND} &&
+       $headers->{BACKEND} =~ /^ACSIS/i
      ) {
     return 1;
   } else {
@@ -113,8 +132,114 @@ these are many-to-many)
 
 =over 4
 
-=item _to_SEEING
+=item B<to_UTDATE>
 
+Translates the DATE-OBS header into a C<Time::Piece> object.
+
+=cut
+
+sub to_UTDATE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+
+  if( exists( $FITS_headers->{'DATE-OBS'} ) ) {
+    $FITS_headers->{'DATE-OBS'} =~ /(\d{4}-\d\d-\d\d)/;
+    my $ut = $1;
+    $return = Time::Piece->strptime( $ut, "%Y-%m-%d" );
+  }
+  return $return;
+}
+
+=item B<to_UTSTART>
+
+Translates the DATE-OBS header into a C<Time::Piece> object.
+
+=cut
+
+sub to_UTSTART {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+
+  if( exists( $FITS_headers->{'DATE-OBS'} ) ) {
+    $FITS_headers->{'DATE-OBS'} =~ /(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)/;
+    my $ut = $1;
+    $return = Time::Piece->strptime( $ut, "%Y-%m-%dT%H:%M:%S" );
+  }
+  return $return;
+}
+
+=item B<to_UTEND>
+
+Translates the DATE-END header into a C<Time::Piece> object.
+
+=cut
+
+sub to_UTEND {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+
+  if( exists( $FITS_headers->{'DATE-END'} ) ) {
+    $FITS_headers->{'DATE-END'} =~ /(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)/;
+    my $ut = $1;
+    $return = Time::Piece->strptime( $ut, "%Y-%m-%dT%H:%M:%S" );
+  }
+  return $return;
+}
+
+=item B<to_EXPOSURE_TIME>
+
+Uses the to_UTSTART and to_UTEND functions to calculate the exposure
+time.
+
+=cut
+
+sub to_EXPOSURE_TIME {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  if( exists( $FITS_headers->{'DATE-OBS'} ) &&
+      exists( $FITS_headers->{'DATE-END'} ) ) {
+
+    my $start = $self->to_UTSTART( $FITS_headers );
+    my $end = $self->to_UTEND( $FITS_headers );
+    $return = $end - $start;
+  }
+  return $return;
+}
+
+=item B<to_OBSERVATION_MODE>
+
+Concatenates the SAM_MODE, SW_MODE, and OBS_TYPE header keywords into
+the OBSERVATION_MODE generic header, with spaces removed and joined with underscores. For example, if SAM_MODE is 'jiggle  ', SW_MODE is 'chop    ', and OBS_TYPE is 'science ', then the OBSERVATION_MODE generic header will be 'jiggle_chop_science'.
+
+=cut
+
+sub to_OBSERVATION_MODE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  if( exists( $FITS_headers->{'SAM_MODE'} ) &&
+      exists( $FITS_headers->{'SW_MODE'} ) &&
+      exists( $FITS_headers->{'OBS_TYPE'} ) ) {
+    my $sam_mode = $FITS_headers->{'SAM_MODE'};
+    $sam_mode =~ s/\s//g;
+    my $sw_mode = $FITS_headers->{'SW_MODE'};
+    $sw_mode =~ s/\s//g;
+    my $obs_type = $FITS_headers->{'OBS_TYPE'};
+    $obs_type =~ s/\s//g;
+
+    $return = join '_', $sam_mode, $sw_mode, $obs_type;
+  }
+  return $return;
+}
 
 =back
 
@@ -126,13 +251,14 @@ these are many-to-many)
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
+Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>,
+Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2005-2006 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
