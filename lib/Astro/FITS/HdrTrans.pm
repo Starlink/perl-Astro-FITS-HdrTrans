@@ -40,14 +40,15 @@ our @EXPORT_OK = qw( translate_from_FITS translate_to_FITS );
 $VERSION = '0.04';
 $DEBUG   = 0;
 
-# The reference list of classes we can try
-# This list should be extended whenever new translation tables are added.
-# They should have a corresponding Astro::FITS::HdrTrans:: module available
-# Note that there are more perl modules in the distribution than are listed
-# here. This is because some perl modules provide a base set of translations
-# shared by multiple instruments.
-my @REF_CLASS_LIST = qw/ IRCAM CGS4 UIST UFTI JCMT_GSD JCMT_GSD_DB MICHELLE
-			 SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 /;
+# The reference list of classes we can try This list should be
+# extended whenever new translation tables are added.  They should
+# have a corresponding Astro::FITS::HdrTrans:: module available Note
+# that there are more perl modules in the distribution than are listed
+# here. This is because some perl modules provide a base set of
+# translations shared by multiple instruments.
+
+my @REF_CLASS_LIST = qw/ ACSIS IRCAM CGS4 UIST UFTI JCMT_GSD
+  JCMT_GSD_DB MICHELLE SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 /;
 
 # This is the actual list that is currently supported. It should always
 # default to the reference list
