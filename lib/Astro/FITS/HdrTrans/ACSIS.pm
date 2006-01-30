@@ -23,7 +23,7 @@ use Carp;
 
 # inherit from the Base translation class and not HdrTrans
 # itself (which is just a class-less wrapper)
-use base qw/ Astro::FITS::HdrTrans::Base /;
+use base qw/ Astro::FITS::HdrTrans::FITS /;
 
 # Use the FITS standard DATE-OBS handling
 use Astro::FITS::HdrTrans::FITS;
@@ -58,7 +58,6 @@ my %UNIT_MAP = (
     CHOP_FREQUENCY     => 'CHOP_FRQ',
 		CHOP_THROW         => 'CHOP_THR',
     DEC_BASE           => 'CRVAL2',
-    DEC_SCALE          => 'CDELT2',
     DEC_SCALE_UNITS    => 'CUNIT2',
 		DR_RECIPE          => 'DRRECIPE',
     ELEVATION_START    => 'ELSTART',
@@ -74,7 +73,6 @@ my %UNIT_MAP = (
 		POLARIMETER        => 'POL_CONN',
 		PROJECT            => 'PROJECT',
     RA_BASE            => 'CRVAL1',
-    RA_SCALE           => 'CDELT1',
     RA_SCALE_UNITS     => 'CUNIT1',
     REST_FREQUENCY     => 'RESTFREQ',
 		SEEING             => 'SEEINGST',
@@ -82,7 +80,6 @@ my %UNIT_MAP = (
 		SWITCH_MODE        => 'SW_MODE',
     SYSTEM_VELOCITY    => 'VELOSYS',
 		TAU                => 'WVMTAUST',
-    TELESCOPE          => 'TELESCOP',
     WAVEPLATE_ANGLE    => 'SKYANG',
                );
 
@@ -132,66 +129,6 @@ these are many-to-many)
 
 =over 4
 
-=item B<to_UTDATE>
-
-Translates the DATE-OBS header into a C<Time::Piece> object.
-
-=cut
-
-sub to_UTDATE {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $return;
-
-  if( exists( $FITS_headers->{'DATE-OBS'} ) ) {
-    $FITS_headers->{'DATE-OBS'} =~ /(\d{4}-\d\d-\d\d)/;
-    my $ut = $1;
-    $return = Time::Piece->strptime( $ut, "%Y-%m-%d" );
-  }
-  return $return;
-}
-
-=item B<to_UTSTART>
-
-Translates the DATE-OBS header into a C<Time::Piece> object.
-
-=cut
-
-sub to_UTSTART {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $return;
-
-  if( exists( $FITS_headers->{'DATE-OBS'} ) ) {
-    $FITS_headers->{'DATE-OBS'} =~ /(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)/;
-    my $ut = $1;
-    $return = Time::Piece->strptime( $ut, "%Y-%m-%dT%H:%M:%S" );
-  }
-  return $return;
-}
-
-=item B<to_UTEND>
-
-Translates the DATE-END header into a C<Time::Piece> object.
-
-=cut
-
-sub to_UTEND {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $return;
-
-  if( exists( $FITS_headers->{'DATE-END'} ) ) {
-    $FITS_headers->{'DATE-END'} =~ /(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)/;
-    my $ut = $1;
-    $return = Time::Piece->strptime( $ut, "%Y-%m-%dT%H:%M:%S" );
-  }
-  return $return;
-}
-
 =item B<to_EXPOSURE_TIME>
 
 Uses the to_UTSTART and to_UTEND functions to calculate the exposure
@@ -236,7 +173,9 @@ sub to_OBSERVATION_MODE {
     my $obs_type = $FITS_headers->{'OBS_TYPE'};
     $obs_type =~ s/\s//g;
 
-    $return = join '_', $sam_mode, $sw_mode, $obs_type;
+    $return = ( ( $obs_type =~ /science/i )
+              ? join '_', $sam_mode, $sw_mode
+              : join '_', $sam_mode, $sw_mode, $obs_type );
   }
   return $return;
 }
