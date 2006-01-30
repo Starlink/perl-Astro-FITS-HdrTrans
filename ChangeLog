@@ -1,3 +1,10 @@
+2006-01-30  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
+
+	* lib/Astro/FITS/HdrTrans/ACSIS.pm: Modify OBSERVATION_MODE
+	translation to not include 'science' if it exists in the OBS_TYPE
+	header, use Astro::FITS::HdrTrans::FITS base class for standard
+	FITS translations such as DATE-OBS.
+
 2006-01-27  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
 
 	* lib/Astro/FITS/HdrTrans/ACSIS.pm: Added ACSIS translations.
