@@ -2,7 +2,7 @@
 
 use strict;
 
-use Test::More tests => 18;
+use Test::More tests => 19;
 
 # Test compilation.
 require_ok( 'Astro::FITS::HdrTrans' );
@@ -37,4 +37,4 @@ is( $generic_header{'UTEND'}->hour,    7, "UTEND hour is 7" );
 is( $generic_header{'UTEND'}->minute, 51, "UTEND minute is 51" );
 is( $generic_header{'UTEND'}->second, 14, "UTEND second is 14" );
 is( $generic_header{'EXPOSURE_TIME'}, 235, "EXPOSURE_TIME is 235" );
-is( $generic_header{'OBSERVATION_MODE'}, "jiggle_chop_science", "OBSERVATION_MODE is jiggle_chop_science" );
+is( $generic_header{'OBSERVATION_MODE'}, "jiggle_chop", "OBSERVATION_MODE is jiggle_chop" );
