@@ -28,6 +28,9 @@ use base qw/ Astro::FITS::HdrTrans::FITS /;
 # Use the FITS standard DATE-OBS handling
 use Astro::FITS::HdrTrans::FITS;
 
+# Speed of light in km/s.
+use constant CLIGHT => 2.99792458e5;
+
 use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d.%03d", q$Revision$ =~ /(\d+)\.(\d+)/);
@@ -53,6 +56,7 @@ my %UNIT_MAP = (
     AZIMUTH_START      => 'AZSTART',
     AZIMUTH_END        => 'AZEND',
     BACKEND            => 'BACKEND',
+    BANDWIDTH_MODE     => 'BWMODE',
 		CHOP_ANGLE         => 'CHOP_PA',
     CHOP_COORDINATE_SYSTEM => 'CHOP_CRD',
     CHOP_FREQUENCY     => 'CHOP_FRQ',
@@ -78,8 +82,9 @@ my %UNIT_MAP = (
 		SEEING             => 'SEEINGST',
 		STANDARD           => 'STANDARD',
 		SWITCH_MODE        => 'SW_MODE',
-    SYSTEM_VELOCITY    => 'VELOSYS',
 		TAU                => 'WVMTAUST',
+    VELOCITY_REFERENCE_FRAME => 'SPECSYS',
+    VELOCITY_TYPE      => 'DOPPLER',
     WAVEPLATE_ANGLE    => 'SKYANG',
                );
 
@@ -154,7 +159,10 @@ sub to_EXPOSURE_TIME {
 =item B<to_OBSERVATION_MODE>
 
 Concatenates the SAM_MODE, SW_MODE, and OBS_TYPE header keywords into
-the OBSERVATION_MODE generic header, with spaces removed and joined with underscores. For example, if SAM_MODE is 'jiggle  ', SW_MODE is 'chop    ', and OBS_TYPE is 'science ', then the OBSERVATION_MODE generic header will be 'jiggle_chop_science'.
+the OBSERVATION_MODE generic header, with spaces removed and joined
+with underscores. For example, if SAM_MODE is 'jiggle ', SW_MODE is
+'chop ', and OBS_TYPE is 'science ', then the OBSERVATION_MODE generic
+header will be 'jiggle_chop_science'.
 
 =cut
 
@@ -176,6 +184,68 @@ sub to_OBSERVATION_MODE {
     $return = ( ( $obs_type =~ /science/i )
               ? join '_', $sam_mode, $sw_mode
               : join '_', $sam_mode, $sw_mode, $obs_type );
+  }
+  return $return;
+}
+
+=item B<to_SYSTEM_VELOCITY>
+
+Converts the DOPPLER and SPECSYS headers into one combined
+SYSTEM_VELOCITY header. The first three characters of each specific
+header are used and concatenated. For example, if DOPPLER is 'radio'
+and SPECSYS is 'LSR', then the resulting SYSTEM_VELOCITY generic
+header will be 'RADLSR'. The results are always returned in capital
+letters.
+
+=cut
+
+sub to_SYSTEM_VELOCITY {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  if( exists( $FITS_headers->{'DOPPLER'} ) &&
+      exists( $FITS_headers->{'SPECSYS'} ) ) {
+    my $doppler = $FITS_headers->{'DOPPLER'};
+    my $specsys = $FITS_headers->{'SPECSYS'};
+
+    $return = substr( uc( $doppler ), 0, 3 ) . substr( uc( $specsys ), 0, 3 );
+  }
+  return $return;
+}
+
+=item B<to_VELOCITY>
+
+Converts the ZSOURCE header into an appropriate system velocity,
+depending on the value of the DOPPLER header. If the DOPPLER header is
+'redshift', then the VELOCITY generic header will be returned
+as a redshift. If the DOPPLER header is 'optical', then the
+VELOCITY generic header will be returned as an optical
+velocity. If the DOPPLER header is 'radio', then the VELOCITY
+generic header will be returned as a radio velocity. Note that
+calculating the radio velocity from the zeropoint (which is the
+ZSOURCE header) gives accurates results only if the radio velocity is
+a small fraction (~0.01) of the speed of light.
+
+=cut
+
+sub to_VELOCITY {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  if( exists( $FITS_headers->{'DOPPLER'} ) &&
+      exists( $FITS_headers->{'ZSOURCE'} ) ) {
+    my $doppler = uc( $FITS_headers->{'DOPPLER'} );
+    my $zsource = $FITS_headers->{'ZSOURCE'};
+
+    if( $doppler eq 'REDSHIFT' ) {
+      $return = $zsource;
+    } elsif( $doppler eq 'OPTICAL' ) {
+      $return = $zsource * CLIGHT;
+    } elsif( $doppler eq 'RADIO' ) {
+      $return = ( CLIGHT * $zsource ) / ( 1 + $zsource );
+    }
   }
   return $return;
 }
