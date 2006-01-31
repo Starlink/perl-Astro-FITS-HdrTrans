@@ -79,6 +79,7 @@ my @generic_headers = qw(
 			 AZIMUTH_END
 			 BACKEND
 			 BACKEND_SECTIONS
+       BANDWIDTH_MODE
 			 BOLOMETERS
 			 CAMERA
        CAMERA_NUMBER
