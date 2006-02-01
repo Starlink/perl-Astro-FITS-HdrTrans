@@ -17,7 +17,7 @@ $header{'SAM_MODE'} = 'jiggle  ';
 $header{'SW_MODE'}  = 'chop    ';
 $header{'OBS_TYPE'} = 'science ';
 $header{'DOPPLER'}  = 'radio';
-$header{'ZSOURCE'}  = 3.3335641063247e-5;
+$header{'ZSOURCE'}  = 3.335641063247e-5;
 $header{'SPECSYS'}  = 'LSR';
 
 # Translate this header.
@@ -41,15 +41,15 @@ is( $generic_header{'UTEND'}->minute, 51, "UTEND minute is 51" );
 is( $generic_header{'UTEND'}->second, 14, "UTEND second is 14" );
 is( $generic_header{'EXPOSURE_TIME'}, 235, "EXPOSURE_TIME is 235" );
 is( $generic_header{'OBSERVATION_MODE'}, "jiggle_chop", "OBSERVATION_MODE is jiggle_chop" );
-is( $generic_header{'VELOCITY'}, 9.99344063560653, "VELOCITY (radio) is 9.99344..." );
+is( sprintf( "%.5f", $generic_header{'VELOCITY'} ), 9.99967, "VELOCITY (radio) is 9.99967" );
 is( $generic_header{'SYSTEM_VELOCITY'}, 'RADLSR', "System velocity is RADLSR" );
 
 # Test optical velocity calculation.
 $header{'DOPPLER'}  = 'optical';
 %generic_header = Astro::FITS::HdrTrans::translate_from_FITS( \%header );
-is( $generic_header{'VELOCITY'}, 9.99377377335655, "VELOCITY (optical) is 9.99377..." );
+is( sprintf( "%.5f", $generic_header{'VELOCITY'} ), "10.00000", "VELOCITY (optical) is 10.00000" );
 
 # Test redshift.
 $header{'DOPPLER'} = 'redshift';
 %generic_header = Astro::FITS::HdrTrans::translate_from_FITS( \%header );
-is( $generic_header{'VELOCITY'}, 3.3335641063247e-05, "VELOCITY (redshift) is 3.3335...e-5" );
+is( $generic_header{'VELOCITY'}, $header{'ZSOURCE'}, "VELOCITY (redshift) is 3.33564...e-5" );
