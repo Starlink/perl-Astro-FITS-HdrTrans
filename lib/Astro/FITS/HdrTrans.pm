@@ -108,6 +108,7 @@ my @generic_headers = qw(
                          EXPOSURE_TIME
                          FILENAME
                          FILTER
+                         FRONTEND
                          GAIN
                          GALACTIC_LATITUDE
                          GALACTIC_LONGITUDE
