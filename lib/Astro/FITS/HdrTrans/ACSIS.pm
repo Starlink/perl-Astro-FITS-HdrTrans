@@ -137,7 +137,8 @@ these are many-to-many)
 =item B<to_EXPOSURE_TIME>
 
 Uses the to_UTSTART and to_UTEND functions to calculate the exposure
-time.
+time. Returns the exposure time as a scalar, not as a Time::Seconds
+object.
 
 =cut
 
@@ -151,7 +152,8 @@ sub to_EXPOSURE_TIME {
 
     my $start = $self->to_UTSTART( $FITS_headers );
     my $end = $self->to_UTEND( $FITS_headers );
-    $return = $end - $start;
+    my $duration = $end - $start;
+    $return = $duration->seconds;
   }
   return $return;
 }
