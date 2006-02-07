@@ -321,7 +321,14 @@ sub import {
 
   # Prepend the from_ and to_ prefixes
   for my $key (@_) {
-    for my $dir (qw/ from_ to_ /) {
+    # The key can be fully specified with from_ and to_ already
+    # In that case we do not want to loop over from_ and to_
+    my @directions = qw/ from_ to_ /;
+    if ($key =~ /^from_/ || $key =~ /^to_/) {
+      @directions = ( '' ); # empty prefix
+    }
+
+    for my $dir (@directions) {
       my $method = $dir . $key;
       #print "Importing method $method\n";
       no strict 'refs';
