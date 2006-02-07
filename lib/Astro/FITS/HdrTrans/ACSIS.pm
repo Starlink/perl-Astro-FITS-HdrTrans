@@ -72,6 +72,7 @@ my %UNIT_MAP = (
     LATITUDE           => 'LAT-OBS',
     LONGITUDE          => 'LONG-OBS',
 		MSBID              => 'MSBID',
+    NUMBER_OF_CYCLES   => 'NUM_CYC',
 		OBJECT             => 'OBJECT',
 		OBSERVATION_NUMBER => 'OBSNUM',
 		POLARIMETER        => 'POL_CONN',
