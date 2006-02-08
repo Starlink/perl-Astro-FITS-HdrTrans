@@ -233,6 +233,43 @@ sub to_UTEND {
 
 }
 
+=item B<to_BANDWIDTH_MODE>
+
+Uses the C3NRS (number of backend sections), C3NFOC (number of
+frontend output channels) and C3NCH (number of channels) to form a
+string that is of the format 250MHzx2048. To obtain this, the
+bandwidth (250MHz in this example) is calculated as 125MHz * C3NRS /
+C3NFOC. The number of channels is taken directly and not manipulated
+in any way.
+
+If appropriate, the bandwidth may be given in GHz.
+
+=cut
+
+sub to_BANDWIDTH_MODE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+
+  if( exists( $FITS_headers->{'C3NRS'} ) && defined( $FITS_headers->{'C3NRS'} ) &&
+      exists( $FITS_headers->{'C3NFOC'} ) && defined( $FITS_headers->{'C3NFOC'} ) &&
+      exists( $FITS_headers->{'C3NCH'} ) && defined( $FITS_headers->{'C3NCH'} ) ) {
+
+    my $bandwidth = 125 * $FITS_headers->{'C3NRS'} / $FITS_headers->{'C3NFOC'};
+
+    if( $bandwidth >= 1000 ) {
+      $bandwidth /= 1000;
+      $return = sprintf( "%dGHzx%d", $bandwidth, $FITS_headers->{'C3NCH'} );
+    } else {
+      $return = sprintf( "%dMHzx%d", $bandwidth, $FITS_headers->{'C3NCH'} );
+    }
+  }
+
+  return $return;
+
+}
+
 =item B<to_EXPOSURE_TIME>
 
 =cut
