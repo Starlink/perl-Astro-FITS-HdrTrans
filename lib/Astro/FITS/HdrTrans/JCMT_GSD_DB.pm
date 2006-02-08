@@ -179,8 +179,9 @@ sub to_UTDATE {
     my $longdate = $FITS_headers->{'LONGDATE'};
     $longdate =~ s/:\d\d\d//;
     $longdate =~ s/\s*$//;
+    $longdate =~ s/\s*\d\d?:\d\d:\d\d[A|P]M$//;
     $return = Time::Piece->strptime( $longdate,
-                                     "%b%t%d%t%Y%t%I:%M:%S%p" );
+                                     "%b%t%d%t%Y" );
   }
 
  return $return;
@@ -246,6 +247,44 @@ sub to_UTEND {
   return $return;
 
 }
+
+=item B<to_BANDWIDTH_MODE>
+
+Uses the NORSECT (number of backend sections), NOFCHAN (number of
+frontend output channels) and NOBCHAN (number of channels) to form a
+string that is of the format 250MHzx2048. To obtain this, the
+bandwidth (250MHz in this example) is calculated as 125MHz * NORSECT /
+NOFCHAN. The number of channels is taken directly and not manipulated
+in any way.
+
+If appropriate, the bandwidth may be given in GHz.
+
+=cut
+
+sub to_BANDWIDTH_MODE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+
+  if( exists( $FITS_headers->{'NORSECT'} ) && defined( $FITS_headers->{'NORSECT'} ) &&
+      exists( $FITS_headers->{'NOFCHAN'} ) && defined( $FITS_headers->{'NOFCHAN'} ) &&
+      exists( $FITS_headers->{'NOBCHAN'} ) && defined( $FITS_headers->{'NOBCHAN'} ) ) {
+
+    my $bandwidth = 125 * $FITS_headers->{'NORSECT'} / $FITS_headers->{'NOFCHAN'};
+
+    if( $bandwidth >= 1000 ) {
+      $bandwidth /= 1000;
+      $return = sprintf( "%dGHzx%d", $bandwidth, $FITS_headers->{'NOBCHAN'} );
+    } else {
+      $return = sprintf( "%dMHzx%d", $bandwidth, $FITS_headers->{'NOBCHAN'} );
+    }
+  }
+
+  return $return;
+
+}
+
 
 =item B<to_EXPOSURE_TIME>
 
@@ -322,7 +361,7 @@ sub to_EXPOSURE_TIME {
 
       my $swmode;
       if( exists( $FITS_headers->{'SWMODE'} ) && defined( $FITS_headers->{'SWMODE'} ) ) {
-        $swmode = $FITS_headers->{'SWMODE'};
+        $swmode = uc( $FITS_headers->{'SWMODE'} );
       } else {
         $swmode = 'BEAMSWITCH';
       }
@@ -379,7 +418,7 @@ sub to_SYSTEM_VELOCITY {
   my $return;
   if( exists( $FITS_headers->{'VREF'} ) && defined( $FITS_headers->{'VREF'} ) &&
       exists( $FITS_headers->{'VDEF'} ) && defined( $FITS_headers->{'VDEF'} ) ) {
-    $return = substr( $FITS_headers->{'VDEF'}, 0, 3 ) . substr( $FITS_headers->{'VREF'}, 0, 3 );
+    $return = uc( substr( $FITS_headers->{'VDEF'}, 0, 3 ) . substr( $FITS_headers->{'VREF'}, 0, 3 ) );
   }
   return $return;
 }
