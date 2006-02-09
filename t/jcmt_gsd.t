@@ -1,8 +1,9 @@
-#!perl
+#!perl -w
 
 use strict;
 
 use Test::More tests => 16;
+use File::Spec;
 
 require_ok( 'Astro::FITS::HdrTrans' );
 
