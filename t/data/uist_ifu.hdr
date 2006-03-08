@@ -218,14 +218,5 @@ VRSTONHI=                0.000 / [V] Bias voltage: vrstoff_hi
 VRSTOFFL=               -6.000 / [V] Bias voltage: vrstoff_low
 VRSTOFFH=                0.000 / [V] Bias voltage: vrstoff_hi
 
-
-
-
-
-
-
-
-
-
-
-
+                                 Spectroscopy:
+SLITWID =
