@@ -162,3 +162,6 @@ VCAP    =               -5.000 / [V] Bias voltage: vcap
 VOFFSET =               -2.700 / [V] Bias voltage: voffset
 VGATELO =               -6.000 / [V] Clock voltage: vgatelow
 VGATEHI =                0.000 / [V] Clock voltage: vgatehigh
+
+                                 Subheader:
+DINDEX  =                    1

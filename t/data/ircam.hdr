@@ -112,3 +112,6 @@ WIND_DIR=              299.189 / Wind direction, azimuth[deg]
 WIND_SPD=               31.353 / Wind speed [km/h]
 CSOTAU  =                0.082 / Tau at 225 GHz from CSO
 TAUDATE = '2002-01-05T11:41'   / Time and date of Tau reading
+
+                                 Subheader:
+DINDEX  =                    1
