@@ -176,4 +176,6 @@ WAVE_2  =                    0 / Wavelength of map (microns)
 WAVE_3  =                    0 / Wavelength of map (microns)
 WAVE_4  =                    0 / Wavelength of map (microns)
 WAVE_5  =                    0 / Wavelength of map (microns)
+SDFFILE =
+STANDARD=
 END
