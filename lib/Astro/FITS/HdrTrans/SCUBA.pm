@@ -20,7 +20,7 @@ use strict;
 use Carp;
 
 # Inherit from Base
-use base qw/ Astro::FITS::HdrTrans::Base /;
+use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 use vars qw/ $VERSION /;
 

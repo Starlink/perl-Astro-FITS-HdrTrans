@@ -23,9 +23,8 @@ use warnings;
 use strict;
 use Carp;
 
-# inherit from the Base translation class and not HdrTrans
-# itself (which is just a class-less wrapper)
-use base qw/ Astro::FITS::HdrTrans::Base /;
+# inherit from the JAC translation class.
+use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 use vars qw/ $VERSION /;
 

@@ -23,10 +23,10 @@ use Carp;
 
 # inherit from the Base translation class and not HdrTrans
 # itself (which is just a class-less wrapper)
-use base qw/ Astro::FITS::HdrTrans::FITS /;
+use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 # Use the FITS standard DATE-OBS handling
-use Astro::FITS::HdrTrans::FITS;
+#use Astro::FITS::HdrTrans::FITS;
 
 # Speed of light in km/s.
 use constant CLIGHT => 2.99792458e5;
@@ -156,6 +156,37 @@ sub to_EXPOSURE_TIME {
     my $duration = $end - $start;
     $return = $duration->seconds;
   }
+  return $return;
+}
+
+=item B<to_OBSERVATION_ID>
+
+Converts the C<OBSID> header directly into the C<OBSERVATION_ID>
+generic header, or if that header does not exist, converts the
+C<BACKEND>, C<OBSNUM>, and C<DATE-OBS> headers into C<OBSERVATION_ID>.
+
+=cut
+
+sub to_OBSERVATION_ID {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+  if( exists( $FITS_headers->{'OBSID'} ) &&
+      defined( $FITS_headers->{'OBSID'} ) ) {
+    $return = $FITS_headers->{'OBSID'};
+  } else {
+
+    my $backend = lc( $self->to_BACKEND( $FITS_headers ) );
+    my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
+    my $dateobs = $self->to_UTSTART( $FITS_headers );
+
+    my $datetime = $dateobs->datetime;
+    $datetime =~ s/-//g;
+    $datetime =~ s/://g;
+
+    $return = join '_', $backend, $obsnum, $datetime;
+  }
+
   return $return;
 }
 
