@@ -453,6 +453,9 @@ sub _determine_class {
 
     # Try a class and if it fails to load, skip
     eval "require $class";
+    if( $@ ) {
+      print "Error loading class $class: $@\n" if $DEBUG;
+    }
     next if ( $@ );
     if( $class->can("can_translate") ) {
       if( $class->can_translate( $hdr ) ) {
