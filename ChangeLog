@@ -1,3 +1,12 @@
+2006-07-21  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
+
+	* Add lib/Astro/FITS/HdrTrans/JAC.pm module to act as base class
+	for JAC instruments.
+
+	* Add OBSERVATION_ID generic header.
+
+	* Add tests for CGS4, SCUBA.
+
 2006-01-30  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
 
 	* lib/Astro/FITS/HdrTrans/ACSIS.pm: Modify OBSERVATION_MODE
