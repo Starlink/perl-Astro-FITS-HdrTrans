@@ -1,0 +1,195 @@
+TELESCOP= 'JCMT    '
+
+        ---- x,y,z triplet for JCMT relative to centre of earth ----
+OBSGEO-X=           -5464545.0 / [m]
+OBSGEO-Y=           -2492986.2 / [m]
+OBSGEO-Z=            2150635.2 / [m]
+ALT-OBS =                 4111 / [m] Height of observatory above sea level
+LAT-OBS =            19.825832 / [deg] Latitude of Observatory
+LONG-OBS=            204.52028 / [deg] East longitude of observatory
+
+        ---- WCS info and axis descriptions ----
+
+
+        ---- OMP and ORAC-DR Specific ----
+PROJECT = 'TESTID  '           / PATT number
+RECIPE  = 'REDUCE_CUBE'        / ORAC-DR recipe
+DRGROUP =                      / Data Reduction group ID
+MSBID   = 'bcf334b746f026c70e041a33d7c38632'/ Id of minimum scheduable block
+SURVEY  =                      / Survey Name
+SURVEY_I=                      / Pointing ID within survey
+RMTAGENT=                      / Name of Remote Agent
+AGENTID =                      / Unique identifier for remote agent
+
+        ---- ROVER Specific ----
+POL_CONN=                    F / True if ROVER is connected
+SKYANG  =                      / [deg] Angle of ROVER waveplate on sky
+
+        ---- Obs Id, Date, Pointing Info ----
+OBJECT  = 'polaris '
+STANDARD=                    F / True if the spectral line is a standard
+OBSNUM  =                    1 / obs number
+NSUBSCAN=                    1 / Sub-scan number
+OBSEND  =                    T / True if file is last in current observation
+UTDATE  =             20060714 / UT Date as integer in yyyymmdd format
+DATE-OBS= '2006-07-14T02:17:15'/ UTC Datetime of start of observation
+DATE-END= '2006-07-14T02:21:07'/ UTC Datetime of end of observation
+INSTAP  =                      / Receptor at tracking centre (if any)
+AMSTART =                      / Airmass at start of obervation
+AMEND   =                      / Airmass at end of obervation
+AZSTART =                      / [deg] Azimuth at observation start
+AZEND   =                      / [deg] Azimuth at observation end
+ELSTART =                      / [deg] Elevation at observation start
+ELEND   =                      / [deg] Elevation at observation end
+HSTSTART= '2006-07-13T16:17:15'/ HST at start of observation
+HSTEND  = '2006-07-13T16:21:07'/ HST at end of observation
+LSTSTART= '11:22:37.0212'      / LST at start of observation
+LSTEND  = '11:26:28.8411'      / LST at end of observation
+
+        ---- Integration time related -----
+
+        ---- ACSIS Specific ----
+BACKEND = 'ACSIS   '           / Name of the backend
+MOLECULE= 'CO      '           / Target molecular species
+TRANSITI= '2  - 1  '           / Target transition for MOLECULE
+DRRECIPE= 'jiggle_chop_dr_recipe.ent'/ ACSIS-DR recipe name
+FFT_WIN = 'truncate'           / Type of window used for FFT
+GRIDFUNC= 'TopHat  '           / Gridding convolution function
+CONVWID =                / [arcsec] Width of gridding convolution truncated
+Gaus
+TRUNCRAD=                 3.75 / [arcsec] Trunc. radius of gridding func.
+BWMODE  = 'FILL ME '           / ACSIS total bandwidth set up
+SUBBANDS= 'FILL ME '           / ACSIS sub-band set up
+SUBREFP1=                 1024 / Reference channel for subband1
+SUBREFP2=                      / Reference channel for subband2
+NCHNSUBS=                      / No. of channels in this sub-system
+REFCHAN =               1024.0 / Reference IF channel No.
+IFCHANSP=           -488281.25 / [Hz] TOPO IF channel spacing (signed)
+MSROOT  = 'test_jiggle_chop'   / Root name of raw measurement sets
+
+        ---- FE Specific ----
+INSTRUME= 'FE_A    '           / Front-end receiver
+SB_MODE = 'DSB     '           / Sideband mode
+N_MIX   =                    1 / No. of mixers
+OBS_SB  = 'USB     '           / The observed sideband
+IFFREQ  =                  4.0 / [GHz] IF Frequency
+LOFREQS =                      / [GHz] LO Frequency at start of obs.
+LOFREQE =                      / [GHz] LO Frequency at end of obs.
+RECPTORS= 'FILL ME '           / Active FE receptor IDs for this observation
+REFRECEP= 'A       '           / Receptor with unit sensitivity
+DOPPLER = 'radio   '           / Doppler velocity definition
+SSYSOBS = 'TOPOCENT'
+
+        ---- Environmental Data ----
+ATSTART =           -2.0731699 / [degC] Air temp at start of observation
+ATEND   =           -1.7920935 / [degC] Air temp at end of observation
+HUMSTART=            92.113831 / Rel. Humidity at observation start
+HUMEND  =            96.798454 / Rel. Humidity at observation end
+BPSTART =             71.42276 / [mbar] Pressure at observation start
+BPEND   =            72.359695 / [mbar] Pressure  at observation end
+WNDSPDST=             7.662765 / [km/h] Wind Speed at obs start
+WNDDIRST=            325.73383 / [deg] Wind direction, azimuth at obs start
+WNDSPDEN=            8.5996866 / [km/h] Wind Speed at obs start
+WNDDIREN=            330.41843 / [deg] Wind direction, azimuth at obs end
+TAU255ST=           0.19427653 / Tau at 225 GHz from CSO at start
+TAU255EN=            0.2879687 / Tau at 225 GHz from CSO at end
+TAUDATST= '2003-05-01T17:34:07-1000'/ Time of TAU225ST observation
+TAUDATEN= '2003-05-01T17:34:07-1000'/ Time of TAU225EN observation
+TAUSRC  = 'CSO225GHZ'
+WVMTAUST=           0.19427653 / 186GHz Tau from JCMT WVM at start
+WVMTAUEN=            0.2879687 / 186GHz Tau from JCMT WVM at end
+WVMDATST= '2003-05-01T17:34:07-1000'/ Time of WVMTAUST
+WVMDATEN= '2003-05-01T17:34:07-1000'/ Time of WVMTAUEN
+SEEINGST=            1.4715531 / [arcsec] SAO atmospheric seeing (start)
+SEEDATST= '2003-05-01T17:34:07-1000'/ Date/Time of SEEINGST
+SEEINGEN=            1.6589378 / [arcsec] SAO atmospheric seeing (end)
+SEEDATEN= '2003-05-01T17:34:07-1000'/ Date/Time of SEEINGEN
+FRLEGTST=            4.4097643 / [degC] Mean Front leg temperature - Start Obs
+FRLEGTEN=            5.3466845 / [degC] Mean Front Leg temperature -End Obs
+BKLEGTST=            3.8097649 / [degC] Mean back leg temperature -Start Obs
+BKLEGTEN=             4.746685 / [degC] Mean back leg temperature -End Obs
+
+        ---- Switching and Map setup for the observation ----
+SAM_MODE= 'jiggle  '           / Sampling Mode
+SW_MODE = 'chop    '           / Switch Mode
+OBS_TYPE= 'science '           / Type of observation
+SKYREFX = '[OFFSET] 180 [AZEL]'/ X co-ord of Reference Position
+SKYREFY = '[OFFSET] 0 [AZEL]'  / Y co-ord of Reference Position
+CHOP_CRD= 'AZEL    '           / Chopper co-ordinate system
+CHOP_PA =                 90.0 / [deg] Chop PA; 0=in lat, 90=in long
+CHOP_FRQ=                      / [Hz] Chop frequency
+CHOP_THR=                      / [arcsec] Chop throw
+JIG_CRD = 'TRACKING'           / Chopper co-ordinate system
+JIG_PA  =                  0.0 / [deg] Chop PA; 0=in lat, 90=in long
+JIGL_CNT=                      / Number of offsets in jiggle pattern
+JIGL_NAM= 'smu_4x4.dat'        / File containing the jiggle offsets
+SCAN_CRD=                      / Co-ordinate system for scanning direction
+SCAN_VEL=                      / [arcsea/sec] Scan velocity along scan axis
+SCAN_DY =                      / [arcsec] Scan spacing perp. to scan axis
+SCAN_PA =                      / [deg] Scan PA relative to SAM_CRDS
+SCAN_PAT=                      / Scan pattern name
+LOCL_CRD=                      / Local offset co-ordinate system
+MAP_HGHT=                      / [arcsec] Requested height of map
+MAP_WDTH=                      / [arcsec] Requested width of map
+MAP_PA  =                      / [deg] Requested PA of map
+MAP_X   =                      / [arcsec] Requested map offset from tel centre
+MAP_Y   =                      / [arcsec] Requested map offset from tel centre
+
+        ---- SMU ----
+ALIGN_DX=                      / SMU tables X axis focus offset
+ALIGN_DY=                      / SMU tables Y axis focus offset
+FOCUS_DZ=                      / SMU tables Z axis focus offset
+DAZ     =                      / SMU azimuth pointing offset
+DEL     =                      / SMU elevation pointing offset
+UAZ     =                      / User azimuth pointing offset
+UEL     =                      / User elevation pointing offset
+        ---- JOS parameters ----
+STEPTIME=                  0.2 / RTS step time during an RTS sequence
+NUM_CYC =                    2 / Number of times to repeat entire recipe
+NUM_NODS=                    1 / Number of times to repeat nod set
+JOS_MULT=                    3 / No. of complete jiggle maps per sequence
+JOS_MIN =                      / Number of RTS steps to take at each grid point
+NCALSTEP=                   50 / Number of RTS steps for each CAL (if any)
+NREFSTEP=                      / Number of RTS steps for each REF (if any)
+STBETREF=                 1200 / Target number of RTS steps between refs
+STBETCAL=                18000 / Target number of RTS steps between cals
+FOCAXIS =                      / Focus Axis to move (X, Y, Z)
+NFOCSTEP=                      / Number of focal position steps (odd number)
+FOCSTEP =                      / Distance between focus steps
+STARTIDX=                      / Index into pattern at start of obs
+
+        ---- Misc ----
+OCSCFG  = 'acsis_20060713_023545_424741.xml'/ OCS config filename
+SIMULATE=                    F / True if any data are simulated
+SIM_SMU =                    T / True if SMU data is simulated
+SIM_TCS =                    T / True if TCS data is simulated
+SIM_RTS =                    F / True if RTS data is simulated
+SIM_IF  =                    F / True if IF data is simulated
+STATUS  = 'NORMAL  '           / Status of end of obervation
+END
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
