@@ -2,8 +2,17 @@
 
 use strict;
 
-use Test::More tests => 16;
+use Test::More;
 use File::Spec;
+
+eval {
+  require Astro::FITS::Header::GSD;
+};
+if ( $@ ) {
+  plan skip_all => 'Test requires Astro::FITS::Header::GSD';
+} else {
+  plan tests => 16;
+}
 
 require_ok( 'Astro::FITS::HdrTrans' );
 

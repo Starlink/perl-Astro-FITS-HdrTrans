@@ -1,7 +1,6 @@
 ACCEPT  = 'PROMPT  '           / accept update; PROMPT, YES or NO
 ALIGN_AX= 'Y       '           / Alignment measurements in X or Y axis
-ALIGN_SH=                    1 / Distance between successive alignment offsets
-(
+ALIGN_SH=                    1 / Distance between successive alignment offsets(
 ALT-OBS =                 4092 / Height of observatory above sea level (metres)
 AMEND   =             1.506342 / Airmass at end of observation
 AMSTART =             1.482213 / Airmass at start of observation
@@ -68,8 +67,7 @@ N_INT   =                    2 / No. integrations in the observation
 N_MEASUR=                    5 / No. measurements in the observation
 OBJECT  = 'uranus  '           / Name of object
 OBJ_TYPE= 'UNKNOWN '           / Type of object
-OBSDEF  = 'OBSERVE:<OMPODF>scuba_1079135424_001.odf' / The observation
-definitio
+OBSDEF  = 'OBSERVE:<OMPODF>scuba_1079135424_001.odf' / The observation definitio
 OBSERVER= 'Captain Nemo'       / The name of the observer
 PROJ_ID = 'SCUBA   '           / The project identification
 RUN     =                   16 / Run number of observation
