@@ -9,6 +9,7 @@ lib/Astro/FITS/HdrTrans/CGS4.pm
 lib/Astro/FITS/HdrTrans/FITS.pm
 lib/Astro/FITS/HdrTrans/IRCAM.pm
 lib/Astro/FITS/HdrTrans/IRIS2.pm
+lib/Astro/FITS/HdrTrans/JAC.pm
 lib/Astro/FITS/HdrTrans/JCMT_GSD.pm
 lib/Astro/FITS/HdrTrans/JCMT_GSD_DB.pm
 lib/Astro/FITS/HdrTrans/MICHELLE.pm
@@ -23,9 +24,11 @@ lib/Astro/FITS/HdrTrans/UKIRTOld.pm
 lib/Astro/FITS/HdrTrans/WFCAM.pm
 t/1_compile.t
 t/acsis.t
+t/cgs4.t
 t/das_db.t
 t/jcmt_gsd.t
 t/obs_das_0006.dat
+t/scuba.t
 t/translate.t
 t/bidi.t
 t/data/README
@@ -39,3 +42,4 @@ t/data/uist_im.hdr
 t/data/uist_sp.hdr
 t/data/wfcam.hdr
 
+META.yml                                 Module meta-data (added by MakeMaker)
