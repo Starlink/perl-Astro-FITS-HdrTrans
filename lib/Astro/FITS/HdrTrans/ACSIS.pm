@@ -21,6 +21,10 @@ use warnings;
 use strict;
 use Carp;
 
+use Astro::Coords;
+use Astro::Telescope;
+use DateTime;
+
 # inherit from the Base translation class and not HdrTrans
 # itself (which is just a class-less wrapper)
 use base qw/ Astro::FITS::HdrTrans::JAC /;
@@ -34,6 +38,8 @@ use constant CLIGHT => 2.99792458e5;
 use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d.%03d", q$Revision$ =~ /(\d+)\.(\d+)/);
+
+our $COORDS;
 
 # in each class we have three sets of data.
 #   - constant mappings
@@ -61,12 +67,9 @@ my %UNIT_MAP = (
     CHOP_COORDINATE_SYSTEM => 'CHOP_CRD',
     CHOP_FREQUENCY     => 'CHOP_FRQ',
 		CHOP_THROW         => 'CHOP_THR',
-    DEC_BASE           => 'CRVAL2',
-    DEC_SCALE_UNITS    => 'CUNIT2',
 		DR_RECIPE          => 'DRRECIPE',
     ELEVATION_START    => 'ELSTART',
     ELEVATION_END      => 'ELEND',
-    EQUINOX            => 'EQUINOX',
     FRONTEND           => 'INSTRUME',
     HUMIDITY           => 'HUMSTART',
     LATITUDE           => 'LAT-OBS',
@@ -77,16 +80,12 @@ my %UNIT_MAP = (
 		OBSERVATION_NUMBER => 'OBSNUM',
 		POLARIMETER        => 'POL_CONN',
 		PROJECT            => 'PROJECT',
-    RA_BASE            => 'CRVAL1',
-    RA_SCALE_UNITS     => 'CUNIT1',
     REST_FREQUENCY     => 'RESTFREQ',
 		SEEING             => 'SEEINGST',
 		STANDARD           => 'STANDARD',
 		SWITCH_MODE        => 'SW_MODE',
 		TAU                => 'WVMTAUST',
-    VELOCITY_REFERENCE_FRAME => 'SPECSYS',
     VELOCITY_TYPE      => 'DOPPLER',
-    WAVEPLATE_ANGLE    => 'SKYANG',
                );
 
 # Create the translation methods
@@ -222,6 +221,44 @@ sub to_OBSERVATION_MODE {
   return $return;
 }
 
+=item B<to_RA_BASE>
+
+Uses the elevation, azimuth, telescope name, and observation start
+time headers (ELSTART, AZSTART, TELESCOP, and DATE-OBS headers,
+respectively) to calculate the base RA.
+
+Returns the RA in degrees.
+
+=cut
+
+sub to_RA_BASE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $coords = $self->_calc_coords( $FITS_headers );
+
+  return $coords->ra( format => 'deg' );
+}
+
+=item B<to_DEC_BASE>
+
+Uses the elevation, azimuth, telescope name, and observation start
+time headers (ELSTART, AZSTART, TELESCOP, and DATE-OBS headers,
+respectively) to calculate the base declination.
+
+Returns the declination in degrees.
+
+=cut
+
+sub to_DEC_BASE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $coords = _calc_coords( $FITS_headers );
+
+  return $coords->dec( format => 'deg' );
+}
+
 =item B<to_SYSTEM_VELOCITY>
 
 Converts the DOPPLER and SPECSYS headers into one combined
@@ -285,6 +322,62 @@ sub to_VELOCITY {
 }
 
 =back
+
+=head1 PRIVATE METHODS
+
+=over 4
+
+=item B<_calc_coords>
+
+Calculates the coordinates at the start of the observation by using
+the elevation, azimuth, telescope, and observation start time. Caches
+the result if it's already been calculated.
+
+Returns an Astro::Coords object.
+
+=cut
+
+sub _calc_coords {
+  my $FITS_headers = shift;
+
+  if( defined( $COORDS ) &&
+      UNIVERSAL::isa( $COORDS, "Astro::Coords" ) ) {
+    return $COORDS;
+  }
+
+  if( exists( $FITS_headers->{'TELESCOP'} ) &&
+      exists( $FITS_headers->{'DATE-OBS'} ) &&
+      exists( $FITS_headers->{'AZSTART'} )  &&
+      exists( $FITS_headers->{'ELSTART'} ) ) {
+
+    my $telescope = $FITS_headers->{'TELESCOP'};
+    my $date_obs  = $FITS_headers->{'DATE-OBS'};
+    my $az_start  = $FITS_headers->{'AZSTART'};
+    my $el_start  = $FITS_headers->{'ELSTART'};
+
+    my $coords = new Astro::Coords( az => $az_start,
+                                    el => $el_start,
+                                  );
+    $coords->telescope( new Astro::Telescope( $telescope ) );
+
+    $date_obs =~ /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)$/;
+
+    my $dt = DateTime->new( year      => $1,
+                            month     => $2,
+                            day       => $3,
+                            hour      => $4,
+                            minute    => $5,
+                            second    => $6,
+                            time_zone => "UTC",
+                          );
+
+    $coords->datetime( $dt );
+
+    $COORDS = $coords;
+    return $COORDS;
+  }
+
+}
 
 =head1 REVISION
 
