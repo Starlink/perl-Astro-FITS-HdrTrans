@@ -97,32 +97,20 @@ __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 
 =over 4
 
-=item B<can_translate>
+=item B<this_instrument>
 
-Returns true if the supplied headers can be handled by this class.
+Name of the instrument that can be translated by this class.
+Defaults to an empty string. The method must be subclassed.
 
-  $cando = $class->can_translate( \%hdrs );
+ $inst = $class->this_instrument();
 
-For this class, the method will return true if the B<FRONTEND> header exists
-and matches the regular expression C</^rx(a|b|w)/i>.
+Can return a regular expresion object (C<qr>).
 
 =cut
 
-sub can_translate {
-  my $self = shift;
-  my $headers = shift;
-
-  if( exists( $headers->{'FRONTEND'} ) &&
-      defined( $headers->{'FRONTEND'} ) &&
-      ( $headers->{'FRONTEND'} =~ /^rx(a|b|w)/i ||
-        $headers->{'FRONTEND'} =~ /^fts/i ) ) {
-    return 1;
-  } else {
-    return 0;
-  }
+sub this_instrument {
+  return "JCMT_GSD_DB";
 }
-
-=back
 
 =head1 COMPLEX CONVERSIONS
 
