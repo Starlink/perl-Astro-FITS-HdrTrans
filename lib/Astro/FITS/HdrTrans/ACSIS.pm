@@ -147,8 +147,19 @@ sub to_EXPOSURE_TIME {
   my $FITS_headers = shift;
 
   my $return;
-  if( exists( $FITS_headers->{'DATE-OBS'} ) &&
-      exists( $FITS_headers->{'DATE-END'} ) ) {
+  if( ( exists( $FITS_headers->{'DATE-OBS'} ) ||
+        exists( $FITS_headers->{'LONGDATEOBS'} ) ) &&
+      ( exists( $FITS_headers->{'DATE-END'} ) ||
+        exists( $FITS_headers->{'LONGDATEEND'} ) ) ) {
+
+    if( ! exists( $FITS_headers->{'DATE-OBS'} ) ) {
+      my $date = _convert_sybase_date( $FITS_headers->{'LONGDATEOBS'} );
+      $FITS_headers->{'DATE-OBS'} = $date->datetime;
+    }
+    if( ! exists( $FITS_headers->{'DATE-END'} ) ) {
+      my $date = _convert_sybase_date( $FITS_headers->{'LONGDATEEND'} );
+      $FITS_headers->{'DATE-END'} = $date->datetime;
+    }
 
     my $start = $self->to_UTSTART( $FITS_headers );
     my $end = $self->to_UTEND( $FITS_headers );
@@ -346,12 +357,23 @@ sub _calc_coords {
   }
 
   if( exists( $FITS_headers->{'TELESCOP'} ) &&
-      exists( $FITS_headers->{'DATE-OBS'} ) &&
       exists( $FITS_headers->{'AZSTART'} )  &&
       exists( $FITS_headers->{'ELSTART'} ) ) {
 
+    my $dateobs;
+    if( ! exists( $FITS_headers->{'DATE-OBS'} ) ) {
+      if( exists( $FITS_headers->{'LONGDATEOBS'} ) ) {
+        my $date = _convert_sybase_date( $FITS_headers->{'LONGDATEOBS'} );
+        $FITS_headers->{'DATE-OBS'} = $date->datetime;
+        $dateobs = $FITS_headers->{'DATE-OBS'};
+      } else {
+        return undef;
+      }
+    } else {
+      $dateobs = $FITS_headers->{'DATE-OBS'};
+    }
+
     my $telescope = $FITS_headers->{'TELESCOP'};
-    my $date_obs  = $FITS_headers->{'DATE-OBS'};
     my $az_start  = $FITS_headers->{'AZSTART'};
     my $el_start  = $FITS_headers->{'ELSTART'};
 
@@ -360,7 +382,7 @@ sub _calc_coords {
                                   );
     $coords->telescope( new Astro::Telescope( $telescope ) );
 
-    $date_obs =~ /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)$/;
+    $dateobs =~ /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)$/;
 
     my $dt = DateTime->new( year      => $1,
                             month     => $2,
@@ -377,6 +399,44 @@ sub _calc_coords {
     return $COORDS;
   }
 
+}
+
+sub _convert_sybase_date {
+  my $sybase_date = shift;
+
+  $sybase_date =~ s/:\d\d\d//;
+  $sybase_date =~ s/\s*$//;
+
+  $sybase_date =~ /\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s+(\d{1,2}):(\d\d):(\d\d)(AM|PM)/;
+
+  my $hour = $4;
+  if( uc($7) eq 'PM' && $hour < 12 ) {
+    $hour += 12;
+  }
+
+  my %mon_lookup = ( 'Jan' => 1,
+                     'Feb' => 2,
+                     'Mar' => 3,
+                     'Apr' => 4,
+                     'May' => 5,
+                     'Jun' => 6,
+                     'Jul' => 7,
+                     'Aug' => 8,
+                     'Sep' => 9,
+                     'Oct' => 10,
+                     'Nov' => 11,
+                     'Dec' => 12 );
+  my $month = $mon_lookup{$1};
+
+  my $return = DateTime->new( year => $3,
+                              month => $month,
+                              day => $2,
+                              hour => $hour,
+                              minute => $5,
+                              second => $6,
+                            );
+
+  return $return;
 }
 
 =head1 REVISION
