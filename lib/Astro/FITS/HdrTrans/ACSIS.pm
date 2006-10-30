@@ -169,6 +169,29 @@ sub to_EXPOSURE_TIME {
   return $return;
 }
 
+=item B<to_INSTRUMENT>
+
+Converts the C<INSTRUME> header into the C<INSTRUMENT> header. If the
+C<INSTRUME> header begins with "HARP" or "FE_HARP", then the
+C<INSTRUMENT> header will be set to "HARP".
+
+=cut
+
+sub to_INSTRUMENT {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+  if( exists( $FITS_headers->{'INSTRUME'} ) ) {
+    if( $FITS_headers->{'INSTRUME'} =~ /^HARP/ ||
+        $FITS_headers->{'INSTRUME'} =~ /^FE_HARP/ ) {
+      $return = "HARP";
+    } else {
+      $return = $FITS_headers->{'INSTRUME'};
+    }
+  }
+  return $return;
+}
+
 =item B<to_OBSERVATION_ID>
 
 Converts the C<OBSID> header directly into the C<OBSERVATION_ID>
