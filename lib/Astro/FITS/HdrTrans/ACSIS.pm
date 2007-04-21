@@ -50,6 +50,7 @@ our $COORDS;
 # header that is constant
 my %CONST_MAP = (
 		 INST_DHS          => 'ACSIS',
+                 SUBSYSTEM_IDKEY   => 'SUBSYSNR',
                 );
 
 # unit mapping implies that the value propogates directly
@@ -477,7 +478,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2006 Particle Physics and Astronomy Research Council.
+Copyright (C) 2005-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
