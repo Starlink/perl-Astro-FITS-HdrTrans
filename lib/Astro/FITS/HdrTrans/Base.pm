@@ -64,7 +64,19 @@ the failed generic translations.
 sub translate_from_FITS {
   my $class = shift;
   my $FITS = shift;
-  my $prefix = shift || '';
+  my %opts = @_;
+
+  my $prefix = '';
+  if( exists( $opts{prefix} ) &&
+      defined( $opts{prefix} ) ) {
+    $prefix = $opts{prefix};
+  }
+
+  my $frameset;
+  if( exists( $opts{frameset} ) &&
+      defined( $opts{frameset} ) ) {
+    $frameset = $opts{frameset};
+  }
 
   croak "translate_to_FITS: Not a hash reference!"
     unless (ref($FITS) && ref($FITS) eq 'HASH');
@@ -78,11 +90,11 @@ sub translate_from_FITS {
   for my $g (@GEN) {
     my $method = "to_$g";
     if ($class->can( $method )) {
-      my $result = $class->$method( $FITS );
+      my $result = $class->$method( $FITS, $frameset );
       if (defined $result) {
-	$generic{"$prefix$g"} = $result;
+        $generic{"$prefix$g"} = $result;
       } else {
-	push(@failed, $g);
+        push(@failed, $g);
       }
     }
   }
