@@ -73,5 +73,5 @@ is( $generic_header{'OBSERVATION_ID'}, "acsis_12_20070425T051618", "OBSERVATION_
 
 is( sprintf( "%.6f", $generic_header{'RA_BASE'} ),  "146.944415", "RA_BASE is 146.944415" );
 is( sprintf( "%.6f", $generic_header{'DEC_BASE'} ), "13.204779", "DEC_BASE is 13.204780" );
-is( sprintf( "%.6f", $generic_header{'REST_FREQUENCY'} ) , "345.795990", "REST_FREQUENCY is 345.795990" );
+is( $generic_header{'REST_FREQUENCY'}, 345795989900, "REST_FREQUENCY is 345795989900" );
 is( sprintf( "%.6f", $generic_header{'VELOCITY'} ), "-25.900000", "VELOCITY is -25.900000" );
