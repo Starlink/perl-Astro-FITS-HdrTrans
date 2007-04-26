@@ -81,7 +81,6 @@ my %UNIT_MAP = (
 		OBSERVATION_NUMBER => 'OBSNUM',
 		POLARIMETER        => 'POL_CONN',
 		PROJECT            => 'PROJECT',
-    REST_FREQUENCY     => 'RESTFREQ',
 		SEEING             => 'SEEINGST',
 		STANDARD           => 'STANDARD',
 		SWITCH_MODE        => 'SW_MODE',
@@ -271,8 +270,8 @@ sub to_RA_BASE {
   my $FITS_headers = shift;
 
   my $coords = $self->_calc_coords( $FITS_headers );
-
   return $coords->ra( format => 'deg' );
+
 }
 
 =item B<to_DEC_BASE>
@@ -292,6 +291,28 @@ sub to_DEC_BASE {
   my $coords = _calc_coords( $FITS_headers );
 
   return $coords->dec( format => 'deg' );
+}
+
+=item B<to_REST_FREQUENCY>
+
+=cut
+
+sub to_REST_FREQUENCY {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $frameset = shift;
+
+  if( ! defined( $frameset ) ||
+      ! UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
+
+    return 0;
+
+  }
+
+  my $frequency = $frameset->Get( "restfreq" );
+
+  return $frequency;
+
 }
 
 =item B<to_SYSTEM_VELOCITY>
@@ -338,22 +359,27 @@ a small fraction (~0.01) of the speed of light.
 sub to_VELOCITY {
   my $self = shift;
   my $FITS_headers = shift;
+  my $frameset = shift;
 
-  my $return;
-  if( exists( $FITS_headers->{'DOPPLER'} ) &&
-      exists( $FITS_headers->{'ZSOURCE'} ) ) {
-    my $doppler = uc( $FITS_headers->{'DOPPLER'} );
-    my $zsource = $FITS_headers->{'ZSOURCE'};
+  my $velocity = 0;
+  if( defined( $frameset ) &&
+      UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
 
-    if( $doppler eq 'REDSHIFT' ) {
-      $return = $zsource;
-    } elsif( $doppler eq 'OPTICAL' ) {
-      $return = $zsource * CLIGHT;
-    } elsif( $doppler eq 'RADIO' ) {
-      $return = ( CLIGHT * $zsource ) / ( 1 + $zsource );
+    my $sourcesys = "VRAD";
+    if( defined( $FITS_headers->{'DOPPLER'} ) ) {
+      if( $FITS_headers->{'DOPPLER'} =~ /rad/i ) {
+        $sourcesys = "VRAD";
+      } elsif( $FITS_headers->{'DOPPLER'} =~ /opt/i ) {
+        $sourcesys = "VOPT";
+      } elsif( $FITS_headers->{'DOPPLER'} =~ /red/i ) {
+        $sourcesys = "REDSHIFT";
+      }
     }
+    $frameset->Set( sourcesys => $sourcesys );
+    $velocity = $frameset->Get( "sourcevel" );
   }
-  return $return;
+
+  return $velocity;
 }
 
 =back
