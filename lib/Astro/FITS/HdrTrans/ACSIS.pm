@@ -329,14 +329,16 @@ letters.
 sub to_SYSTEM_VELOCITY {
   my $self = shift;
   my $FITS_headers = shift;
+  my $frameset = shift;
 
   my $return;
   if( exists( $FITS_headers->{'DOPPLER'} ) &&
-      exists( $FITS_headers->{'SPECSYS'} ) ) {
+      defined( $frameset ) &&
+      UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
     my $doppler = $FITS_headers->{'DOPPLER'};
-    my $specsys = $FITS_headers->{'SPECSYS'};
+    my $sourcevrf = $frameset->Get( "sourcevrf" );
 
-    $return = substr( uc( $doppler ), 0, 3 ) . substr( uc( $specsys ), 0, 3 );
+    $return = substr( uc( $doppler ), 0, 3 ) . substr( uc( $sourcevrf ), 0, 3 );
   }
   return $return;
 }
