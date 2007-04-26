@@ -7,56 +7,71 @@ use warnings;
 use Test::More;
 use File::Spec;
 
-# Load Astro::FITS::Header if we can.
+# Load Astro::FITS::Header::NDF if we can.
 eval {
-  require Astro::FITS::Header;
+  require Astro::FITS::Header::NDF;
 };
 if( $@ ) {
-  plan skip_all => 'Test requires Astro::FITS::Header module';
+  plan skip_all => 'Test requires Astro::FITS::Header::NDF module';
 } else {
-  plan tests => 22;
+
+  # Load NDF if we can.
+  eval {
+    require NDF;
+  };
+  if( $@ ) {
+    plan skip_all => 'Test requires NDF module';
+  } else {
+    plan tests => 25;
+  }
 }
 
 # Test compilation.
 require_ok( 'Astro::FITS::HdrTrans' );
 
-# Read the header off disk.
+# Open the NDF environment.
+my $status = &NDF::SAI__OK;
+&NDF::ndf_begin;
+&NDF::err_begin( $status );
+
+# Read the file off disk.
 my $datadir = File::Spec->catdir( 't', 'data' );
-my $fits = readfits( File::Spec->catfile( $datadir, 'acsis.hdr' ) );
-die "Error reading FITS headers from acsis.hdr"
-  unless defined $fits;
+my $file = File::Spec->catfile( $datadir, "a20070425_00012_02_bl.sdf" );
+my $hdr = new Astro::FITS::Header::NDF( File => $file );
 my %hdr;
-tie %hdr, "Astro::FITS::Header", $fits;
+tie %hdr, "Astro::FITS::Header", $hdr;
+
+# Deal with the FrameSet.
+&NDF::ndf_find( &NDF::DAT__ROOT, $file, my $indf, $status );
+my $wcs = &NDF::ndfGtwcs( $indf, $status );
+&NDF::ndf_annul( $indf, $status );
+&NDF::ndf_end( $status );
 
 # Translate this header.
-my %generic_header = Astro::FITS::HdrTrans::translate_from_FITS( \%hdr );
+my %generic_header = Astro::FITS::HdrTrans::translate_from_FITS( \%hdr, frameset => $wcs );
 
 isa_ok( $generic_header{'UTDATE'}, "Time::Piece", "UTDATE is Time::Piece" );
-is( $generic_header{'UTDATE'}->year, 2006, "UTDATE year is 2006" );
-is( $generic_header{'UTDATE'}->mon,      8, "UTDATE month is 8" );
-is( $generic_header{'UTDATE'}->mday,    10, "UTDATE day is 10" );
-is( $generic_header{'UTSTART'}->year, 2006, "UTSTART year is 2006" );
-is( $generic_header{'UTSTART'}->mon,     8, "UTSTART month is 8" );
-is( $generic_header{'UTSTART'}->mday,   10, "UTSTART day is 10" );
-is( $generic_header{'UTSTART'}->hour,    2, "UTSTART hour is 7" );
-is( $generic_header{'UTSTART'}->minute, 37, "UTSTART minute is 37" );
-is( $generic_header{'UTSTART'}->second, 16, "UTSTART second is 16" );
-is( $generic_header{'UTEND'}->year, 2006, "UTEND year is 2006" );
-is( $generic_header{'UTEND'}->mon,     8, "UTEND month is 8" );
-is( $generic_header{'UTEND'}->mday,   10, "UTEND day is 10" );
-is( $generic_header{'UTEND'}->hour,    2, "UTEND hour is 2" );
-is( $generic_header{'UTEND'}->minute, 39, "UTEND minute is 39" );
-is( $generic_header{'UTEND'}->second, 59, "UTEND second is 59" );
-is( $generic_header{'EXPOSURE_TIME'}, 163, "EXPOSURE_TIME is 163" );
-is( $generic_header{'OBSERVATION_MODE'}, "grid_chop_focus", "OBSERVATION_MODE is grid_chop_focus" );
-is( $generic_header{'OBSERVATION_ID'}, "acsis_14_20060810T023716", "OBSERVATION_ID is acsis_14_20060810T023716" );
-is( $generic_header{'RA_BASE'},  "41.6952181504772", "RA_BASE is 41.6952181504772" );
-is( $generic_header{'DEC_BASE'}, "89.2818976564226", "DEC_BASE is 89.2818976564226" );
+is( $generic_header{'UTDATE'}->year, 2007, "UTDATE year is 2007" );
+is( $generic_header{'UTDATE'}->mon,      4, "UTDATE month is 4" );
+is( $generic_header{'UTDATE'}->mday,    25, "UTDATE day is 25" );
+is( $generic_header{'UTSTART'}->year, 2007, "UTSTART year is 2007" );
+is( $generic_header{'UTSTART'}->mon,     4, "UTSTART month is 4" );
+is( $generic_header{'UTSTART'}->mday,   25, "UTSTART day is 25" );
+is( $generic_header{'UTSTART'}->hour,    5, "UTSTART hour is 5" );
+is( $generic_header{'UTSTART'}->minute, 16, "UTSTART minute is 16" );
+is( $generic_header{'UTSTART'}->second, 18, "UTSTART second is 18" );
+is( $generic_header{'UTEND'}->year, 2007, "UTEND year is 2007" );
+is( $generic_header{'UTEND'}->mon,     4, "UTEND month is 4" );
+is( $generic_header{'UTEND'}->mday,   25, "UTEND day is 25" );
+is( $generic_header{'UTEND'}->hour,    5, "UTEND hour is 5" );
+is( $generic_header{'UTEND'}->minute, 19, "UTEND minute is 19" );
+is( $generic_header{'UTEND'}->second, 28, "UTEND second is 28" );
+is( $generic_header{'EXPOSURE_TIME'}, 190, "EXPOSURE_TIME is 190" );
+is( $generic_header{'OBSERVATION_MODE'}, "grid_pssw", "OBSERVATION_MODE is grid_pssw" );
+is( $generic_header{'VELOCITY_TYPE'}, "radio", "VELOCITY_TYPE is radio" );
+is( $generic_header{'OBSERVATION_ID'}, "acsis_12_20070425T051618", "OBSERVATION_ID is acsis_12_20070425T051618" );
 
-sub readfits {
-  my $file = shift;
-  open my $fh, "<", $file or die "Error opening header file $file: $!";
-  my @cards = <$fh>;
-  close $fh;
-  return new Astro::FITS::Header( Cards => \@cards );
-}
+is( sprintf( "%.6f", $generic_header{'RA_BASE'} ),  "146.944415", "RA_BASE is 146.944415" );
+is( sprintf( "%.6f", $generic_header{'DEC_BASE'} ), "13.204779", "DEC_BASE is 13.204780" );
+is( sprintf( "%.6f", $generic_header{'REST_FREQUENCY'} ) , "345.795990", "REST_FREQUENCY is 345.795990" );
+is( sprintf( "%.6f", $generic_header{'VELOCITY'} ), "-25.900000", "VELOCITY is -25.900000" );

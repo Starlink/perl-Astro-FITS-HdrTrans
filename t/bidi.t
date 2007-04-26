@@ -58,7 +58,7 @@ my %COUNT = (
              ircam => 39,
              scuba => 34,
              wfcam => 39,
-             acsis => 38,
+             acsis => 37,
             );
 
 my $datadir = File::Spec->catdir( "t","data");
