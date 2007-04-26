@@ -11,7 +11,7 @@ Astro::FITS::HdrTrans - Translate FITS headers to standardised form
   use Astro::FITS::HdrTrans qw/ translate_from_FITS
                                 translate_to_FITS /;
 
-  %generic_headers = translate_from_FITS(\%FITS_headers);
+  %generic_headers = translate_from_FITS(\%FITS_headers, $frameset);
 
   %FITS_headers = translate_to_FITS(\%generic_headers);
 
@@ -269,6 +269,7 @@ containing generic headers.
   %generic_headers = translate_from_FITS(\%FITS_headers,
                                          class => \@classes,
                                          prefix => 'ORAC_',
+                                         frameset => $frameset,
                                         );
 
 This method takes a reference to a hash containing untranslated headers,
@@ -283,6 +284,12 @@ translations. This list overrides the default list. If left blank, the
 default list will be used, as returned by the C<translation_classes>
 method. This is sometimes required to break degeneracy when you know
 you have a limited set of valid instruments.
+
+=item *
+
+frameset - An AST FrameSet describing the WCS. The WCS in this
+FrameSet will override any WCS information contained in the FITS
+headers.
 
 =item *
 
@@ -319,11 +326,19 @@ sub translate_from_FITS {
     $prefix = $options{prefix};
   }
 
+  my $frameset;
+  if( exists( $options{frameset} ) &&
+      defined( $options{frameset} ) ) {
+    $frameset = $options{frameset};
+  }
+
   # determine which class can be used for the translation
   my $class = _determine_class( $FITS_header, \@classes, 1 );
 
   # we know this class is already loaded so do the translation
-  return $class->translate_from_FITS( $FITS_header, $prefix );
+  return $class->translate_from_FITS( $FITS_header,
+                                      prefix => $prefix,
+                                      frameset => $frameset );
 
 }
 
