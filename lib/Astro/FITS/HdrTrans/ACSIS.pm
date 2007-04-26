@@ -295,6 +295,12 @@ sub to_DEC_BASE {
 
 =item B<to_REST_FREQUENCY>
 
+Uses an C<Starlink::AST::FrameSet> object to determine the
+frequency. If such an object is not passed in, then the rest frequency
+is set to zero.
+
+Returns the rest frequency in Hz.
+
 =cut
 
 sub to_REST_FREQUENCY {
@@ -310,6 +316,9 @@ sub to_REST_FREQUENCY {
   }
 
   my $frequency = $frameset->Get( "restfreq" );
+
+  # AST returns this in GHz, so convert to Hz.
+  $frequency *= 1_000_000_000;
 
   return $frequency;
 
