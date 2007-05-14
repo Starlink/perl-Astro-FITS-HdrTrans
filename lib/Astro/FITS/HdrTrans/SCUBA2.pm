@@ -20,6 +20,9 @@ use Carp;
 # Inherit from Base
 use base qw/ Astro::FITS::HdrTrans::Base /;
 
+# Import DATE-OBS handling
+use Astro::FITS::HdrTrans::FITS qw/ UTSTART UTEND to_UTDATE /;
+
 use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d.%03d", q$Revision$ =~ /(\d+)\.(\d+)/);
@@ -36,7 +39,16 @@ my @NULL_MAP = ();
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
+		AIRMASS_START        => "AMSTART",
+		AIRMASS_END          => "AMEND",
 		INSTRUMENT           => "INSTRUME",
+		DR_RECIPE            => "DRRECIPE",
+		DR_GROUP             => "DRGROUP",
+		OBJECT               => "OBJECT",
+		OBSERVATION_NUMBER   => "OBSNUM",
+		OBSERVATION_MODE     => "OBSMODE",
+		OBSERVATION_TYPE     => "OBSTYPE",
+		STANDARD             => "STANDARD",
 		TELESCOPE            => "TELESCOP",
 	       );
 
