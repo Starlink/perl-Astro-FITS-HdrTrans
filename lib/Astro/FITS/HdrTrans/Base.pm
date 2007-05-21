@@ -32,7 +32,7 @@ use Carp;
 use vars qw/ $VERSION /;
 use Astro::FITS::HdrTrans (); # for the generic header list
 
-$VERSION = sprintf("%d.%03d", q$Revision$ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 
 =head1 PUBLIC METHODS
 

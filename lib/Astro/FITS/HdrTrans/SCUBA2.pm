@@ -25,7 +25,7 @@ use Astro::FITS::HdrTrans::FITS qw/ UTSTART UTEND to_UTDATE /;
 
 use vars qw/ $VERSION /;
 
-$VERSION = sprintf("%d.%03d", q$Revision$ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
