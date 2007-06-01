@@ -277,7 +277,7 @@ sub to_SPEED_GAIN {
   if( exists( $FITS_headers->{'SPD_GAIN'} ) ) {
     $return = $FITS_headers->{'SPD_GAIN'};
   } elsif( exists( $FITS_headers->{'WAVEFORM'} ) ) {
-    if( $FITS_headers->{'WAVEFORM'} =~ /^thermal/i ) {
+    if( $FITS_headers->{'WAVEFORM'} =~ /thermal/i ) {
       $return = 'thermal';
     } else {
       $return = 'normal';
