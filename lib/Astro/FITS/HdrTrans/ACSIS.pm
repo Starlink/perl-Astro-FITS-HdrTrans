@@ -75,7 +75,6 @@ my %UNIT_MAP = (
     HUMIDITY           => 'HUMSTART',
     LATITUDE           => 'LAT-OBS',
     LONGITUDE          => 'LONG-OBS',
-		MSBID              => 'MSBID',
     NUMBER_OF_CYCLES   => 'NUM_CYC',
 		OBJECT             => 'OBJECT',
 		OBSERVATION_NUMBER => 'OBSNUM',
@@ -515,6 +514,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
+Copyright (C) 2007 Science and Technology Facilities Council.
 Copyright (C) 2005-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 

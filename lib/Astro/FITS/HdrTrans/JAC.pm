@@ -49,7 +49,9 @@ my %CONST_MAP = (
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-               );
+    MSBID              => 'MSBID',
+    MSB_TRANSACTION_ID => 'MSBTID',
+    );
 
 # Create the translation methods
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
@@ -114,6 +116,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
+Copyright (C) 2007 Science and Technology Facilities Council.
 Copyright (C) 2006 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 

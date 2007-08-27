@@ -122,6 +122,7 @@ my @generic_headers = qw(
                          LATITUDE
                          LONGITUDE
                          MSBID
+                         MSB_TRANSACTION_ID
                          NSCAN_POSITIONS
                          NUMBER_OF_COADDS
                          NUMBER_OF_CYCLES
@@ -513,6 +514,7 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
+Copyright (C) 2007 Science and Technology Facilities Council.
 Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 

@@ -53,7 +53,6 @@ my %UNIT_MAP = (
 		EQUINOX              => "EQUINOX",
 		FILTER               => "FILTER",
 		INSTRUMENT           => "INSTRUME",
-		MSBID                => "MSBID",
 		NUMBER_OF_EXPOSURES  => "NEXP",
 		NUMBER_OF_OFFSETS    => "NOFFSETS",
 		OBJECT               => "OBJECT",
@@ -173,6 +172,7 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
+Copyright (C) 2007 Science and Technology Facilities Council.
 Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 

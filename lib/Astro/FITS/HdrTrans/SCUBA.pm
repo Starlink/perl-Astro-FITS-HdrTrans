@@ -58,7 +58,6 @@ my %UNIT_MAP = (
 		FILENAME             => "SDFFILE",
 		FILTER               => "FILTER",
 		GAIN                 => "GAIN",
-		MSBID                => "MSBID",
 		NUMBER_OF_EXPOSURES  => "EXP_NO",
 		OBJECT               => "OBJECT",
 		OBSERVATION_NUMBER   => "RUN",
@@ -464,6 +463,7 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
+Copyright (C) 2007 Science and Technology Facilities Council.
 Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
