@@ -67,6 +67,7 @@ my %UNIT_MAP = (
 		INSTRUMENT           => "INSTRUME",
 		MSBID                => "MSBID",
                 MSB_TRANSACTION_ID   => 'MSBTID',
+                NUMBER_OF_COADDS => 'NEXP',
 		NUMBER_OF_EXPOSURES  => "NEXP",
 		OBJECT               => "OBJECT",
 		OBSERVATION_MODE     => "INSTMODE",
