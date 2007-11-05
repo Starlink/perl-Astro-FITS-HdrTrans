@@ -49,7 +49,7 @@ my @NULL_MAP = qw/ DETECTOR_INDEX WAVEPLATE_ANGLE /;
 
 my %UNIT_MAP = (
                 # WFCAM specific
-                DETECTOR_READ_TYPE   => "READMODE"
+                DETECTOR_READ_TYPE   => "READMODE",
                 NUMBER_OF_COADDS     => "NEXP",
                 NUMBER_OF_OFFSETS    => "NJITTER",
                 TILE_NUMBER          => "TILENUM",
