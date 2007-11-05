@@ -48,15 +48,16 @@ my @NULL_MAP = qw/ DETECTOR_INDEX WAVEPLATE_ANGLE /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-		# WFCAM specific
-		DETECTOR_READ_TYPE   => "READMODE",
-		NUMBER_OF_OFFSETS    => "NJITTER",
-		TILE_NUMBER          => "TILENUM",
-		# MICHELLE + UIST compatible
-		EXPOSURE_TIME        => "EXP_TIME",
-		# CGS4 + MICHELLE + WFCAM
-		CONFIGURATION_INDEX  => 'CNFINDEX',
-	       );
+                # WFCAM specific
+                DETECTOR_READ_TYPE   => "READMODE"
+                NUMBER_OF_COADDS     => "NEXP",
+                NUMBER_OF_OFFSETS    => "NJITTER",
+                TILE_NUMBER          => "TILENUM",
+                # MICHELLE + UIST compatible
+                EXPOSURE_TIME        => "EXP_TIME",
+                # CGS4 + MICHELLE + WFCAM
+                CONFIGURATION_INDEX  => 'CNFINDEX',
+               );
 
 
 # Create the translation methods
