@@ -112,8 +112,6 @@ sub can_translate {
     my $self = shift;
     my $headers = shift;
 
-    use Data::Dumper; print Dumper($headers);
-#    die "Boom";
     if (exists $headers->{GSDFILE} && exists $headers->{"SCA#"})  {
         return 1;
     }
