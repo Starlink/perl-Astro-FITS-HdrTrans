@@ -109,7 +109,11 @@ C<can_translate> method.
 
   $inst = $class->this_instrument();
 
-Returns "UFTI".
+Returns "UKIRTDB" as a special case. This means that any queries from
+a UKIRT database must have the instrument overridden in order to match.
+The TEMP_INST header must then be set with the name of the actual instrument.
+This is required to prevent the headers matching both the file header and
+the generic database values.
 
 =cut
 
@@ -128,9 +132,9 @@ these are many-to-many)
 
 =over 4
 
-=item B<to_INST-DHS>
+=item B<to_INST_DHS>
 
-Sets the INST-DHS header.
+Sets the INST_DHS header.
 
 =cut
 
