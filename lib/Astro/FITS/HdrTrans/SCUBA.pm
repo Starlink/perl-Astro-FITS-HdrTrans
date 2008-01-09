@@ -446,6 +446,24 @@ sub from_UTEND {
   return %return_hash;
 }
 
+=item B<to_MSBID>
+
+Converts the MSBID field to an MSBID. Complication is that the SCUBA
+header and database store a blank MSBID as a single space rather than
+an empty string and this causes difficulty in some subsystems.
+
+This routine replaces a single space with a null string.
+
+=cut
+
+sub to_MSBID {
+    my $self = shift;
+    my $FITS_headers = shift;
+    my $msbid = $FITS_headers->{MSBID};
+    $msbid =~ s/\s+$// if defined $msbid;
+    return $msbid;
+}
+
 =back
 
 =head1 REVISION
