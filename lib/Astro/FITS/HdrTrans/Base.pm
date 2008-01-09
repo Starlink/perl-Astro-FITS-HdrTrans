@@ -154,7 +154,7 @@ Returns true if the supplied headers can be handled by this class.
 
 The base class version of this method returns true if either the C<INSTRUME>
 or C<INSTRUMENT> key exist and match the value returned by the
-C<ref_instrument> method. Comparisons are case-insensitive and can use
+C<this_instrument> method. Comparisons are case-insensitive and can use
 regular expressions on instrument name if provided by the base class.
 
 
