@@ -97,19 +97,27 @@ __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 
 =over 4
 
-=item B<this_instrument>
+=item B<can_translate>
 
-Name of the instrument that can be translated by this class.
-Defaults to an empty string. The method must be subclassed.
+Returns true if the supplied headers can be handled by this class.
 
- $inst = $class->this_instrument();
+  $cando = $class->can_translate( \%hdrs );
 
-Can return a regular expresion object (C<qr>).
+For this class, the method will return true if the "GSDFILE" header
+exists and the "SCA#" header exist.
 
 =cut
 
-sub this_instrument {
-  return "JCMT_GSD_DB";
+sub can_translate {
+    my $self = shift;
+    my $headers = shift;
+
+    use Data::Dumper; print Dumper($headers);
+#    die "Boom";
+    if (exists $headers->{GSDFILE} && exists $headers->{"SCA#"})  {
+        return 1;
+    }
+    return 0;
 }
 
 =head1 COMPLEX CONVERSIONS

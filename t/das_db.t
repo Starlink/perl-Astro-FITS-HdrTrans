@@ -20,6 +20,8 @@ $header{'NCYCLE'} = 2;
 $header{'VDEF'} = 'radio';
 $header{'VREF'} = 'lsr';
 $header{'INSTRUME'} = 'JCMT_GSD_DB';
+$header{'GSDFILE'} = "xxx";
+$header{'SCA#'} = 52;
 
 my %generic_header = Astro::FITS::HdrTrans::translate_from_FITS( \%header );
 
