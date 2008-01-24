@@ -11,7 +11,8 @@ Astro::FITS::HdrTrans - Translate FITS headers to standardised form
   use Astro::FITS::HdrTrans qw/ translate_from_FITS
                                 translate_to_FITS /;
 
-  %generic_headers = translate_from_FITS(\%FITS_headers, $frameset);
+  %generic_headers = translate_from_FITS(\%FITS_headers,
+                                     frameset => $frameset);
 
   %FITS_headers = translate_to_FITS(\%generic_headers);
 
@@ -317,8 +318,6 @@ sub translate_from_FITS {
       defined( $options{class} ) &&
       ref( $options{class} ) eq 'ARRAY' ) {
     @classes = @{$options{class}};
-  } else {
-    @classes = __PACKAGE__->translation_classes;
   }
 
   my $prefix;
@@ -334,7 +333,7 @@ sub translate_from_FITS {
   }
 
   # determine which class can be used for the translation
-  my $class = _determine_class( $FITS_header, \@classes, 1 );
+  my $class = determine_class( $FITS_header, \@classes, 1 );
 
   # we know this class is already loaded so do the translation
   return $class->translate_from_FITS( $FITS_header,
@@ -388,8 +387,6 @@ sub translate_to_FITS {
       defined( $options{class} ) &&
       ref( $options{class} ) eq 'ARRAY' ) {
     @classes = @{$options{class}};
-  } else {
-    @classes = __PACKAGE__->translation_classes;
   }
 
 
@@ -420,42 +417,46 @@ sub translate_to_FITS {
   }
 
   # determine which class can be used for the translation
-  my $class = _determine_class( \%stripped_header, \@classes, 0 );
+  my $class = determine_class( \%stripped_header, \@classes, 0 );
 
   return $class->translate_to_FITS( \%stripped_header );
 
 }
 
-
-=back
-
-=begin __PRIVATE_FUNCTIONS__
-
-=head1 PRIVATE FUNCTIONS
-
-=over 4
-
-=item B<_determine_class>
+=item B<determine_class>
 
 Determine which class should be used for the translation (either way).
 It is given a reference to the header hash and a reference to an array
 of classes which can be queried.
 
-  $class = _determine_class( \%hdr, \@classes, $fromfits );
+  $class = determine_class( \%hdr, \@classes, $fromfits );
 
 The classes are loaded for each test. Failure to load indicates failure
-to translate.
+to translate. If the classes are undefined, the default internal list
+will be used.
 
 The third argument is a boolean indicating whether the class is being
 used to translate from FITS (true) or to FITS (false). This is used
 for error message clarity.
 
+This function can be useful to allow a single header translation to be
+calculated without requiring that all translation are performed. For example,
+
+  $class = Astro::FITS::HdrTrans::determine_class( \%hdr, undef, 1 );
+  $value = $class->to_OBSERVATION_ID( \%hdr, $frameset );
+
 =cut
 
-sub _determine_class {
+sub determine_class {
   my $hdr = shift;
   my $classes = shift;
   my $fromfits = shift;
+
+  # Default classes if empty or undef
+  my @defclasses = __PACKAGE__->translation_classes;
+  if (!defined $classes || !@$classes) {
+      $classes = \@defclasses;
+  }
 
   # Determine the class name so we can use the appropriate subclass
   # for header translations. We're going to use the "can_translate" method
@@ -505,7 +506,21 @@ sub _determine_class {
 
 =back
 
-=end __PRIVATE_FUNTCTIONS__
+=head1 NOTES
+
+Individual translations can be invoked explicitly if a class name is known.
+The syntax for conversion from a FITS header to generic value is
+
+  $result = $class->to_GENERIC_KEYWORD( \%header, $frameset );
+
+Frameset information (Starlink::AST object) is optional.
+
+The syntax for conversion from generic to FITS headers is:
+
+  %fits = $class->from_GENERIC_KEYWORD( \%translated_hdr );
+
+Note that the conversion to FITS can result in multiple header items
+and can require more than a single generic translated header item.
 
 =head1 AUTHOR
 
@@ -514,7 +529,7 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007 Science and Technology Facilities Council.
+Copyright (C) 2007-2008 Science and Technology Facilities Council.
 Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
