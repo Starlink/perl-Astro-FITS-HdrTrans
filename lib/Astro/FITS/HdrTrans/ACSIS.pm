@@ -71,6 +71,7 @@ my %UNIT_MAP = (
 		DR_RECIPE          => 'DRRECIPE',
     ELEVATION_START    => 'ELSTART',
     ELEVATION_END      => 'ELEND',
+    FILENAME           => 'FILE_ID',
     FRONTEND           => 'INSTRUME',
     HUMIDITY           => 'HUMSTART',
     LATITUDE           => 'LAT-OBS',
@@ -119,6 +120,31 @@ sub can_translate {
   }
 }
 
+=item B<translate_from_FITS>
+
+This routine overrides the base class implementation to enable the
+caches to be cleared and for the location of the DATE-OBS/DATE-END field to
+be found so that base class implementations will work correctly.
+
+This means that some conversion methods (in particular those using time in
+a base class) may not work properly outside the context of a full translation
+unless they have been subclassed locally.
+
+=cut
+
+sub translate_from_FITS {
+    my $class = shift;
+    my $headers = shift;
+
+    # clear cache
+    $COORDS = undef;
+
+    # sort out DATE-OBS and DATE-END
+    _fix_dates( $headers );
+
+    # Go to the base class
+    return $class->SUPER::translate_from_FITS( $headers, @_ );
+}
 
 =back
 
@@ -133,6 +159,34 @@ these are many-to-many)
 
 =over 4
 
+=item B<to_UTSTART>
+
+Standard FITS implementation except that database fields are converted
+before passing to the FITS implementation.
+
+There are similar versions for to_UTDATE and to_UTEND
+
+=cut
+
+sub to_UTSTART {
+    my $class = shift;
+    my $FITS_headers = shift;
+    _fix_dates( $FITS_headers );
+    return $class->SUPER::to_UTSTART( $FITS_headers, @_ );
+}
+sub to_UTEND {
+    my $class = shift;
+    my $FITS_headers = shift;
+    _fix_dates( $FITS_headers );
+    return $class->SUPER::to_UTEND( $FITS_headers, @_ );
+}
+sub to_UTDATE {
+    my $class = shift;
+    my $FITS_headers = shift;
+    _fix_dates( $FITS_headers );
+    return $class->SUPER::to_UTDATE( $FITS_headers, @_ );
+}
+
 =item B<to_EXPOSURE_TIME>
 
 Uses the to_UTSTART and to_UTEND functions to calculate the exposure
@@ -145,21 +199,12 @@ sub to_EXPOSURE_TIME {
   my $self = shift;
   my $FITS_headers = shift;
 
+  # force date headers to be standardized
+  _fix_dates( $FITS_headers );
+
   my $return;
-  if( ( exists( $FITS_headers->{'DATE-OBS'} ) ||
-        exists( $FITS_headers->{'LONGDATEOBS'} ) ) &&
-      ( exists( $FITS_headers->{'DATE-END'} ) ||
-        exists( $FITS_headers->{'LONGDATEEND'} ) ) ) {
-
-    if( ! exists( $FITS_headers->{'DATE-OBS'} ) ) {
-      my $date = _convert_sybase_date( $FITS_headers->{'LONGDATEOBS'} );
-      $FITS_headers->{'DATE-OBS'} = $date->datetime;
-    }
-    if( ! exists( $FITS_headers->{'DATE-END'} ) ) {
-      my $date = _convert_sybase_date( $FITS_headers->{'LONGDATEEND'} );
-      $FITS_headers->{'DATE-END'} = $date->datetime;
-    }
-
+  if( exists( $FITS_headers->{'DATE-OBS'} ) &&
+      exists( $FITS_headers->{'DATE-END'} ) ) {
     my $start = $self->to_UTSTART( $FITS_headers );
     my $end = $self->to_UTEND( $FITS_headers );
     my $duration = $end - $start;
@@ -207,6 +252,7 @@ sub to_OBSERVATION_ID {
       defined( $FITS_headers->{'OBSID'} ) ) {
     $return = $FITS_headers->{'OBSID'};
   } else {
+    _fix_dates( $FITS_headers );
 
     my $backend = lc( $self->to_BACKEND( $FITS_headers ) );
     my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
@@ -268,9 +314,9 @@ sub to_RA_BASE {
   my $self = shift;
   my $FITS_headers = shift;
 
-  my $coords = $self->_calc_coords( $FITS_headers );
+  my $coords = _calc_coords( $FITS_headers );
+  return undef unless defined $coords;
   return $coords->ra( format => 'deg' );
-
 }
 
 =item B<to_DEC_BASE>
@@ -288,7 +334,7 @@ sub to_DEC_BASE {
   my $FITS_headers = shift;
 
   my $coords = _calc_coords( $FITS_headers );
-
+  return undef unless defined $coords;
   return $coords->dec( format => 'deg' );
 }
 
@@ -400,7 +446,7 @@ sub to_VELOCITY {
 
 =item B<_calc_coords>
 
-Calculates the coordinates at the start of the observation by using
+Function to calculate the coordinates at the start of the observation by using
 the elevation, azimuth, telescope, and observation start time. Caches
 the result if it's already been calculated.
 
@@ -411,28 +457,22 @@ Returns an Astro::Coords object.
 sub _calc_coords {
   my $FITS_headers = shift;
 
+  # Force dates to be standardized
+  _fix_dates( $FITS_headers );
+
+  # Here be dragons. Possibility that cache will not be cleared properly
+  # if a user comes in outside of the translate_from_FITS() method.
   if( defined( $COORDS ) &&
       UNIVERSAL::isa( $COORDS, "Astro::Coords" ) ) {
     return $COORDS;
   }
 
   if( exists( $FITS_headers->{'TELESCOP'} ) &&
+      exists( $FITS_headers->{'DATE-OBS'} ) &&
       exists( $FITS_headers->{'AZSTART'} )  &&
       exists( $FITS_headers->{'ELSTART'} ) ) {
 
-    my $dateobs;
-    if( ! exists( $FITS_headers->{'DATE-OBS'} ) ) {
-      if( exists( $FITS_headers->{'LONGDATEOBS'} ) ) {
-        my $date = _convert_sybase_date( $FITS_headers->{'LONGDATEOBS'} );
-        $FITS_headers->{'DATE-OBS'} = $date->datetime;
-        $dateobs = $FITS_headers->{'DATE-OBS'};
-      } else {
-        return undef;
-      }
-    } else {
-      $dateobs = $FITS_headers->{'DATE-OBS'};
-    }
-
+    my $dateobs   = $FITS_headers->{'DATE-OBS'};
     my $telescope = $FITS_headers->{'TELESCOP'};
     my $az_start  = $FITS_headers->{'AZSTART'};
     my $el_start  = $FITS_headers->{'ELSTART'};
@@ -441,7 +481,6 @@ sub _calc_coords {
                                     el => $el_start,
                                   );
     $coords->telescope( new Astro::Telescope( $telescope ) );
-
     $dateobs =~ /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)$/;
 
     my $dt = DateTime->new( year      => $1,
@@ -458,7 +497,6 @@ sub _calc_coords {
     $COORDS = $coords;
     return $COORDS;
   }
-
 }
 
 sub _convert_sybase_date {
@@ -499,6 +537,45 @@ sub _convert_sybase_date {
   return $return;
 }
 
+=item B<_fix_dates>
+
+Sort out DATE-OBS and DATE-END in cases where they are not available directly.
+This is mainly an issue with database retrievals where the date format is not
+FITS compliant.
+
+  _fix_dates( \%headers );
+
+=cut
+
+sub _fix_dates {
+    my $FITS_headers = shift;
+    # DATE-OBS can be from LONGDATEOBS LONGDATE or DATE_OBS
+    _try_dates( $FITS_headers, 'DATE-OBS', qw/ LONGDATEOBS LONGDATE DATE_OBS / );
+
+    # DATE-END can be from DATE_END or LONGDATEEND
+    _try_dates( $FITS_headers, 'DATE-END', qw/ LONGDATEEND DATE_END / );
+
+    return;
+}
+
+# helper routine for _fix_dates
+sub _try_dates {
+    my $FITS_headers = shift;
+    my $outkey = shift;
+    my @tests = @_;
+
+    if (!exists $FITS_headers->{$outkey}) {
+        for my $key (@tests) {
+            if( exists( $FITS_headers->{$key} ) ) {
+                my $date = _convert_sybase_date( $FITS_headers->{$key} );
+                $FITS_headers->{$outkey} = $date->datetime;
+                last;
+            }
+        }
+    }
+    return;
+}
+
 =head1 REVISION
 
  $Id$
@@ -514,7 +591,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007 Science and Technology Facilities Council.
+Copyright (C) 2007-2008 Science and Technology Facilities Council.
 Copyright (C) 2005-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
