@@ -411,7 +411,7 @@ Returns undef if none found.
 
 sub _date_header {
     my $FITS_headers = shift;
-    for my $key (qw/ LONGDATEOBS DATE_OBS / ) {
+    for my $key (qw/ LONGDATEOBS DATE_OBS LONGDATE/ ) {
         if (exists $FITS_headers->{$key} && defined $FITS_headers->{$key}) {
             return $FITS_headers->{$key};
         }
