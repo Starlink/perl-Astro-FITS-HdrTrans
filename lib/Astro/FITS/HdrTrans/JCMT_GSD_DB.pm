@@ -152,66 +152,57 @@ sub to_INSTRUMENT {
   return $return;
 }
 
+=item B<to_OBSERVATION_ID>
+
+Calculate a unique Observation ID.
+
+=cut
+
+# Note this routine is generic for JCMT heterodyne instrumentation.
+# Would be completely generic if BACKEND was not used in preference to instrument.
+
+sub to_OBSERVATION_ID {
+    my $self = shift;
+    my $FITS_headers = shift;
+    my $backend = lc( $self->to_BACKEND( $FITS_headers ) );
+    my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
+    my $dateobs = $self->to_UTSTART( $FITS_headers );
+    my $datetime = $dateobs->datetime;
+    $datetime =~ s/-//g;
+    $datetime =~ s/://g;
+
+    my $obsid = join('_', $backend, $obsnum, $datetime);
+    return $obsid;
+}
+
 =item B<to_UTDATE>
 
-Translates the C<LONGDATE> header into a C<Time::Piece> object.
+Translates the C<DATE_OBS> or C<LONGDATEOBS> header into a C<Time::Piece> object.
 
 =cut
 
 sub to_UTDATE {
   my $self = shift;
   my $FITS_headers = shift;
-
-  # The UT header is in Sybase format, which is something like
-  # "Mar 15 2002  7:04:35:234AM   ". We first need to remove the number
-  # of milliseconds, then the whitespace at the end, then use the
-  # "%b%t%d%t%Y%t%T%p" format.
-
-  my $return;
-
-  if( exists( $FITS_headers->{'LONGDATE'} ) ) {
-    my $longdate = $FITS_headers->{'LONGDATE'};
-    $longdate =~ s/:\d\d\d//;
-    $longdate =~ s/\s*$//;
-    $longdate =~ s/\s*\d\d?:\d\d:\d\d[A|P]M$//;
-    $return = Time::Piece->strptime( $longdate,
-                                     "%b%t%d%t%Y" );
-  }
-
- return $return;
+  return _sybase_convert_date( _date_header( $FITS_headers ), 1);
 }
 
 =item B<to_UTSTART>
 
-Translates the C<LONGDATE> header into a C<Time::Piece> object.
+Translates the DB date header into a C<Time::Piece> object.
 
 =cut
 
 sub to_UTSTART {
   my $self = shift;
   my $FITS_headers = shift;
-
-  # The UT header is in Sybase format, which is something like
-  # "Mar 15 2002  7:04:35:234AM   ". We first need to remove the number
-  # of milliseconds, then the whitespace at the end, then use the
-  # "%b%t%d%t%Y%t%I:%M:%S%p" format.
-
-  my $return;
-
-  if( exists( $FITS_headers->{'LONGDATE'} ) ) {
-    my $longdate = $FITS_headers->{'LONGDATE'};
-    $longdate =~ s/:\d\d\d//;
-    $longdate =~ s/\s*$//;
-    $return = Time::Piece->strptime( $longdate,
-                                     "%b%t%d%t%Y%t%I:%M:%S%p" );
-  }
-
-  return $return;
+  return _sybase_convert_date( _date_header( $FITS_headers ));
 }
 
 =item B<to_UTEND>
 
-Translates the C<LONGDATE> header into a C<Time::Piece> object.
+Translates the database date header into a C<Time::Piece> object and adds 
+on the exposure time.
 
 =cut
 
@@ -219,27 +210,12 @@ sub to_UTEND {
   my $self = shift;
   my $FITS_headers = shift;
 
-  # The UT header is in Sybase format, which is something like
-  # "Mar 15 2002  7:04:35:234AM   ". We first need to remove the number
-  # of milliseconds, then the whitespace at the end, then use the
-  # "%b%t%d%t%Y%t%I:%M:%S%p" format.
-
-  my ($return, $expt);
-
-  if( exists( $FITS_headers->{'LONGDATE'} ) ) {
-    my $longdate = $FITS_headers->{'LONGDATE'};
-    $longdate =~ s/:\d\d\d//;
-    $longdate =~ s/\s*$//;
-    $return = Time::Piece->strptime( $longdate,
-                                     "%b%t%d%t%Y%t%I:%M:%S%p" );
-  }
-
-  $expt = $self->to_EXPOSURE_TIME( $FITS_headers );
+  my $return = _sybase_convert_date( _date_header( $FITS_headers ) );
+  return undef unless defined $return;
+  my $expt = $self->to_EXPOSURE_TIME( $FITS_headers );
 
   $return += $expt;
-
   return $return;
-
 }
 
 =item B<to_BANDWIDTH_MODE>
@@ -419,6 +395,74 @@ sub to_SYSTEM_VELOCITY {
 
 =back
 
+=begin __PRIVATE
+
+=over 4
+
+=item B<_date_header>
+
+Works out which header corresponds to the date field in sybase format and returns the value.
+
+  $value = _date_header( $FITS_headers );
+
+Returns undef if none found.
+
+=cut
+
+sub _date_header {
+    my $FITS_headers = shift;
+    for my $key (qw/ LONGDATEOBS DATE_OBS / ) {
+        if (exists $FITS_headers->{$key} && defined $FITS_headers->{$key}) {
+            return $FITS_headers->{$key};
+        }
+    }
+    return;
+}
+
+=item B<_sybase_convert_date>
+
+Converts a sybase long date to Time::Piece object.
+
+  $date = _sybase_convert_date( $string );
+
+Optional flag can be set to true to drop Hours, minutes and seconds from parse.
+
+  $utday = _sybase_convert_date( $string, 1);
+
+Returns undef if no string is supplied.
+
+=cut
+
+sub _sybase_convert_date {
+    my $longdate = shift;
+    my $drophms = shift;
+    return undef unless $longdate;
+
+    # The UT header is in Sybase format, which is something like
+    # "Mar 15 2002  7:04:35:234AM   ". We first need to remove the number
+    # of milliseconds, then the whitespace at the end, then use the
+    # "%b%t%d%t%Y%t%I:%M:%S%p" format.
+
+    # General cleanup
+    $longdate =~ s/:\d\d\d//;
+    $longdate =~ s/\s*$//;
+
+    my $return;
+    if ($drophms) {
+        $longdate =~ s/\s*\d\d?:\d\d:\d\d[A|P]M$//;
+        $return = Time::Piece->strptime( $longdate,
+                                         "%b%t%d%t%Y" );
+    } else {
+        $return = Time::Piece->strptime( $longdate,
+                                         "%b%t%d%t%Y%t%I:%M:%S%p" );
+    }
+    return $return;
+}
+
+=back
+
+=end __PRIVATE
+
 =head1 REVISION
 
 $Id$
@@ -430,7 +474,8 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2008 Science and Technology Facilities Council.
+Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
