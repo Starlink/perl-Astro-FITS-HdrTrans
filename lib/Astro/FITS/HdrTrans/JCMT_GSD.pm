@@ -159,6 +159,29 @@ sub to_INSTRUMENT {
   return $return;
 }
 
+=item B<to_OBSERVATION_ID>
+
+Calculate a unique Observation ID.
+
+=cut
+
+# Note this routine is generic for JCMT heterodyne instrumentation.
+# Would be completely generic if BACKEND was not used in preference to instrument.
+
+sub to_OBSERVATION_ID {
+    my $self = shift;
+    my $FITS_headers = shift;
+    my $backend = lc( $self->to_BACKEND( $FITS_headers ) );
+    my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
+    my $dateobs = $self->to_UTSTART( $FITS_headers );
+    my $datetime = $dateobs->datetime;
+    $datetime =~ s/-//g;
+    $datetime =~ s/://g;
+
+    my $obsid = join('_', $backend, $obsnum, $datetime);
+    return $obsid;
+}
+
 =item B<to_UTDATE>
 
 Translates the C<C3DAT> header into a C<Time::Piece> object.
@@ -420,7 +443,8 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2008 Science and Technology Facilities Council.
+Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
