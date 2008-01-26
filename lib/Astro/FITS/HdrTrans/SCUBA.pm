@@ -99,6 +99,30 @@ sub this_instrument {
   return "SCUBA";
 }
 
+=item B<can_translate>
+
+The database tables do not include an instrument field so we need to determine
+suitability by looking at other fields instead of using the base implementation.
+
+  $cando = $class->can_translate( \%hdrs );
+
+For SCUBA we first check for BOLOMS and SCU# headers and then use the base
+implementation that will look at the INSTRUME field.
+
+=cut
+
+sub can_translate {
+    my $self = shift;
+    my $headers = shift;
+
+    if (exists $headers->{BOLOMS} && defined $headers->{BOLOMS} &&
+        exists $headers->{"SCU#"} && defined $headers->{"SCU#"}) {
+        return 1;
+    } else {
+        return $self->SUPER::can_translate( $headers );
+    }
+}
+
 =back
 
 =head1 COMPLEX CONVERSIONS
