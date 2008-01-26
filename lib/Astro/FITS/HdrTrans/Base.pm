@@ -45,10 +45,13 @@ outside of the hash argument.
 
 Do the header translation from FITS for the specified class.
 
-  %generic = $class->translate_to_FITS( \%fitshdr, $prefix );
+  %generic = $class->translate_to_FITS( \%fitshdr,
+                                        prefix => $prefix,
+                                        frameset => $wcs,
+                                     );
 
 Prefix is attached to the keys in the returned hash if it
-is defined.
+is defined. The frameset is an optional Starlink::AST object.
 
 If a translation results in an undefined value (for example, if the
 headers can represent both imaging and spectroscopy there may be no
