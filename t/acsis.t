@@ -7,20 +7,21 @@ use warnings;
 use Test::More;
 use File::Spec;
 
-# Load Astro::FITS::Header::NDF if we can.
+# Load NDF if we can.
 eval {
-  require Astro::FITS::Header::NDF;
+  require NDF;
 };
 if( $@ ) {
-  plan skip_all => 'Test requires Astro::FITS::Header::NDF module';
+  print $@;
+  plan skip_all => 'Test requires NDF module';
 } else {
 
   # Load NDF if we can.
   eval {
-    require NDF;
+    require Astro::FITS::Header::NDF;
   };
   if( $@ ) {
-    plan skip_all => 'Test requires NDF module';
+    plan skip_all => 'Test requires Astro::FITS::Header::NDF module';
   } else {
     plan tests => 25;
   }
