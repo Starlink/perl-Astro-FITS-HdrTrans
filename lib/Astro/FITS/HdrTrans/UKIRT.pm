@@ -73,6 +73,33 @@ my %UNIT_MAP = (
 # Create the translation methods
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
+=head1 METHODS
+
+=over 4
+
+=item B<can_translate>
+
+This implementation of C<can_translate> is used to filter out
+a database row from an actual file header. The base class implementation
+is used if the filter passes.
+
+=cut
+
+sub can_translate {
+    my $self = shift;
+    my $FITS_headers = shift;
+
+    if (exists $FITS_headers->{TELESCOP}
+        && $FITS_headers->{TELESCOP} =~ /UKIRT/
+        && exists $FITS_headers->{FILENAME}
+        && exists $FITS_headers->{RAJ2000}) {
+        return 0;
+    }
+    return $self->SUPER::can_translate( $FITS_headers );
+}
+
+=back
+
 =head1 COMPLEX CONVERSIONS
 
 These methods are more complicated than a simple mapping. We have to

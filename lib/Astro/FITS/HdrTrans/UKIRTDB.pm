@@ -28,7 +28,7 @@ use Carp;
 use Time::Piece;
 
 # Inherit from Base
-use base qw/ Astro::FITS::HdrTrans::Base /;
+use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 use vars qw/ $VERSION /;
 
@@ -61,12 +61,11 @@ my %UNIT_MAP = (
 		DR_RECIPE            => "RECIPE",
 		EQUINOX              => "EQUINOX",
 		FILTER               => "FILTER",
+                FILENAME             => "FILENAME",
 		GAIN                 => "DEPERDN",
 		GRATING_DISPERSION   => "GDISP",
 		GRATING_ORDER        => "GORDER",
 		INSTRUMENT           => "INSTRUME",
-		MSBID                => "MSBID",
-                MSB_TRANSACTION_ID   => 'MSBTID',
                 NUMBER_OF_COADDS => 'NEXP',
 		NUMBER_OF_EXPOSURES  => "NEXP",
 		OBJECT               => "OBJECT",
@@ -100,26 +99,28 @@ __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 
 =over 4
 
-=item B<this_instrument>
+=item B<can_translate>
 
-The name of the instrument required to match (case insensitively)
-against the INSTRUME/INSTRUMENT keyword to allow this class to
-translate the specified headers. Called by the default
-C<can_translate> method.
+Determine if this class can handle the translation. Returns true
+if the TELESCOP is "UKIRT" and there is a "FILENAME" key and 
+a "RAJ2000" key. These keywords allow the DB results to be disambiguated
+from the actual file headers.
 
-  $inst = $class->this_instrument();
-
-Returns "UKIRTDB" as a special case. This means that any queries from
-a UKIRT database must have the instrument overridden in order to match.
-The TEMP_INST header must then be set with the name of the actual instrument.
-This is required to prevent the headers matching both the file header and
-the generic database values.
+  $cando = $class->can_translate( \%hdrs );
 
 =cut
 
-sub this_instrument {
-  return "UKIRTDB";
+sub can_translate {
+    my $self = shift;
+    my $FITS_headers = shift;
+    if (exists $FITS_headers->{TELESCOP}
+        && $FITS_headers->{TELESCOP} =~ /UKIRT/
+        && exists $FITS_headers->{FILENAME}
+        && exists $FITS_headers->{RAJ2000}) {
+        return 1;
+    }
 }
+
 
 =head1 COMPLEX CONVERSIONS
 
@@ -146,10 +147,10 @@ sub to_INST_DHS {
   if( exists( $FITS_headers->{DHSVER} ) ) {
     $FITS_headers->{DHSVER} =~ /^(\w+)/;
     my $dhs = uc($1);
-    $return = $FITS_headers->{TEMP_INST} . "_$dhs";
+    $return = $FITS_headers->{INSTRUME} . "_$dhs";
   } else {
     my $dhs = "UKDHS";
-    $return = $FITS_headers->{TEMP_INST} . "_$dhs";
+    $return = $FITS_headers->{INSTRUME} . "_$dhs";
   }
 
   return $return;
