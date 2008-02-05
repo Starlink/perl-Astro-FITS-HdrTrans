@@ -59,11 +59,9 @@ my %UNIT_MAP = (
 		NSCAN_POSITIONS      => "DETNINCR",
 		SCAN_INCREMENT       => "DETINCR",
 		# UIST compatible
-		DETECTOR_READ_TYPE   => "DET_MODE",
 		NUMBER_OF_READS      => "NREADS",
 		POLARIMETRY          => "POLARISE",
 		SLIT_NAME            => "SLITNAME",
-		OBSERVATION_MODE     => "INSTMODE",
 		# UIST + WFCAM compatible
 		EXPOSURE_TIME        => "EXP_TIME",
 		# UFTI + IRCAM compatible
@@ -95,6 +93,262 @@ Returns "MICHELLE".
 
 sub this_instrument {
   return "MICHELLE";
+}
+
+=back
+
+=head1 COMPLEX CONVERSIONS
+
+=over 4
+
+=item B<to_X_REFERENCE_PIXEL>
+
+Specify the reference pixel, which is normally near the frame centre.
+Note that offsets for polarimetry are undefined.
+
+=cut
+
+sub to_X_REFERENCE_PIXEL{
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $xref;
+
+# Use the average of the bounds to define the centre.
+  if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
+     my $xl = $FITS_headers->{RDOUT_X1};
+     my $xu = $FITS_headers->{RDOUT_X2};
+     $xref = $self->nint( ( $xl + $xu ) / 2 );
+
+# Use a default of the centre of the full array.
+   } else {
+      $xref = 161;
+   }
+   return $xref;
+}
+
+=item B<from_X_REFERENCE_PIXEL>
+
+Alwas returns the valuse as CRPIX1.
+
+=cut
+
+sub from_X_REFERENCE_PIXEL {
+    my $self = shift;
+    my $generic_headers = shift;
+    return ("CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"});
+}
+
+=item B<to_Y_REFERENCE_PIXEL>
+
+Specify the reference pixel, which is normally near the frame centre.
+Note that offsets for polarimetry are undefined.
+
+=cut
+
+sub to_Y_REFERENCE_PIXEL{
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $yref;
+
+# Use the average of the bounds to define the centre.
+   if ( exists $FITS_headers->{RDOUT_Y1} && exists $FITS_headers->{RDOUT_Y2} ) {
+      my $yl = $FITS_headers->{RDOUT_Y1};
+      my $yu = $FITS_headers->{RDOUT_Y2};
+      $yref = $self->nint( ( $yl + $yu ) / 2 );
+
+# Use a default of the centre of the full array.
+   } else {
+      $yref = 121;
+   }
+   return $yref;
+}
+
+=item B<from_Y_REFERENCE_PIXEL>
+
+Always returns the values as CRPIX2.
+
+=cut
+
+sub from_Y_REFERENCE_PIXEL {
+    my $self = shift;
+    my $generic_headers = shift;
+    return ("CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"});
+}
+
+=item B<to_DEC_TELESCOPE_OFFSET>
+
+Declination offsets need to be handled differently for spectroscopy
+mode because of the new nod iterator.
+
+=cut
+
+sub to_DEC_TELESCOPE_OFFSET {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $decoff;
+
+# Determine the observation mode, e.g. spectroscopy or imaging.
+   my $mode = $self->to_OBSERVATION_MODE($FITS_headers);
+   if ( $mode eq 'spectroscopy' ) {
+
+# If the nod iterator is used, then telescope offsets always come out
+# as 0,0.  We need to check if we're in the B beam (the nodded
+# position) to figure out what the offset is using the chop angle
+# and throw.
+      if ( exists( $FITS_headers->{CHOPBEAM} ) &&
+           $FITS_headers->{CHOPBEAM} =~ /^B/ &&
+           exists( $FITS_headers->{CHPANGLE} ) &&
+           exists( $FITS_headers->{CHPTHROW} ) ) {
+
+         my $pi = 4 * atan2( 1, 1 );
+         my $throw = $FITS_headers->{CHPTHROW};
+         my $angle = $FITS_headers->{CHPANGLE} * $pi / 180.0;
+         $decoff = $throw * cos( $angle );
+      } else {
+         $decoff = $FITS_headers->{TDECOFF};
+      }
+
+# Imaging.
+   } else {
+      $decoff = $FITS_headers->{TDECOFF};
+   }
+
+   return $decoff;
+}
+
+=item B<to_DETECTOR_READ_TYPE>
+
+Usually DET_MODE but in some older data it can be DETMODE.
+
+=cut
+
+sub to_DETECTOR_READ_TYPE {
+    my $self = shift;
+    my $FITS_headers = shift;
+
+    # cut off date is 20040206
+    my $read_type;
+    for my $k (qw/ DET_MODE DETMODE /) {
+        if (exists $FITS_headers->{$k}) {
+            $read_type = $FITS_headers->{$k};
+            last;
+        }
+    }
+    return $read_type;
+}
+
+=item B<to_NUMBER_OF_OFFSETS>
+
+Cater for early data with missing headers. Normally the NOFFSETS
+header is available.
+
+=cut
+
+sub to_NUMBER_OF_OFFSETS {
+   my $self = shift;
+   my $FITS_headers = shift;
+
+# It's normally a ABBA pattern.  Add one for the final offset to 0,0.
+   my $noffsets = 5;
+
+# Look for a defined header containing integers.
+   if ( exists $FITS_headers->{NOFFSETS} ) {
+      my $noff = $FITS_headers->{NOFFSETS};
+      if ( defined $noff && $noff =~ /\d+/ ) {
+         $noffsets = $noff;
+      }
+   }
+   return $noffsets;
+}
+
+=item B<to_OBSERVATION_MODE>
+
+Normally use INSTMODE header but for older data use CAMERA.
+
+=cut
+
+sub to_OBSERVATION_MODE {
+    my $self = shift;
+    my $FITS_headers = shift;
+
+    my $mode;
+    # 20040206
+    for my $k (qw/ INSTMODE CAMERA /) {
+        if (exists $FITS_headers->{$k}) {
+            $mode = $FITS_headers->{$k};
+            last;
+        }
+    }
+    return $mode;
+}
+
+=item B<to_RA_TELESCOPE_OFFSET>
+
+Right-ascension offsets need to be handled differently for spectroscopy
+mode because of the new nod iterator.
+
+=cut
+
+sub _to_RA_TELESCOPE_OFFSET {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $raoff;
+
+# Determine the observation mode, e.g. spectroscopy or imaging.
+   my $mode = $self->to_OBSERVATION_MODE($FITS_headers);
+   if ( $mode eq 'spectroscopy' ) {
+
+# If the nod iterator is used, then telescope offsets always come out
+# as 0,0.  We need to check if we're in the B beam (the nodded
+# position) to figure out what the offset is using the chop angle
+# and throw.
+      if ( exists( $FITS_headers->{CHOPBEAM} ) &&
+           $FITS_headers->{CHOPBEAM} =~ /^B/ &&
+           exists( $FITS_headers->{CHPANGLE} ) &&
+           exists( $FITS_headers->{CHPTHROW} ) ) {
+         my $pi = 4 * atan2( 1, 1 );
+         my $throw = $FITS_headers->{CHPTHROW};
+         my $angle = $FITS_headers->{CHPANGLE} * $pi / 180.0;
+         $raoff = $throw * sin( $angle );
+
+       } else {
+         $raoff = $FITS_headers->{TRAOFF};
+       }
+
+# Imaging.
+   } else {
+      $raoff = $FITS_headers->{TRAOFF};
+   }
+   return $raoff;
+}
+
+=item B<to_DETECTOR_INDEX>
+
+This is the DINDEX header. It's only available in a subheader although
+the primary header is tested to enable round tripping. This
+could either be in a "SUBHEADERS" array or in named "In" subheaders.
+The difference depends on how the fits header was constructed.
+
+=cut
+
+sub to_DETECTOR_INDEX {
+    my $self = shift;
+    my $FITS_headers = shift;
+    my @results = $self->via_subheader( $FITS_headers, "DINDEX" );
+    return $results[-1];
+}
+
+=item B<from_DETECTOR_INDEX>
+
+Returns the detector index in a "DINDEX" header. Note that this value
+can not be returned as a sub header.
+
+=cut
+
+sub from_DETECTOR_INDEX {
+    my $self = shift;
+    my $generic_headers = shift;
+    return ("DINDEX", $generic_headers->{DETECTOR_INDEX});
 }
 
 =back
