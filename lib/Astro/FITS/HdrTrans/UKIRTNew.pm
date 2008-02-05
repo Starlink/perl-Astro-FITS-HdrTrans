@@ -48,6 +48,8 @@ my %UNIT_MAP = (
 		DR_RECIPE            => "RECIPE",
 		GAIN                 => "GAIN",
 		RA_TELESCOPE_OFFSET  => "TRAOFF",
+                X_APERTURE           => "APER_X",
+                Y_APERTURE           => "APER_Y",
 	       );
 
 # Create the translation methods
