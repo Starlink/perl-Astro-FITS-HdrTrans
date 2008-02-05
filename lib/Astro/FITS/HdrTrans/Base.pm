@@ -311,6 +311,26 @@ sub _generate_lookup_methods {
 
 }
 
+=item B<nint>
+
+Return the nearest integer to a supplied floating point
+value. 0.5 is rounded up.
+
+  $int = Astro::FITS::HdrTrans->nint( $value );
+
+=cut
+
+sub nint {
+    my $class = shift;
+    my $value = shift;
+
+    if ($value >= 0) {
+        return (int($value + 0.5));
+    } else {
+        return (int($value - 0.5));
+    }
+}
+
 =back
 
 =head1 PROTECTED IMPORTS
