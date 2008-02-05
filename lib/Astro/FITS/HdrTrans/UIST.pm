@@ -35,7 +35,8 @@ $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-
+    NSCAN_POSITIONS => 1,
+    SCAN_INCREMENT => 1,
 		);
 
 # NULL mappings used to override base class implementations
@@ -51,6 +52,8 @@ my %UNIT_MAP = (
 		RA_SCALE             => "PIXLSIZE",
 		# Not imaging
 		GRATING_DISPERSION   => "DISPERSN",
+                GRATING_NAME         => "GRISM",
+                GRATING_ORDER        => "GRATORD",
 		GRATING_WAVELENGTH   => "CENWAVL",
 		SLIT_ANGLE           => "SLIT_PA",
 		SLIT_WIDTH           => "SLITWID",
@@ -60,6 +63,8 @@ my %UNIT_MAP = (
 		POLARIMETRY          => "POLARISE",
 		SLIT_NAME            => "SLITNAME",
 		OBSERVATION_MODE     => "INSTMODE",
+                CHOP_ANGLE           => "CHPANGLE",
+                CHOP_THROW           => "CHPTHROW",
 		# MICHELLE + WFCAM compatible
 		EXPOSURE_TIME        => "EXP_TIME",
 		# CGS4 + MICHELLE + WFCAM
@@ -90,6 +95,127 @@ Returns "UIST".
 sub this_instrument {
   return "UIST";
 }
+
+=back
+
+=head1 COMPLEX CONVERSIONS
+
+=over 4
+
+=item B<to_X_REFERENCE_PIXEL>
+
+Use the nominal reference pixel if correctly supplied, failing that
+take the average of the bounds, and if these headers are also absent,
+use a default which assumes the full array.
+
+=cut
+
+sub to_X_REFERENCE_PIXEL{
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $xref;
+  if ( exists $FITS_headers->{CRPIX1} ) {
+    $xref = $FITS_headers->{CRPIX1};
+  } elsif ( exists $FITS_headers->{RDOUT_X1}
+            && exists $FITS_headers->{RDOUT_X2} ) {
+    my $xl = $FITS_headers->{RDOUT_X1};
+    my $xu = $FITS_headers->{RDOUT_X2};
+    $xref = $self->nint( ( $xl + $xu ) / 2 );
+  } else {
+    $xref = 480;
+  }
+  return $xref;
+}
+
+=item B<from_X_REFERENCE_PIXEL>
+
+Always returns the value as CRPIX1.
+
+=cut
+
+sub from_X_REFERENCE_PIXEL {
+    my $self = shift;
+    my $generic_headers = shift;
+    return ("CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"});
+}
+
+=item B<to_Y_REFERENCE_PIXEL>
+
+Use the nominal reference pixel if correctly supplied, failing that
+take the average of the bounds, and if these headers are also absent,
+use a default which assumes the full array.
+
+=cut
+
+sub to_Y_REFERENCE_PIXEL{
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $yref;
+  if ( exists $FITS_headers->{CRPIX2} ) {
+    $yref = $FITS_headers->{CRPIX2};
+  } elsif ( exists $FITS_headers->{RDOUT_Y1} && 
+            exists $FITS_headers->{RDOUT_Y2} ) {
+    my $yl = $FITS_headers->{RDOUT_Y1};
+    my $yu = $FITS_headers->{RDOUT_Y2};
+    $yref = $self->nint( ( $yl + $yu ) / 2 );
+  } else {
+    $yref = 480;
+  }
+  return $yref;
+}
+
+=item B<from_Y_REFERENCE_PIXEL>
+
+Always returns the value as CRPIX2.
+
+=cut
+
+sub from_Y_REFERENCE_PIXEL {
+    my $self = shift;
+    my $generic_headers = shift;
+    return ("CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"});
+}
+
+=item B<to_ROTATION>
+
+ROTATION comprises the rotation matrix with respect to flipped axes,
+i.e. x corresponds to declination and Y to right ascension.  For other
+UKIRT instruments this was not the case, the rotation being defined
+in CROTA2.  Here the effective rotation is that evaluated from the
+PC matrix with a 90-degree counter-clockwise rotation for the rotated
+axes. If there is a PC3_2 header, we assume that we're in spectroscopy
+mode and use that instead.
+
+=cut
+
+sub to_ROTATION {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $rotation;
+  if ( exists( $FITS_headers->{PC1_1} ) && exists( $FITS_headers->{PC2_1}) ) {
+    my $pc11;
+    my $pc21;
+    if ( exists ($FITS_headers->{PC3_2} ) && exists( $FITS_headers->{PC2_2} ) ) {
+
+      # We're in spectroscopy mode.
+      $pc11 = $FITS_headers->{PC3_2};
+      $pc21 = $FITS_headers->{PC2_2};
+    } else {
+
+      # We're in imaging mode.
+      $pc11 = $FITS_headers->{PC1_1};
+      $pc21 = $FITS_headers->{PC2_1};
+    }
+    my $rad = 57.2957795131;
+    $rotation = $rad * atan2( -$pc21 / $rad, $pc11 / $rad ) + 90.0;
+  } elsif ( exists $FITS_headers->{CROTA2} ) {
+    $rotation =  $FITS_headers->{CROTA2} + 90.0;
+  } else {
+    $rotation = 90.0;
+  }
+  return $rotation;
+}
+
 
 =back
 
