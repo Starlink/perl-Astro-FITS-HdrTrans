@@ -128,14 +128,13 @@ sub to_X_REFERENCE_PIXEL{
 
 =item B<from_X_REFERENCE_PIXEL>
 
-Alwas returns the valuse as CRPIX1.
+Always returns the value '1' as CRPIX1.
 
 =cut
 
 sub from_X_REFERENCE_PIXEL {
     my $self = shift;
-    my $generic_headers = shift;
-    return ("CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"});
+    return ("CRPIX1", 1.0);
 }
 
 =item B<to_Y_REFERENCE_PIXEL>
@@ -165,14 +164,13 @@ sub to_Y_REFERENCE_PIXEL{
 
 =item B<from_Y_REFERENCE_PIXEL>
 
-Always returns the values as CRPIX2.
+Always returns the value '1' as CRPIX2.
 
 =cut
 
 sub from_Y_REFERENCE_PIXEL {
     my $self = shift;
-    my $generic_headers = shift;
-    return ("CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"});
+    return ("CRPIX2", 1.0);
 }
 
 =item B<to_DEC_TELESCOPE_OFFSET>
@@ -214,6 +212,27 @@ sub to_DEC_TELESCOPE_OFFSET {
    }
 
    return $decoff;
+}
+
+=item B<from_DEC_TELESCOPE_OFFSET>
+
+If we are nodding TDECOFF always comes out as 0.0. We always return
+zero for spectroscopy and TDECOFF otherwise. It's possible that this
+is incorrect and should only occur for the specific case of a B
+chop beam. The chopbeam is not stored in the generic headers.
+
+=cut
+
+sub from_DEC_TELESCOPE_OFFSET {
+    my $self = shift;
+    my $generic_headers = shift;
+    my $tdecoff;
+    if ($generic_headers->{OBSERVATION_MODE} eq 'spectroscopy') {
+        $tdecoff = 0.0;
+    } else {
+        $tdecoff = $generic_headers->{DEC_TELESCOPE_OFFSET};
+    }
+    return ("TDECOFF",$tdecoff);
 }
 
 =item B<to_DETECTOR_READ_TYPE>

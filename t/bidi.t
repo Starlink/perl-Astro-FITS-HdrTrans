@@ -41,7 +41,7 @@ eval {
 if ($@) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 423;
+  plan tests => 439;
 }
 
 require_ok( "Astro::FITS::HdrTrans" );
@@ -49,15 +49,15 @@ require_ok( "Astro::FITS::HdrTrans" );
 # AS a basic test, count the number of expected FITS headers
 # per instrument
 my %COUNT = (
-             ufti => 40,
-             uist_ifu => 48,
-             uist_sp => 48,
-             uist_im => 48,
+             ufti => 42,
+             uist_ifu => 53,
+             uist_sp => 53,
+             uist_im => 53,
              cgs4 => 50,
              michelle => 56,
              ircam => 40,
              scuba => 35,
-             wfcam => 40,
+             wfcam => 42,
              acsis => 39,
             );
 
