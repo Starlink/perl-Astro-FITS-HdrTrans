@@ -137,6 +137,128 @@ sub from_UTDATE {
   return %return_hash;
 }
 
+=item B<to_X_REFERENCE_PIXEL>
+
+Specify the reference pixel, which is normally near the frame centre.
+There may be small displacements to avoid detector joins or for
+polarimetry using a Wollaston prism.
+
+=cut
+
+sub to_X_REFERENCE_PIXEL{
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $xref;
+
+# Use the average of the bounds to define the centre and dimension.
+  if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
+    my $xl = $FITS_headers->{RDOUT_X1};
+    my $xu = $FITS_headers->{RDOUT_X2};
+    my $xdim = $xu - $xl + 1;
+    my $xmid = $self->nint( ( $xl + $xu ) / 2 );
+
+# UFTI is at the centre for a sub-array along an axis but offset slightly
+# for a sub-array to avoid the joins between the four sub-array sections
+# of the frame.  Ideally these should come through the headers...
+    if ( $xdim == 1024 ) {
+      $xref = $xmid + 20;
+    } else {
+      $xref = $xmid;
+    }
+
+# Correct for IRPOL beam splitting with a 6" E offset.
+    if ( $FITS_headers->{FILTER} =~ m/pol/ ) {
+      $xref -= 65.5;
+    }
+
+# Use a default which assumes the full array (slightly offset from the
+# centre).
+  } else {
+    $xref = 533;
+  }
+  return $xref;
+}
+
+=item B<from_X_REFERENCE_PIXEL>
+
+Always returns CRPIX1 of "0.5".
+
+=cut
+
+sub from_X_REFERENCE_PIXEL {
+    return ("CRPIX1" => 0.5);
+}
+
+=item B<to_Y_REFERENCE_PIXEL>
+
+Specify the reference pixel, which is normally near the frame centre.
+There may be small displacements to avoid detector joins or for
+polarimetry using a Wollaston prism.
+
+=cut
+
+sub to_Y_REFERENCE_PIXEL{
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $yref;
+
+# Use the average of the bounds to define the centre and dimension.
+  if ( exists $FITS_headers->{RDOUT_Y1} && exists $FITS_headers->{RDOUT_Y2} ) {
+    my $yl = $FITS_headers->{RDOUT_Y1};
+    my $yu = $FITS_headers->{RDOUT_Y2};
+    my $ydim = $yu - $yl + 1;
+    my $ymid = $self->nint( ( $yl + $yu ) / 2 );
+
+# UFTI is at the centre for a sub-array along an axis but offset slightly
+# for a sub-array to avoid the joins between the four sub-array sections
+# of the frame.  Ideally these should come through the headers...
+    if ( $ydim == 1024 ) {
+      $yref = $ymid - 25;
+    } else {
+      $yref = $ymid;
+    }
+
+# Correct for IRPOL beam splitting with a " N offset.
+    if ( $FITS_headers->{FILTER} =~ m/pol/ ) {
+      $yref += 253;
+    }
+
+# Use a default which assumes the full array (slightly offset from the
+# centre).
+  } else {
+    $yref = 488;
+  }
+  return $yref;
+}
+
+=item B<from_X_REFERENCE_PIXEL>
+
+Always returns CRPIX2 of "0.5".
+
+=cut
+
+sub from_Y_REFERENCE_PIXEL {
+    return ("CRPIX2" => 0.5);
+}
+
+=item B<to_POLARIMETRY>
+
+Checks the filter name.
+
+=cut
+
+sub to_POLARIMETRY {
+  my $self = shift;
+  my $FITS_headers = shift;
+  if( exists( $FITS_headers->{FILTER} ) &&
+      $FITS_headers->{FILTER} =~ /pol/i ) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
 =back
 
 =head1 REVISION
