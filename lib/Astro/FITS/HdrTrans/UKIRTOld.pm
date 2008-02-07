@@ -44,6 +44,7 @@ my %UNIT_MAP = (
 		DR_RECIPE            => "DRRECIPE",
 		EXPOSURE_TIME        => "DEXPTIME",
 		GAIN                 => "DEPERDN",
+                UTDATE               => "IDATE",
 	       );
 
 # Create the translation methods
@@ -59,43 +60,6 @@ reference to a generic hash and return a translated hash (sometimes
 these are many-to-many)
 
 =over 4
-
-=item B<to_UTDATE>
-
-Converts FITS header values into C<Time::Piece> object.
-
-=cut
-
-sub to_UTDATE {
-  my $class = shift;
-  my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{IDATE})) {
-    my $utdate = $FITS_headers->{IDATE};
-    $return = Time::Piece->strptime( $utdate, "%Y%m%d" );
-  }
-
-  return $return;
-}
-
-=item B<from_UTDATE>
-
-Converts UT date in C<Time::Piece> object into C<YYYYMMDD> format
-for IDATE header.
-
-=cut
-
-sub from_UTDATE {
-  my $class = shift;
-  my $generic_headers = shift;
-  my %return_hash;
-  if(exists($generic_headers->{UTDATE})) {
-    my $date = $generic_headers->{UTDATE};
-    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
-    $return_hash{IDATE} = sprintf("%4d%02d%02d", $date->year, $date->mon, $date->mday);
-  }
-  return %return_hash;
-}
 
 =item B<to_UTSTART>
 
@@ -221,7 +185,8 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2007-2008 Science and Technology Facilities Council.
+Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under

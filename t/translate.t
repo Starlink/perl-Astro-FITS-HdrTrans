@@ -21,7 +21,7 @@
 
 use strict;
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 # Test compilation.
 require_ok( 'Astro::FITS::HdrTrans' );
@@ -54,9 +54,10 @@ $test_header_1{'RUTEND'} = "9.5416667";
 
 my %generic_header_1 = Astro::FITS::HdrTrans::translate_from_FITS( \%test_header_1 );
 
-isa_ok( $generic_header_1{'UTDATE'}, 'Time::Piece', "UTDATE" );
+isa_ok( $generic_header_1{'UTSTART'}, 'Time::Piece', "UTSTART" );
+isa_ok( $generic_header_1{'UTEND'}, 'Time::Piece', "UTEND" );
 
-is( $generic_header_1{'UTDATE'}->year, 2003, "UTDATE year is 2003" );
+is( $generic_header_1{'UTDATE'}, 20030301, "UTDATE is 20030301" );
 
 is( $generic_header_1{'UTEND'}->minute, 32, "UTEND minute is 32" );
 
@@ -67,9 +68,10 @@ is( $generic_header_1{'OBJECT'}, 'MARS', "OBJECT is MARS" );
 my %generic_header_2 = Astro::FITS::HdrTrans::translate_from_FITS( \%test_header_1,
                                                                    prefix => 'test_' );
 
-isa_ok( $generic_header_2{'test_UTDATE'}, 'Time::Piece', "test_UTDATE" );
+isa_ok( $generic_header_2{'test_UTSTART'}, 'Time::Piece', "test_UTSTART" );
+isa_ok( $generic_header_2{'test_UTEND'}, 'Time::Piece', "test_UTEND" );
 
-is( $generic_header_2{'test_UTDATE'}->year, 2003, "test_UTDATE year is 2003");
+is( $generic_header_2{'test_UTDATE'}, 20030301, "test_UTDATE year is 20030301");
 
 is( $generic_header_2{'test_UTEND'}->minute, 32, "test_UTEND minute is 32" );
 

@@ -11,7 +11,7 @@ eval {
 if ( $@ ) {
   plan skip_all => 'Test requires Astro::FITS::Header::GSD';
 } else {
-  plan tests => 16;
+  plan tests => 15;
 }
 
 require_ok( 'Astro::FITS::HdrTrans' );
@@ -36,8 +36,7 @@ is( $generic_header{'EQUINOX'}, "current", "EQUINOX constant mapping is current"
 is( $generic_header{'TELESCOPE'}, "JCMT", "TELESCOPE constant mapping is JCMT" );
 
 # Test computed headers.
-isa_ok( $generic_header{'UTDATE'}, "Time::Piece", "UTDATE" );
-is( $generic_header{'UTDATE'}, "Fri Feb  3 00:00:00 2006", "UTDATE stringifies to Fri Feb  3 00:00:00 2006" );
+is( $generic_header{'UTDATE'}, 20060203, "UTDATE 20060203" );
 isa_ok( $generic_header{'UTSTART'}, "Time::Piece", "UTSTART" );
 is( $generic_header{'UTSTART'}, "Fri Feb  3 06:29:00 2006", "UTSTART stringifies to Fri Feb  3 06:29:00 2006" );
 isa_ok( $generic_header{'UTEND'}, "Time::Piece", "UTEND" );

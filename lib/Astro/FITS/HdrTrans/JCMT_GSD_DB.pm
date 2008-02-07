@@ -177,14 +177,16 @@ sub to_OBSERVATION_ID {
 
 =item B<to_UTDATE>
 
-Translates the C<DATE_OBS> or C<LONGDATEOBS> header into a C<Time::Piece> object.
+Translates the C<DATE_OBS> or C<LONGDATEOBS> header into a
+YYYYMMDD integer.
 
 =cut
 
 sub to_UTDATE {
   my $self = shift;
   my $FITS_headers = shift;
-  return _sybase_convert_date( _date_header( $FITS_headers ), 1);
+  my $date = _sybase_convert_date( _date_header( $FITS_headers ), 1);
+  return $date->strftime('%Y%m%d');
 }
 
 =item B<to_UTSTART>

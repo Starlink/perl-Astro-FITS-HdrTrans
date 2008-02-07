@@ -41,7 +41,7 @@ eval {
 if ($@) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 439;
+  plan tests => 437;
 }
 
 require_ok( "Astro::FITS::HdrTrans" );

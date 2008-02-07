@@ -23,7 +23,7 @@ if( $@ ) {
   if( $@ ) {
     plan skip_all => 'Test requires Astro::FITS::Header::NDF module';
   } else {
-    plan tests => 25;
+    plan tests => 24;
   }
 }
 
@@ -51,10 +51,9 @@ my $wcs = &NDF::ndfGtwcs( $indf, $status );
 # Translate this header.
 my %generic_header = Astro::FITS::HdrTrans::translate_from_FITS( \%hdr, frameset => $wcs );
 
-isa_ok( $generic_header{'UTDATE'}, "Time::Piece", "UTDATE is Time::Piece" );
-is( $generic_header{'UTDATE'}->year, 2007, "UTDATE year is 2007" );
-is( $generic_header{'UTDATE'}->mon,      4, "UTDATE month is 4" );
-is( $generic_header{'UTDATE'}->mday,    25, "UTDATE day is 25" );
+isa_ok( $generic_header{'UTSTART'}, "Time::Piece", "UTSTART is Time::Piece" );
+isa_ok( $generic_header{'UTEND'}, "Time::Piece", "UTEND is Time::Piece" );
+is( $generic_header{'UTDATE'}, 20070425, "UTDATE year is 20070425" );
 is( $generic_header{'UTSTART'}->year, 2007, "UTSTART year is 2007" );
 is( $generic_header{'UTSTART'}->mon,     4, "UTSTART month is 4" );
 is( $generic_header{'UTSTART'}->mday,   25, "UTSTART day is 25" );

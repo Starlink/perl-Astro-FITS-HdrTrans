@@ -50,6 +50,7 @@ my %UNIT_MAP = (
 		RA_TELESCOPE_OFFSET  => "TRAOFF",
                 X_APERTURE           => "APER_X",
                 Y_APERTURE           => "APER_Y",
+                UTDATE               => "UTDATE",
 	       );
 
 # Create the translation methods
@@ -65,43 +66,6 @@ reference to a generic hash and return a translated hash (sometimes
 these are many-to-many)
 
 =over 4
-
-=item B<to_UTDATE>
-
-Converts FITS header values into one unified UT start date value.
-
-=cut
-
-sub to_UTDATE {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{UTDATE})) {
-    my $utdate = $FITS_headers->{UTDATE};
-    $return = Time::Piece->strptime( $utdate, "%Y%m%d" );
-  }
-
-  return $return;
-}
-
-=item B<from_UTDATE>
-
-Converts UT date in the form C<yyyy-mm-dd> to C<yyyymmdd>.
-
-=cut
-
-sub from_UTDATE {
-  my $self = shift;
-  my $generic_headers = shift;
-  my %return_hash;
-  if( exists( $generic_headers->{UTDATE} ) ) {
-    my $date = $generic_headers->{UTDATE};
-    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
-    $return_hash{UTDATE} = sprintf("%4d%02d%02d", $date->year, $date->mon, $date->mday);
-
-  }
-  return %return_hash;
-}
 
 =item B<to_UTSTART>
 

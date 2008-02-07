@@ -83,8 +83,7 @@ sub to_UTDATE {
   my $FITS_headers = shift;
   my $utstart = $class->to_UTSTART( $FITS_headers );
   if (defined $utstart) {
-    my $ymd = $utstart->strftime( '%Y%m%d' );
-    return Time::Piece->strptime( $ymd, '%Y%m%d');
+    return $utstart->strftime( '%Y%m%d' );
   }
   return;
 }
@@ -187,7 +186,8 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2007-2008 Science and Technology Facilities Council.
+Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under

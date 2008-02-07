@@ -221,7 +221,7 @@ sub to_COORDINATE_TYPE {
 =item B<to_UTDATE>
 
 Converts FITS header values into standard UT date value of the form
-YYYY-MM-DD.
+YYYYMMDD.
 
 =cut
 
@@ -231,7 +231,7 @@ sub to_UTDATE {
   my $return;
   if(exists($FITS_headers->{UTDATE})) {
     my $utdate = $FITS_headers->{UTDATE};
-    $utdate =~ s/:/-/;
+    $utdate =~ s/://g;
     $return = $utdate;
   }
 
@@ -250,8 +250,10 @@ sub from_UTDATE {
   my %return_hash;
   if(exists($generic_headers->{UTDATE})) {
     my $date = $generic_headers->{UTDATE};
-    $date =~ s/-/:/g;
-    $return_hash{UTDATE} = $date;
+    $date = Time::Piece->strptime($date,'%Y%m%d');
+    return () unless defined $date;
+    $return_hash{UTDATE} = sprintf("%04d:%02d:%02d",
+                                   $date->year, $date->mon, $date->mday);
   }
   return %return_hash;
 }
@@ -518,7 +520,8 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2002-2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2008 Science and Technology Facilities Council.
+Copyright (C) 2002-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under

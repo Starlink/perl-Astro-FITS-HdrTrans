@@ -184,7 +184,7 @@ sub to_OBSERVATION_ID {
 
 =item B<to_UTDATE>
 
-Translates the C<C3DAT> header into a C<Time::Piece> object.
+Translates the C<C3DAT> header into a YYYYMMDD integer.
 
 =cut
 
@@ -197,9 +197,29 @@ sub to_UTDATE {
     $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d{1,2})/;
     my $day = (length($3) == 2) ? $3 : $3 . "0";
     my $ut = "$1-$2-$day";
-    $return = Time::Piece->strptime( $ut, "%Y-%m-%d" );
+    $return = sprintf("%04d%02d%02d", $1, $2, $3);
   }
   return $return;
+}
+
+=item B<from_UTDATE>
+
+Translates YYYYMMDD integer to C3DAT header.
+
+=cut
+
+sub from_UTDATE {
+    my $self = shift;
+    my $generic_headers = shift;
+    my %return_hash;
+    if (exists $generic_headers->{UTDATE}) {
+        my $date = $generic_headers->{UTDATE};
+        $date = Time::Piece->strptime($date,'%Y%m%d');
+        return () unless defined $date;
+        $return_hash{UTDATE} = sprintf("%04d.%02d%02d",
+                                       $date->year, $date->mon, $date->mday);
+    }
+    return %return_hash;
 }
 
 =item B<to_UTSTART>

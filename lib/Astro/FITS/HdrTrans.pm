@@ -412,7 +412,7 @@ sub translate_to_FITS {
 
   # Check the UTSTART, UTEND, and UTDATE headers to make sure they're
   # Time::Piece objects.
-  for my $h (qw/ UTSTART UTEND UTDATE / ) {
+  for my $h (qw/ UTSTART UTEND / ) {
     if( exists( $stripped_header{$h} ) &&
 	defined( $stripped_header{$h} ) &&
 	! UNIVERSAL::isa( $stripped_header{$h}, "Time::Piece" ) ) {
