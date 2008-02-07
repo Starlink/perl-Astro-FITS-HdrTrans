@@ -148,10 +148,8 @@ sub from_DEC_TELESCOPE_OFFSET {
   my $generic_headers = shift;
   my %return;
   if( exists( $generic_headers->{UTDATE} ) &&
-      defined( $generic_headers->{UTDATE} ) &&
-      UNIVERSAL::isa( $generic_headers->{UTDATE}, "Time::Piece" ) ) {
-    my $ut = $generic_headers->{UTDATE}->ymd;
-    $ut =~ s/-//g;
+      defined( $generic_headers->{UTDATE} ) ) {
+    my $ut = $generic_headers->{UTDATE};
     if( exists( $generic_headers->{DEC_TELESCOPE_OFFSET} ) &&
         defined( $generic_headers->{DEC_TELESCOPE_OFFSET} ) ) {
       if( $ut < 20050315 ) {
@@ -203,10 +201,8 @@ sub from_RA_TELESCOPE_OFFSET {
   my $generic_headers = shift;
   my %return;
   if( exists( $generic_headers->{UTDATE} ) &&
-      defined( $generic_headers->{UTDATE} ) &&
-      UNIVERSAL::isa( $generic_headers->{UTDATE}, "Time::Piece" ) ) {
-    my $ut = $generic_headers->{UTDATE}->ymd;
-    $ut =~ s/-//g;
+      defined( $generic_headers->{UTDATE} ) ) {
+    my $ut = $generic_headers->{UTDATE};
     if( exists( $generic_headers->{RA_TELESCOPE_OFFSET} ) &&
         defined( $generic_headers->{RA_TELESCOPE_OFFSET} ) ) {
       if( $ut < 20050315 ) {
