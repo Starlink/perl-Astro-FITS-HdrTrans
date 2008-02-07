@@ -202,6 +202,34 @@ sub to_DEC_SCALE {
     return $pixel_size;
 }
 
+=item B<from_RA_SCALE>
+
+Generate the PIXLSIZE header.
+
+=cut
+
+sub from_RA_SCALE {
+    my $self = shift;
+    my $generic_headers = shift;
+    my $scale = abs($generic_headers->{RA_SCALE});
+    $scale *= 3600;
+    return ("PIXLSIZE", $scale );
+}
+
+=item B<from_DEC_SCALE>
+
+Generate the PIXLSIZE header.
+
+=cut
+
+sub from_DEC_SCALE {
+    my $self = shift;
+    my $generic_headers = shift;
+    my $scale = abs($generic_headers->{DEC_SCALE});
+    $scale *= 3600;
+    return ("PIXLSIZE", $scale );
+}
+
 =item B<to_ROTATION>
 
 ROTATION comprises the rotation matrix with respect to flipped axes,
