@@ -86,6 +86,8 @@ my %UNIT_MAP = (
 		SWITCH_MODE        => 'SW_MODE',
 		TAU                => 'WVMTAUST',
     VELOCITY_TYPE      => 'DOPPLER',
+    X_APERTURE => 'INSTAP_X',
+    Y_APERTURE => 'INSTAP_Y',
                );
 
 # Create the translation methods
