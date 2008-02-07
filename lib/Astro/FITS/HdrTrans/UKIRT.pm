@@ -62,6 +62,8 @@ my %UNIT_MAP = (
 		STANDARD             => "STANDARD",
 		TELESCOPE            => "TELESCOP",
 		WAVEPLATE_ANGLE      => "WPLANGLE",
+                X_APERTURE           => "APER_X",
+                Y_APERTURE           => "APER_Y",
 		X_DIM                => "DCOLUMNS",
 		Y_DIM                => "DROWS",
 		X_LOWER_BOUND        => "RDOUT_X1",
@@ -251,8 +253,8 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007 Science and Technology Facilities Council.
-Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2007-2008 Science and Technology Facilities Council.
+Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
