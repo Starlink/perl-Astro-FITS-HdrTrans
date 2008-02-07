@@ -47,9 +47,7 @@ my @NULL_MAP = qw/ DETECTOR_INDEX /;
 
 my %UNIT_MAP = (
 		# UIST specific
-		DEC_SCALE            => "PIXLSIZE",
 		GRATING_NAME         => "GRISM",
-		RA_SCALE             => "PIXLSIZE",
 		# Not imaging
 		GRATING_DISPERSION   => "DISPERSN",
                 GRATING_NAME         => "GRISM",
@@ -174,6 +172,34 @@ sub from_Y_REFERENCE_PIXEL {
     my $self = shift;
     my $generic_headers = shift;
     return ("CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"});
+}
+
+=item B<to_RA_SCALE>
+
+Pixel scale in degrees.
+
+=cut
+
+sub to_RA_SCALE {
+    my $self = shift;
+    my $FITS_headers = shift;
+    my $pixel_size = $FITS_headers->{PIXLSIZE};
+    $pixel_size /= 3600; # arcsec to degrees
+    return $pixel_size;
+}
+
+=item B<to_DEC_SCALE>
+
+Pixel scale in degrees.
+
+=cut
+
+sub to_DEC_SCALE {
+    my $self = shift;
+    my $FITS_headers = shift;
+    my $pixel_size = $FITS_headers->{PIXLSIZE};
+    $pixel_size /= 3600; # arcsec to degrees
+    return $pixel_size;
 }
 
 =item B<to_ROTATION>
