@@ -25,7 +25,7 @@ use warnings;
 use strict;
 use Carp;
 
-use Math::Trig qw/ acos /;
+use Math::Trig qw/ acos deg2rad rad2deg /;
 
 # Inherit from Base
 use base qw/ Astro::FITS::HdrTrans::Base /;
@@ -40,6 +40,9 @@ $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 # header that is constant
 my %CONST_MAP = (
 		 COORDINATE_UNITS => 'degrees',
+                 GAIN             => 5.2,
+                 NSCAN_POSITIONS  => 1,
+                 SCAN_INCREMENT   => 1,
 		);
 
 # NULL mappings used to override base class implementations
@@ -49,45 +52,44 @@ my @NULL_MAP = ();
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-		CONFIGURATION_INDEX  => "CNFINDEX",
-		DEC_BASE             => "DECBASE",
-		DEC_TELESCOPE_OFFSET => "DECOFF",
+		DEC_BASE             => "CRVAL2",
+		DEC_TELESCOPE_OFFSET => "TDECOFF",
 		DETECTOR_INDEX       => "DINDEX",
-		DETECTOR_READ_TYPE   => "DETMODE",
+		DETECTOR_READ_TYPE   => "METHOD",
 		DR_GROUP             => "GRPNUM",
 		DR_RECIPE            => "RECIPE",
 		EQUINOX              => "EQUINOX",
-		EXPOSURE_TIME        => "DEXPTIME",
-		FILTER               => "FILTER",
-		GAIN                 => "DEPERDN",
+		EXPOSURE_TIME        => "EXPOSED",
 		GRATING_DISPERSION   => "GDISP",
 		GRATING_NAME         => "GRATING",
 		GRATING_ORDER        => "GORD",
 		GRATING_WAVELENGTH   => "GLAMBDA",
 		INSTRUMENT           => "INSTRUME",
-		NSCAN_POSITIONS      => "DETNINCR",
-		NUMBER_OF_EXPOSURES  => "NEXP",
+		NUMBER_OF_EXPOSURES  => "CYCLES",
 		NUMBER_OF_OFFSETS    => "NOFFSETS",
+                NUMBER_OF_READS      => "READS",
 		OBJECT               => "OBJECT",
-		OBSERVATION_NUMBER   => "OBSNUM",
+		OBSERVATION_NUMBER   => "RUN",
 		OBSERVATION_TYPE     => "OBSTYPE",
-		RA_TELESCOPE_OFFSET  => "RAOFF",
-		SCAN_INCREMENT       => "DETINCR",
-		SLIT_ANGLE           => "SANGLE",
+                RA_BASE              => "CRVAL1",
+		RA_TELESCOPE_OFFSET  => "TRAOFF",
+		SLIT_ANGLE           => "TEL_PA",
 		SLIT_NAME            => "SLIT",
-		SPEED_GAIN           => "SPD_GAIN",
+		SPEED_GAIN           => "SPEED",
 		STANDARD             => "STANDARD",
 		TELESCOPE            => "TELESCOP",
 		WAVEPLATE_ANGLE      => "WPLANGLE",
 		Y_BASE               => "DECBASE",
 		X_OFFSET             => "RAOFF",
 		Y_OFFSET             => "DECOFF",
-		X_DIM                => "DCOLUMNS",
-		Y_DIM                => "DROWS",
-		X_LOWER_BOUND        => "RDOUT_X1",
-		X_UPPER_BOUND        => "RDOUT_X2",
-		Y_LOWER_BOUND        => "RDOUT_Y1",
-		Y_UPPER_BOUND        => "RDOUT_Y2"
+		X_DIM                => "NAXIS1",
+		Y_DIM                => "NAXIS2",
+		X_LOWER_BOUND        => "DETECXS",
+		X_UPPER_BOUND        => "DETECXE",
+		Y_LOWER_BOUND        => "DETECYS",
+		Y_UPPER_BOUND        => "DETECYE",
+                X_REFERENCE_PIXEL    => "CRPIX1",
+                Y_REFERENCE_PIXEL    => "CRPIX2",
 	       );
 
 
@@ -138,8 +140,8 @@ sub to_AIRMASS_START {
   my $FITS_headers = shift;
   my $pi = atan2( 1, 1 ) * 4;
   my $return;
-  if(exists($FITS_headers->{DSTART})) {
-    $return = 1 /  cos( $FITS_headers->{DSTART} * $pi / 180 );
+  if(exists($FITS_headers->{ZDSTART})) {
+    $return = 1 /  cos( deg2rad($FITS_headers->{ZDSTART}) );
   }
 
   return $return;
@@ -157,7 +159,7 @@ sub from_AIRMASS_START {
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{AIRMASS_START})) {
-    $return_hash{DSTART} = acos($generic_headers->{AIRMASS_START});
+    $return_hash{ZDSTART} = rad2deg(acos($generic_headers->{AIRMASS_START}));
   }
   return %return_hash;
 }
@@ -173,8 +175,8 @@ sub to_AIRMASS_END {
   my $FITS_headers = shift;
   my $pi = atan2( 1, 1 ) * 4;
   my $return;
-  if(exists($FITS_headers->{DEND})) {
-    $return = 1 /  cos( $FITS_headers->{DEND} * $pi / 180 );
+  if(exists($FITS_headers->{ZDEND})) {
+    $return = 1 /  cos( deg2rad($FITS_headers->{ZDEND}) );
   }
 
   return $return;
@@ -192,7 +194,7 @@ sub from_AIRMASS_END {
   my $generic_headers = shift;
   my %return_hash;
   if(exists($generic_headers->{AIRMASS_END})) {
-    $return_hash{DEND} = acos($generic_headers->{AIRMASS_END});
+    $return_hash{ZDEND} = rad2deg(acos($generic_headers->{AIRMASS_END}));
   }
   return %return_hash;
 }
@@ -240,7 +242,7 @@ sub to_UTDATE {
 
 =item B<from_UTDATE>
 
-Converts UT date in the form C<yyyy-mm-dd> to C<yyyymmdd>.
+Converts UT date in the form C<yyyymmdd> to C<yyyy:mm:dd>.
 
 =cut
 
@@ -250,19 +252,19 @@ sub from_UTDATE {
   my %return_hash;
   if(exists($generic_headers->{UTDATE})) {
     my $date = $generic_headers->{UTDATE};
-    $date = Time::Piece->strptime($date,'%Y%m%d');
     return () unless defined $date;
-    $return_hash{UTDATE} = sprintf("%04d:%02d:%02d",
-                                   $date->year, $date->mon, $date->mday);
+    $return_hash{UTDATE} = substr($date,0,4).":".
+        substr($date,4,2).":".substr($date,6,2);
   }
   return %return_hash;
 }
 
 =item B<to_OBSERVATION_MODE>
 
-Determines the observation mode from the IR2_SLIT FITS header value. If
-this value is equal to "OPEN1", then the observation mode is imaging.
-Otherwise, the observation mode is spectroscopy.
+Determines the observation mode from the IR2_SLIT or IR2_GRSM FITS header values. If
+IR2_SLIT value is equal to "OPEN1", then the observation mode is imaging.
+Otherwise, the observation mode is spectroscopy. If IR2_GRSM is matches SAP or SIL then
+it is spectroscopy. IR2_GRSM is used in preference to IR2_SLIT.
 
 =cut
 
@@ -270,7 +272,9 @@ sub to_OBSERVATION_MODE {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{IR2_SLIT})) {
+  if(exists($FITS_headers->{IR2_GRSM})) {
+    $return = ($FITS_headers->{IR2_GRSM} =~ /^(SAP|SIL)/i) ? "spectroscopy" : "imaging";
+  } elsif (exists($FITS_headers->{IR2_SLIT})) {
     $return = ($FITS_headers->{IR2_SLIT} eq "OPEN1") ? "imaging" : "spectroscopy";
   }
   return $return;
@@ -279,7 +283,7 @@ sub to_OBSERVATION_MODE {
 =item B<to_UTSTART>
 
 Converts FITS header UT date/time values for the start of the observation
-into an ISO 8601 formatted date.
+into a C<Time::Piece> object.
 
 =cut
 
@@ -291,14 +295,15 @@ sub to_UTSTART {
     my $utdate = $FITS_headers->{UTDATE};
     $utdate =~ s/:/-/g;
     $return = $utdate . "T" . $FITS_headers->{UTSTART} . "";
+    $return = Time::Piece->strptime( $return, '%Y-%m-%dT%T' );
   }
   return $return;
 }
 
 =item B<from_UTSTART>
 
-Converts an ISO 8601 formatted date into two FITS headers for IRIS2: IDATE
-(in the format YYYYMMDD) and RUTSTART (decimal hours).
+Converts the date into two FITS headers for IRIS2: UTDATE
+(in the format YYYYMMDD) and UTSTART (HH:MM:SS).
 
 =cut
 
@@ -308,10 +313,10 @@ sub from_UTSTART {
   my %return_hash;
   if(exists($generic_headers->{UTSTART})) {
     my $date = $generic_headers->{UTSTART};
-    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
-    my ($year, $month, $day, $hour, $minute, $second) = ($1, $2, $3, $4, $5, $6);
-    $return_hash{UTDATE} = join ':', $year, $month, $date;
-    $return_hash{UTSTART} = join ':', $hour, $minute, $second;
+    $return_hash{UTDATE} = sprintf("%04d:%02d:%02d",
+                                   $date->year, $date->mon, $date->mday);
+    $return_hash{UTSTART} = sprintf("%02d:%02d:%02d",
+                                    $date->hour, $date->minute, $date->second);
   }
   return %return_hash;
 }
@@ -319,7 +324,7 @@ sub from_UTSTART {
 =item B<to_UTEND>
 
 Converts FITS header UT date/time values for the end of the observation into
-an ISO 8601-formatted date.
+a C<Time::Piece> object.
 
 =cut
 
@@ -331,14 +336,15 @@ sub to_UTEND {
     my $utdate = $FITS_headers->{UTDATE};
     $utdate =~ s/:/-/g;
     $return = $utdate . "T" . $FITS_headers->{UTEND};
+    $return = Time::Piece->strptime( $return, '%Y-%m-%dT%T' );
   }
   return $return;
 }
 
 =item B<from_UTEND>
 
-Converts an ISO 8601 formatted date into two FITS headers for IRIS2: IDATE
-(in the format YYYYMMDD) and RUTEND (decimal hours).
+Converts end date into two FITS headers for IRIS2: UTDATE
+(in the format YYYYMMDD) and UTEND (HH:MM:SS).
 
 =cut
 
@@ -348,10 +354,10 @@ sub from_UTEND {
   my %return_hash;
   if(exists($generic_headers->{UTEND})) {
     my $date = $generic_headers->{UTEND};
-    $date =~ /(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/;
-    my ($year, $month, $day, $hour, $minute, $second) = ($1, $2, $3, $4, $5, $6);
-    $return_hash{UTDATE} = join ':', $year, $month, $date;
-    $return_hash{UTEND} = join ':', $hour, $minute, $second;
+    $return_hash{UTDATE} = sprintf("%04d:%02d:%02d",
+                                   $date->year, $date->mon, $date->mday);
+    $return_hash{UTEND} = sprintf("%02d:%02d:%02d",
+                                    $date->hour, $date->minute, $date->second);
   }
   return %return_hash;
 }
@@ -390,40 +396,6 @@ sub from_X_BASE {
   return %return_hash;
 }
 
-=item B<to_RA_BASE>
-
-Converts the decimal hours in the FITS header C<RABASE> into
-decimal degrees for the generic header C<RA_BASE>.
-
-=cut
-
-sub to_RA_BASE {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{RABASE})) {
-    $return = $FITS_headers->{RABASE} * 15;
-  }
-  return $return;
-}
-
-=item B<from_RA_BASE>
-
-Converts the decimal degrees in the generic header C<RA_BASE>
-into decimal hours for the FITS header C<RABASE>.
-
-=cut
-
-sub from_RA_BASE {
-  my $self = shift;
-  my $generic_headers = shift;
-  my %return_hash;
-  if(exists($generic_headers->{RA_BASE})) {
-    $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
-  }
-  return %return_hash;
-}
-
 =item B<to_ROTATION>
 
 Converts a linear transformation matrix into a single rotation angle. This angle
@@ -455,6 +427,38 @@ sub to_ROTATION {
     $return = $rad * atan2( -$cd21 / $rad, $sgn2 * $cd11 / $rad );
   }
   return $return;
+}
+
+=item B<to_DEC_SCALE>
+
+Calculate the Dec pixel scale from the CD matrix.
+
+=cut
+
+sub to_DEC_SCALE {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $cd11 = $FITS_headers->{CD1_1};
+  my $cd12 = $FITS_headers->{CD1_2};
+  my $cd21 = $FITS_headers->{CD2_1};
+  my $cd22 = $FITS_headers->{CD2_2};
+  my $sgn;
+  if( ( $cd11 * $cd22 - $cd12 * $cd21 ) < 0 ) { $sgn = -1; } else { $sgn = 1; }
+  return abs( sqrt( $cd11**2 + $cd21**2 ) * 3600 );
+}
+
+=item B<to_RA_SCALE>
+
+Calculate the RA pixel scale from the CD matrix.
+
+=cut
+
+sub to_RA_SCALE {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $cd12 = $FITS_headers->{CD1_2};
+  my $cd22 = $FITS_headers->{CD2_2};
+  return sqrt( $cd12**2 + $cd22**2 ) * 3600;
 }
 
 =item B<to_Y_SCALE>
@@ -500,6 +504,26 @@ sub to_X_SCALE {
     my $cd22 = $FITS_headers->{CD2_2};
     $return = sqrt( $cd12**2 + $cd22**2 ) * 3600;
   }
+  return $return;
+}
+
+=item B<to_FILTER>
+
+Determine the filter name. Depends on the value of IR2_FILT.
+
+=cut
+
+sub to_FILTER {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+
+  if( $FITS_headers->{IR2_FILT} =~ /^OPEN$/i ) {
+    $return = $FITS_headers->{IR2_COLD};
+  } else {
+    $return = $FITS_headers->{IR2_FILT};
+  }
+  $return =~ s/ //g;
   return $return;
 }
 
