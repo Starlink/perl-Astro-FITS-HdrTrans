@@ -60,10 +60,6 @@ my %UNIT_MAP = (
 		DR_RECIPE            => "RECIPE",
 		EQUINOX              => "EQUINOX",
 		EXPOSURE_TIME        => "EXPOSED",
-		GRATING_DISPERSION   => "GDISP",
-		GRATING_NAME         => "GRATING",
-		GRATING_ORDER        => "GORD",
-		GRATING_WAVELENGTH   => "GLAMBDA",
 		INSTRUMENT           => "INSTRUME",
 		NUMBER_OF_EXPOSURES  => "CYCLES",
 		NUMBER_OF_OFFSETS    => "NOFFSETS",
@@ -524,6 +520,82 @@ sub to_FILTER {
     $return = $FITS_headers->{IR2_FILT};
   }
   $return =~ s/ //g;
+  return $return;
+}
+
+=item B<to_GRATING_DISPERSION>
+
+Calculate grating dispersion.
+
+=cut
+
+sub to_GRATING_DISPERSION {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+
+  my $grism = $FITS_headers->{IR2_GRSM};
+  my $filter;
+  if( $FITS_headers->{IR2_FILT} =~ /^OPEN$/i ) {
+    $filter = $FITS_headers->{IR2_COLD};
+  } else {
+    $filter = $FITS_headers->{IR2_FILT};
+  }
+  $grism =~ s/ //g;
+  $filter =~ s/ //g;
+  if ( $grism =~ /^(sap|sil)/i ) {
+# SDR: Revised this section. Dispersion is only a function of grism
+#      and blocking filter used, but need to allow for various choices
+#      of blocking filter
+    if ( uc($filter) eq 'K' || uc($filter) eq 'KS' ) {
+      $return = 0.0004423;
+    } elsif ( uc($filter) eq 'JS' ) {
+      $return = 0.0002322;
+    } elsif ( uc($filter) eq 'J' || uc($filter) eq 'JL' ) {
+      $return = 0.0002251;
+    } elsif ( uc($filter) eq 'H' || uc($filter) eq 'HS' || uc($filter) eq 'HL' ) {
+	$return = 0.0003413;
+    }
+}
+  return $return;
+}
+
+=item B<to_GRATING_DISPERSION>
+
+Calculate grating wavelength.
+
+=cut
+
+sub to_GRATING_WAVELENGTH {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+
+  my $grism = $FITS_headers->{IR2_GRSM};
+  my $filter;
+  if($FITS_headers->{IR2_FILT} =~ /^OPEN$/i ) {
+    $filter = $FITS_headers->{IR2_COLD};
+  } else {
+    $filter = $FITS_headers->{IR2_FILT};
+  }
+  $grism =~ s/ //g;
+  $filter =~ s/ //g;
+  if ( $grism =~ /^(sap|sil)/i ) {
+# SDR: Revised this section. Central wavelength is a function of grism
+#      + blocking filter + slit used. Assume offset slit used for H/Hs
+#      and Jl, otherwise centre slit is used. Central wavelengths computed
+#      for pixel 513, to match calculation used in
+#      _WAVELENGTH_CALIBRATE_BY_ESTIMATION_
+    if ( uc( $filter ) eq 'K' || uc( $filter ) eq 'KS' ) {
+      $return = 2.249388;
+    } elsif ( uc($filter) eq 'JS' ) {
+      $return = 1.157610;
+    } elsif ( uc($filter) eq 'J' || uc($filter) eq 'JL' ) {
+      $return = 1.219538;
+    } elsif ( uc($filter) eq 'H' || uc($filter) eq 'HS' || uc($filter) eq 'HL' ) {
+      $return = 1.636566;
+  }
+}
   return $return;
 }
 
