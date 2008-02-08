@@ -527,6 +527,9 @@ sub to_FILTER {
 
 Calculate grating dispersion.
 
+Dispersion is only a function of grism and blocking filter used, but
+need to allow for various choices of blocking filter
+
 =cut
 
 sub to_GRATING_DISPERSION {
@@ -538,9 +541,6 @@ sub to_GRATING_DISPERSION {
   my $filter = $self->to_FILTER( $FITS_headers );
 
   if ( $obsmode eq 'spectroscopy' ) {
-# SDR: Revised this section. Dispersion is only a function of grism
-#      and blocking filter used, but need to allow for various choices
-#      of blocking filter
     if ( uc($filter) eq 'K' || uc($filter) eq 'KS' ) {
       $return = 0.0004423;
     } elsif ( uc($filter) eq 'JS' ) {
@@ -558,6 +558,11 @@ sub to_GRATING_DISPERSION {
 
 Calculate grating wavelength.
 
+Central wavelength is a function of grism + blocking filter + slit
+used. Assume offset slit used for H/Hs and Jl, otherwise centre slit
+is used. Central wavelengths computed for pixel 513, to match
+calculation used in ORAC-DR.
+
 =cut
 
 sub to_GRATING_WAVELENGTH {
@@ -569,11 +574,6 @@ sub to_GRATING_WAVELENGTH {
   my $filter = $self->to_FILTER( $FITS_headers );
 
   if ( $obsmode eq 'spectroscopy' ) {
-# SDR: Revised this section. Central wavelength is a function of grism
-#      + blocking filter + slit used. Assume offset slit used for H/Hs
-#      and Jl, otherwise centre slit is used. Central wavelengths computed
-#      for pixel 513, to match calculation used in
-#      _WAVELENGTH_CALIBRATE_BY_ESTIMATION_
     if ( uc( $filter ) eq 'K' || uc( $filter ) eq 'KS' ) {
       $return = 2.249388;
     } elsif ( uc($filter) eq 'JS' ) {
