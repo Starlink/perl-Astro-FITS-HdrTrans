@@ -534,16 +534,10 @@ sub to_GRATING_DISPERSION {
   my $FITS_headers = shift;
   my $return;
 
-  my $grism = $FITS_headers->{IR2_GRSM};
-  my $filter;
-  if( $FITS_headers->{IR2_FILT} =~ /^OPEN$/i ) {
-    $filter = $FITS_headers->{IR2_COLD};
-  } else {
-    $filter = $FITS_headers->{IR2_FILT};
-  }
-  $grism =~ s/ //g;
-  $filter =~ s/ //g;
-  if ( $grism =~ /^(sap|sil)/i ) {
+  my $obsmode = $self->to_OBSERVATION_MODE( $FITS_headers );
+  my $filter = $self->to_FILTER( $FITS_headers );
+
+  if ( $obsmode eq 'spectroscopy' ) {
 # SDR: Revised this section. Dispersion is only a function of grism
 #      and blocking filter used, but need to allow for various choices
 #      of blocking filter
@@ -554,9 +548,9 @@ sub to_GRATING_DISPERSION {
     } elsif ( uc($filter) eq 'J' || uc($filter) eq 'JL' ) {
       $return = 0.0002251;
     } elsif ( uc($filter) eq 'H' || uc($filter) eq 'HS' || uc($filter) eq 'HL' ) {
-	$return = 0.0003413;
+      $return = 0.0003413;
     }
-}
+  }
   return $return;
 }
 
@@ -571,16 +565,10 @@ sub to_GRATING_WAVELENGTH {
   my $FITS_headers = shift;
   my $return;
 
-  my $grism = $FITS_headers->{IR2_GRSM};
-  my $filter;
-  if($FITS_headers->{IR2_FILT} =~ /^OPEN$/i ) {
-    $filter = $FITS_headers->{IR2_COLD};
-  } else {
-    $filter = $FITS_headers->{IR2_FILT};
-  }
-  $grism =~ s/ //g;
-  $filter =~ s/ //g;
-  if ( $grism =~ /^(sap|sil)/i ) {
+  my $obsmode = $self->to_OBSERVATION_MODE( $FITS_headers );
+  my $filter = $self->to_FILTER( $FITS_headers );
+
+  if ( $obsmode eq 'spectroscopy' ) {
 # SDR: Revised this section. Central wavelength is a function of grism
 #      + blocking filter + slit used. Assume offset slit used for H/Hs
 #      and Jl, otherwise centre slit is used. Central wavelengths computed
@@ -594,8 +582,8 @@ sub to_GRATING_WAVELENGTH {
       $return = 1.219538;
     } elsif ( uc($filter) eq 'H' || uc($filter) eq 'HS' || uc($filter) eq 'HL' ) {
       $return = 1.636566;
+    }
   }
-}
   return $return;
 }
 
