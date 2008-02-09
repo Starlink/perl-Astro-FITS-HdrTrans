@@ -440,7 +440,7 @@ sub to_DEC_SCALE {
   my $cd22 = $FITS_headers->{CD2_2};
   my $sgn;
   if( ( $cd11 * $cd22 - $cd12 * $cd21 ) < 0 ) { $sgn = -1; } else { $sgn = 1; }
-  return abs( sqrt( $cd11**2 + $cd21**2 ) * 3600 );
+  return abs( sqrt( $cd11**2 + $cd21**2 ) );
 }
 
 =item B<to_RA_SCALE>
@@ -454,7 +454,7 @@ sub to_RA_SCALE {
   my $FITS_headers = shift;
   my $cd12 = $FITS_headers->{CD1_2};
   my $cd22 = $FITS_headers->{CD2_2};
-  return sqrt( $cd12**2 + $cd22**2 ) * 3600;
+  return sqrt( $cd12**2 + $cd22**2 );
 }
 
 =item B<to_Y_SCALE>
