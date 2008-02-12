@@ -69,13 +69,16 @@ into a C<Time::Piece> object.
 =cut
 
 sub to_UTSTART {
-  my $class = shift;
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{IDATE}) && exists($FITS_headers->{RUTSTART})) {
+  my $utdate = (exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : 
+               undef );
+  my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTSTART" );
+  my $utdechour = $rutstart[0];
+
+  if(defined $utdate && defined $utdechour) {
     my $uttime;
-    my $utdate = $FITS_headers->{IDATE};
-    my $utdechour = $FITS_headers->{RUTSTART};
     $utdate =~ /(\d{4})(\d{2})(\d{2})/;
     $utdate = join '-', $1, $2, $3;
     my $uthour = int($utdechour);
@@ -115,13 +118,16 @@ a C<Time::Piece> object.
 =cut
 
 sub to_UTEND {
-  my $class = shift;
+  my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{IDATE}) && exists($FITS_headers->{RUTEND})) {
+  my $utdate = (exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : 
+               undef );
+  my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTEND" );
+  my $utdechour = $rutend[-1];
+
+  if(defined $utdate && defined $utdechour) {
     my $uttime;
-    my $utdate = $FITS_headers->{IDATE};
-    my $utdechour = $FITS_headers->{RUTEND};
     $utdate =~ /(\d{4})(\d{2})(\d{2})/;
     $utdate = join '-', $1, $2, $3;
     my $uthour = int($utdechour);
