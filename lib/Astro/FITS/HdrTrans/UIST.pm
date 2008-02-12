@@ -46,6 +46,7 @@ my @NULL_MAP = qw/ DETECTOR_INDEX /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
+                RA_SCALE             => "CDELT2",
 		# UIST specific
 		GRATING_NAME         => "GRISM",
 		# Not imaging
@@ -174,46 +175,23 @@ sub from_Y_REFERENCE_PIXEL {
     return ("CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"});
 }
 
-=item B<to_RA_SCALE>
-
-Pixel scale in degrees.
-
-=cut
-
-sub to_RA_SCALE {
-    my $self = shift;
-    my $FITS_headers = shift;
-    my $pixel_size = $FITS_headers->{PIXLSIZE};
-    $pixel_size /= 3600; # arcsec to degrees
-    return $pixel_size;
-}
-
 =item B<to_DEC_SCALE>
 
-Pixel scale in degrees.
+Pixel scale in degrees.  For imaging, the declination pixel scale is
+in the CDELT1 header, and for spectroscopy and IFU, it's in CDELT3.
 
 =cut
 
 sub to_DEC_SCALE {
     my $self = shift;
     my $FITS_headers = shift;
-    my $pixel_size = $FITS_headers->{PIXLSIZE};
-    $pixel_size /= 3600; # arcsec to degrees
-    return $pixel_size;
-}
-
-=item B<from_RA_SCALE>
-
-Generate the PIXLSIZE header.
-
-=cut
-
-sub from_RA_SCALE {
-    my $self = shift;
-    my $generic_headers = shift;
-    my $scale = abs($generic_headers->{RA_SCALE});
-    $scale *= 3600;
-    return ("PIXLSIZE", $scale );
+    my $return;
+    if( $self->to_OBSERVATION_MODE($FITS_headers) eq 'imaging' ) {
+        $return = $FITS_headers->{CDELT1};
+    } else {
+        $return = $FITS_headers->{CDELT3};
+    }
+    return $return;
 }
 
 =item B<from_DEC_SCALE>
@@ -225,9 +203,19 @@ Generate the PIXLSIZE header.
 sub from_DEC_SCALE {
     my $self = shift;
     my $generic_headers = shift;
+
+    # Can calculate the pixel size
     my $scale = abs($generic_headers->{DEC_SCALE});
     $scale *= 3600;
-    return ("PIXLSIZE", $scale );
+    my %result = ( PIXLSIZE => $scale );
+
+    # and either CDELT1 or CDELT3
+    my $ckey = 'CDELT3';
+    if ($generic_headers->{OBSERVATION_MODE} eq 'imaging') {
+        $ckey = 'CDELT1';
+    }
+    $result{$ckey} = $generic_headers->{DEC_SCALE};
+    return %result;
 }
 
 =item B<to_ROTATION>
