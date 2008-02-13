@@ -45,10 +45,11 @@ ok( $push_scalar_return, "push_class with scalar" );
 my %test_header_1 = ();
 $test_header_1{'INSTRUME'} = 'IRCAM';
 $test_header_1{'OBJECT'} = 'MARS';
-$test_header_1{'OBSNUM'} = '25';
+$test_header_1{'RUN'} = '25';
 $test_header_1{'IDATE'} = '20030301';
 $test_header_1{'RUTSTART'} = "9.5333334";
 $test_header_1{'RUTEND'} = "9.5416667";
+$test_header_1{'PIXELSIZ'} = 0.081;
 
 # Test header translation for test_header_1.
 
