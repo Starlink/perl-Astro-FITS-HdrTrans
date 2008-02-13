@@ -99,7 +99,6 @@ sub to_X_REFERENCE_PIXEL{
   my $self = shift;
   my $FITS_headers = shift;
   my $xref;
-  use Data::Dumper; print Dumper($FITS_headers);
 # Use the average of the bounds to define the centre.
   if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
     my $xl = $FITS_headers->{RDOUT_X1};
@@ -122,7 +121,7 @@ Returns CRPIX1.
 sub from_X_REFERENCE_PIXEL {
     my $self = shift;
     my $generic_headers = shift;
-    return ("CRPIX1", $generic_headers->("X_REFERENCE_PIXEL"));
+    return ("CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"});
 }
 
 =item B<to_Y_REFERENCE_PIXEL>
@@ -159,7 +158,7 @@ Returns CRPIX2.
 sub from_Y_REFERENCE_PIXEL {
     my $self = shift;
     my $generic_headers = shift;
-    return ("CRPIX2", $generic_headers->("Y_REFERENCE_PIXEL"));
+    return ("CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"});
 }
 
 =item B<to_RA_SCALE>
@@ -172,7 +171,7 @@ sub to_RA_SCALE {
     my $self = shift;
     my $FITS_headers = shift;
     my $pixel_size = $FITS_headers->{PIXELSIZ};
-    $pixel_size /= 3600; # arcsec to degrees
+    $pixel_size /= 3600 if defined $pixel_size; # arcsec to degrees
     return $pixel_size;
 }
 
@@ -186,7 +185,7 @@ sub from_RA_SCALE {
     my $self = shift;
     my $generic_headers = shift;
     my $scale = abs($generic_headers->{RA_SCALE});
-    $scale *= 3600;
+    $scale *= 3600 if defined $scale;
     return ("PIXELSIZ", $scale );
 }
 
@@ -200,7 +199,7 @@ sub to_DEC_SCALE {
     my $self = shift;
     my $FITS_headers = shift;
     my $pixel_size = $FITS_headers->{PIXELSIZ};
-    $pixel_size /= 3600; # arcsec to degrees
+    $pixel_size /= 3600 if defined $pixel_size; # arcsec to degrees
     return $pixel_size;
 }
 
@@ -214,7 +213,7 @@ sub from_DEC_SCALE {
     my $self = shift;
     my $generic_headers = shift;
     my $scale = abs($generic_headers->{DEC_SCALE});
-    $scale *= 3600;
+    $scale *= 3600 if defined $scale;
     return ("PIXELSIZ", $scale );
 }
 
