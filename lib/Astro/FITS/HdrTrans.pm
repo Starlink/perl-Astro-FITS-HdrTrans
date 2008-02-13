@@ -93,6 +93,7 @@ my @generic_headers = qw(
                          COORDINATE_UNITS
                          COORDINATE_TYPE
                          CYCLE_LENGTH
+                         DATA_UNITS
                          DEC_BASE
                          DEC_SCALE
                          DEC_SCALE_UNITS
@@ -129,6 +130,8 @@ my @generic_headers = qw(
                          NUMBER_OF_CYCLES
                          NUMBER_OF_DETECTORS
                          NUMBER_OF_EXPOSURES
+                         NUMBER_OF_JITTER_POSITIONS
+                         NUMBER_OF_MICROSTEP_POSITIONS
                          NUMBER_OF_OFFSETS
                          NUMBER_OF_READS
                          NUMBER_OF_SUBFRAMES

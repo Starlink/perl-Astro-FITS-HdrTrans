@@ -38,7 +38,7 @@ $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-
+    POLARIMETRY => 0,
 		);
 
 # NULL mappings used to override base class implementations
@@ -49,10 +49,15 @@ my @NULL_MAP = qw/ DETECTOR_INDEX WAVEPLATE_ANGLE /;
 
 my %UNIT_MAP = (
                 # WFCAM specific
+                CAMERA_NUMBER        => "CAMNUM",
+                DEC_SCALE            => "CD2_1",
                 DETECTOR_READ_TYPE   => "READMODE",
                 NUMBER_OF_COADDS     => "NEXP",
-                NUMBER_OF_OFFSETS    => "NJITTER",
+                NUMBER_OF_JITTER_POSITIONS    => "NJITTER",
+                NUMBER_OF_MICROSTEP_POSITIONS => "NUSTEP",
+                RA_SCALE             => "CD1_2",
                 TILE_NUMBER          => "TILENUM",
+
                 # MICHELLE + UIST compatible
                 EXPOSURE_TIME        => "EXP_TIME",
                 # CGS4 + MICHELLE + WFCAM
@@ -82,6 +87,119 @@ Returns "WFCAM".
 
 sub this_instrument {
   return "WFCAM";
+}
+
+=back
+
+=head1 COMPLEX CONVERSIONS
+
+=over 4
+
+Return the data units.
+
+=cut
+
+sub to_DATA_UNITS {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $data_units = 'counts/exp';
+
+  if( defined( $FITS_headers->{BUNIT} ) ) {
+    $data_units = $FITS_headers->{BUNIT};
+  } else {
+    my $date = $self->to_UTDATE( $FITS_headers );
+
+    if( $date > 20061023 && $date < 20061220 ) {
+
+      my $read_type = $self->to_DETECTOR_READ_TYPE( $FITS_headers );
+      if( substr( $read_type, 0, 2 ) eq 'ND' ) {
+
+        $data_units = 'counts/sec';
+      }
+    }
+  }
+
+  return $data_units;
+
+}
+
+=item B<to_GAIN>
+
+Determine the gain entirely from camera number.
+
+The GAIN FITS header is not used.
+
+=cut
+
+sub to_GAIN {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $gain;
+  if( defined( $FITS_headers->{CAMNUM} ) ) {
+    my $camnum = $FITS_headers->{CAMNUM};
+    if( $camnum == 1 || $camnum == 2 || $camnum == 3 ) {
+      $gain = 4.6;
+    } elsif( $camnum == 4 ) {
+      $gain = 5.6;
+    } else {
+      $gain = 1.0;
+    }
+  } else {
+    $gain = 1.0;
+  }
+  return $gain;
+}
+
+=item B<to_NUMBER_OF_OFFSETS>
+
+Return the number of offsets (jitters and micro steps).
+
+=cut
+
+sub to_NUMBER_OF_OFFSETS {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $njitter = ( defined( $FITS_headers->{NJITTER} ) ? $FITS_headers->{NJITTER} : 1 );
+  my $nustep = ( defined( $FITS_headers->{NUSTEP} ) ? $FITS_headers->{NUSTEP} : 1 );
+
+  return $njitter * $nustep + 1;
+
+}
+
+=item B<to_ROTATION>
+
+Determine the rotation of the array in world coordinates.
+
+=cut
+
+sub to_ROTATION {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $cd11 = $FITS_headers->{CD1_1};
+  my $cd12 = $FITS_headers->{CD1_2};
+  my $cd21 = $FITS_headers->{CD2_1};
+  my $cd22 = $FITS_headers->{CD2_2};
+  my $sgn;
+  if( ( $cd11 * $cd22 - $cd12 * $cd21 ) < 0 ) { $sgn = -1; } else { $sgn = 1; }
+  my $cdelt1 = $sgn * sqrt( $cd11**2 + $cd21**2 );
+  my $sgn2;
+  if( $cdelt1 < 0 ) { $sgn2 = -1; } else { $sgn2 = 1; }
+  my $rad = 57.2957795131;
+  my $rotation = $rad * atan2( -$cd21 / $rad, $sgn2 * $cd11 / $rad );
+
+  return $rotation;
+}
+
+=item B<to_RA_BASE>
+
+The RABASE header converted to degrees.
+
+=cut
+
+sub to_RA_BASE {
+  my $self = shift;
+  my $FITS_headers = shift;
+  return ($FITS_headers->{RABASE} * 15.0);
 }
 
 =back

@@ -44,13 +44,16 @@ my %CONST_MAP = (
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
+                DATA_UNITS           => 'BUNIT',
 		INSTRUMENT           => 'INSTRUME',
 		TELESCOPE            => 'TELESCOP',
 		ROTATION             => 'CROTA2',
 		DEC_SCALE            => "CDELT2",
 		RA_SCALE             => "CDELT1",
 		X_BASE               => "CRPIX1",
+                X_REFERENCE_PIXEL    => "CRPIX1",
 		Y_BASE               => "CRPIX2",
+                Y_REFERENCE_PIXEL    => "CRPIX2",
 	       );
 
 
