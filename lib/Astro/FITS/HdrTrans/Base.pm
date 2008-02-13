@@ -331,6 +331,46 @@ sub nint {
     }
 }
 
+=item B<_parse_iso_date>
+
+Converts a UT date in form YYYY-MM-DDTHH:MM:SS.sss into a date
+object (Time::Piece).
+
+  $object = $trans->_parse_iso_date( $date );
+
+=cut
+
+sub _parse_iso_date {
+    my $self = shift;
+    my $datestr = shift;
+    my $return;
+    if (defined $datestr) {
+        # Not part of standard but we can deal with it
+        $datestr =~ s/Z//g;
+        # Time::Piece can not do fractional seconds. Should switch to DateTime
+        $datestr =~ s/\.\d+$//;
+        # parse
+        $return = Time::Piece->strptime( $datestr, "%Y-%m-%dT%T" );
+    }
+    return $return;
+}
+
+=item B<_add_seconds>
+
+Add the supplied number of seconds to the supplied time object
+and return a new object.
+
+  $new = $trans->_add_seconds( $base, $delta );
+
+=cut
+
+sub _add_seconds {
+    my $self = shift;
+    my $base = shift;
+    my $delta = shift;
+    return ($base + Time::Seconds->new( $delta ) );
+}
+
 =back
 
 =head1 PROTECTED IMPORTS

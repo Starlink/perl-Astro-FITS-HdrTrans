@@ -94,22 +94,17 @@ sub to_UTDATE {
 
 =item B<to_UTSTART>
 
-Converts UT date in C<DATE-OBS> header into C<Time::Piece> object.
+Converts UT date in C<DATE-OBS> header into date object.
 
 =cut
 
 sub to_UTSTART {
   my $class = shift;
+  print "HOW???\n";
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{'DATE-OBS'})) {
-    my $utstart = $FITS_headers->{'DATE-OBS'};
-    # Not part of standard but we can deal with it
-    $utstart =~ s/Z//g;
-    # Time::Piece can not do fractional seconds. Should switch to DateTime
-    $utstart =~ s/\.\d+$//;
-    # parse
-    $return = Time::Piece->strptime( $utstart, "%Y-%m-%dT%T" );
+    $return = $class->_parse_iso_date( $FITS_headers->{'DATE-OBS'});
   }
   return $return;
 }
@@ -143,13 +138,7 @@ sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{'DATE-END'})) {
-    my $utend = $FITS_headers->{'DATE-END'};
-    # Not part of standard but we can deal with it
-    $utend =~ s/Z//g;
-    # Time::Piece can not do fractional seconds. Should switch to DateTime
-    $utend =~ s/\.\d+$//;
-    # parse
-    $return = Time::Piece->strptime( $utend, "%Y-%m-%dT%T" );
+    $return = $class->_parse_iso_date( $FITS_headers->{'DATE-END'});
   }
   return $return;
 }
