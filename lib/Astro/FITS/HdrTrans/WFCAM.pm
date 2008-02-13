@@ -150,6 +150,16 @@ sub to_GAIN {
   return $gain;
 }
 
+=item B<from_GAIN>
+
+This is a null operation. The GAIN FITS header in WFCAM data is always incorrect.
+
+=cut
+
+sub from_GAIN {
+    return ();
+}
+
 =item B<to_NUMBER_OF_OFFSETS>
 
 Return the number of offsets (jitters and micro steps).
