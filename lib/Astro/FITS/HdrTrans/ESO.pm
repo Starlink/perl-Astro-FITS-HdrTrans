@@ -260,6 +260,28 @@ sub from_OBSERVATION_TYPE {
    "HIERARCH.ESO.DPR.TYPE",  $generic_headers->{ "ORAC_OBSERVATION_TYPE" };
 }
 
+# Cater for OBJECT keyword with unhelpful value.
+sub to_OBJECT {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $object = undef;
+
+# The object name should be in OBJECT...
+   if ( exists $FITS_headers->{OBJECT} ) {
+      $object = $FITS_headers->{OBJECT};
+
+# Sometimes it's the generic STD for standard.
+      if ( $object =~ /STD/ ) {
+         if ( exists $FITS_headers->{"HIERARCH.ESO.OBS.TARG.NAME"} ) {
+            $object = $FITS_headers->{"HIERARCH.ESO.OBS.TARG.NAME"};
+         } else {
+            $object = undef;
+         }
+      }
+   }
+   return $object;
+}
+
 sub to_RA_BASE {
    my $self = shift;
    my $FITS_headers = shift;
