@@ -192,50 +192,6 @@ These are UKIRT-specific helper routines.
 
 =over 4
 
-=item B<via_subheader>
-
-For the supplied FITS header item, first check the primary header
-for existence, then check SUBHEADERS, then check "In" named subheaders.
-
-In scalar context returns the first value that matches.
-
-  $value = $trans->via_subheader( $FITS_headers, $keyword );
-
-In list context returns all the available values in order.
-
-  @values = $trans->via_subheader( $FITS_headers, $keyword );
-
-=cut
-
-sub via_subheader {
-    my $self = shift;
-    my $FITS_headers = shift;
-    my $keyword = shift;
-
-    my @values;
-    if (exists $FITS_headers->{$keyword}
-        && defined $FITS_headers->{$keyword}) {
-        push (@values,$FITS_headers->{$keyword});
-    } elsif ( $FITS_headers->{SUBHEADERS}
-        && exists $FITS_headers->{SUBHEADERS}->[0]->{$keyword}) {
-        my @subs = @{$FITS_headers->{SUBHEADERS}};
-        for my $s (@subs) {
-            if (exists $s->{$keyword} && defined $s->{$keyword}) {
-                push(@values, $s->{$keyword});
-            }
-        }
-    } elsif (exists $FITS_headers->{I1}
-        && exists $FITS_headers->{I1}->{$keyword}) {
-        # need to find out how many In we have
-        my $i = 1;
-        while (exists $FITS_headers->{"I$i"}) {
-            push(@values, $FITS_headers->{"I$i"}->{$keyword});
-            $i++;
-        }
-    }
-    return (wantarray ? @values : $values[0] );
-}
-
 =back
 
 =head1 REVISION

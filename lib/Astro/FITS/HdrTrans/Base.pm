@@ -28,6 +28,7 @@ use 5.006;
 use strict;
 use warnings;
 use Carp;
+use Math::Trig qw/ deg2rad /;
 
 use vars qw/ $VERSION /;
 use Astro::FITS::HdrTrans (); # for the generic header list
@@ -372,6 +373,74 @@ sub _add_seconds {
     my $base = shift;
     my $delta = shift;
     return ($base + Time::Seconds->new( $delta ) );
+}
+
+=item B<cosdeg>
+
+Return the cosine of the angle. The angle must be in degrees.
+
+=cut
+
+sub cosdeg {
+    my $self = shift;
+    my $deg = shift;
+    cos( deg2rad($deg) );
+}
+
+=item B<sindeg>
+
+Return the sine of the angle. The angle must be in degrees.
+
+=cut
+
+sub sindeg {
+    my $self = shift;
+    my $deg = shift;
+    sin( deg2rad($deg) );
+}
+
+=item B<via_subheader>
+
+For the supplied FITS header item, first check the primary header
+for existence, then check SUBHEADERS, then check "In" named subheaders.
+
+In scalar context returns the first value that matches.
+
+  $value = $trans->via_subheader( $FITS_headers, $keyword );
+
+In list context returns all the available values in order.
+
+  @values = $trans->via_subheader( $FITS_headers, $keyword );
+
+=cut
+
+sub via_subheader {
+    my $self = shift;
+    my $FITS_headers = shift;
+    my $keyword = shift;
+
+    my @values;
+    if (exists $FITS_headers->{$keyword}
+        && defined $FITS_headers->{$keyword}) {
+        push (@values,$FITS_headers->{$keyword});
+    } elsif ( $FITS_headers->{SUBHEADERS}
+        && exists $FITS_headers->{SUBHEADERS}->[0]->{$keyword}) {
+        my @subs = @{$FITS_headers->{SUBHEADERS}};
+        for my $s (@subs) {
+            if (exists $s->{$keyword} && defined $s->{$keyword}) {
+                push(@values, $s->{$keyword});
+            }
+        }
+    } elsif (exists $FITS_headers->{I1}
+        && exists $FITS_headers->{I1}->{$keyword}) {
+        # need to find out how many In we have
+        my $i = 1;
+        while (exists $FITS_headers->{"I$i"}) {
+            push(@values, $FITS_headers->{"I$i"}->{$keyword});
+            $i++;
+        }
+    }
+    return (wantarray ? @values : $values[0] );
 }
 
 =back
