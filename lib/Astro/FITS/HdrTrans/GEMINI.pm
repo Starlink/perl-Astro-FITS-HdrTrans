@@ -246,6 +246,8 @@ sub to_UTSTART {
            $iso = $FITS_headers->{'DATE-OBS'};
        } elsif (exists $FITS_headers->{UTSTART}) {           
            $iso = $FITS_headers->{'DATE-OBS'}. "T" . $FITS_headers->{UTSTART};
+       } elsif (exists $FITS_headers->{UT}) {           
+           $iso = $FITS_headers->{'DATE-OBS'}. "T" . $FITS_headers->{UT};
        }
        $return = $self->_parse_iso_date( $iso ) if $iso;
    }
