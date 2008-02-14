@@ -100,7 +100,6 @@ Converts UT date in C<DATE-OBS> header into date object.
 
 sub to_UTSTART {
   my $class = shift;
-  print "HOW???\n";
   my $FITS_headers = shift;
   my $return;
   if(exists($FITS_headers->{'DATE-OBS'})) {
