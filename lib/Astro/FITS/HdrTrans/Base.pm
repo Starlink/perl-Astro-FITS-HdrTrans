@@ -375,6 +375,25 @@ sub _add_seconds {
     return ($base + Time::Seconds->new( $delta ) );
 }
 
+=item B<_utdate_to_object>
+
+Converts a UT date in YYYYMMDD format to a date object at midnight.
+
+  $obj = $trans->_utdate_to_object( $YYYYMMDD );
+
+=cut
+
+sub _utdate_to_object {
+    my $self = shift;
+    my $utdate = shift;
+    my $year = substr($utdate, 0, 4);
+    my $month= substr($utdate, 4, 2);
+    my $day  = substr($utdate, 6, 2);
+    my $basedate = $self->_parse_iso_date( $year."-".$month ."-".$day.
+                                           "T00:00:00");
+    return $basedate;
+}
+
 =item B<cosdeg>
 
 Return the cosine of the angle. The angle must be in degrees.

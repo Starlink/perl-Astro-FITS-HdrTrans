@@ -365,13 +365,7 @@ sub to_UTSTART {
       # seconds in UT day
       # so first need the UT day
       my $base = $self->to_UTDATE( $FITS_headers );
-      my $year = substr($base, 0, 4);
-      my $month= substr($base, 4, 2);
-      my $day  = substr($base, 6, 2);
-      my $basedate = $self->_parse_iso_date( $year."-".$month ."-".$day.
-                                             "T00:00:00");
-
-
+      my $basedate = $self->_utdate_to_object( $base );
       $return = $self->_add_seconds( $basedate, $FITS_headers->{UTC});
 
   } elsif(exists($FITS_headers->{"HIERARCH.ESO.OBS.START"})) {
