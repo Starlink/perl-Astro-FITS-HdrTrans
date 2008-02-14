@@ -118,7 +118,7 @@ sub to_DEC_TELESCOPE_OFFSET {
 sub from_DEC_TELESCOPE_OFFSET {
     my $self = shift;
     my $generic_headers = shift;
-   "DECOFFSE",  $generic_headers->{ "ORAC_DEC_TELESCOPE_OFFSET" };
+   "DECOFFSE",  $generic_headers->{ "DEC_TELESCOPE_OFFSET" };
 }
 
 sub to_FILTER {
@@ -200,7 +200,7 @@ sub to_RA_TELESCOPE_OFFSET {
 sub from_RA_TELESCOPE_OFFSET {
     my $self = shift;
     my $generic_headers = shift;
-    "RAOFFSE",  $generic_headers->{ "ORAC_RA_TELESCOPE_OFFSET" };
+    "RAOFFSE",  $generic_headers->{ "RA_TELESCOPE_OFFSET" };
 }
 
 # ROTATION, DEC_SCALE and RA_SCALE transformations courtesy Micah Johnson, from

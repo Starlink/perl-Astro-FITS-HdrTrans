@@ -99,7 +99,7 @@ sub to_AIRMASS_END {
 sub from_AIRMASS_END {
     my $self = shift;
     my $generic_headers = shift;
-   "HIERARCH.ESO.TEL.AIRM.END", $generic_headers->{ "ORAC_AIRMASS_END" };
+   "HIERARCH.ESO.TEL.AIRM.END", $generic_headers->{ "AIRMASS_END" };
 }
 
 sub to_AIRMASS_START {
@@ -117,7 +117,7 @@ sub to_AIRMASS_START {
 sub from_AIRMASS_START {
     my $self = shift;
     my $generic_headers = shift;
-   "HIERARCH.ESO.TEL.AIRM.START", $generic_headers->{ "ORAC_AIRMASS_START" };
+   "HIERARCH.ESO.TEL.AIRM.START", $generic_headers->{ "AIRMASS_START" };
 }
 
 sub to_CONFIGURATION_INDEX {
@@ -144,7 +144,7 @@ sub to_DEC_BASE {
 # This is guesswork at present.  It's rather tied to the UKIRT names
 # and we need generic names or use instrument-specific values in
 # instrument-specific primitives, and pass the actual value for the
-# night log.  Could do with separate ORAC_CHOPPING, ORAC_BIAS booleans
+# night log.  Could do with separate CHOPPING, BIAS booleans
 # to indicate whether or not chopping is enabled and whether or not the
 # detector mode needs a bias removed, like UKIRT's STARE mode.
 sub to_DETECTOR_READ_TYPE {
@@ -221,7 +221,7 @@ sub to_NUMBER_OF_OFFSETS {
 sub from_NUMBER_OF_OFFSETS {
     my $self = shift;
     my $generic_headers = shift;
-   "HIERARCH.ESO.TPL.NEXP",  $generic_headers->{ "ORAC_NUMBER_OF_OFFSETS" } - 1;
+   "HIERARCH.ESO.TPL.NEXP",  $generic_headers->{ "NUMBER_OF_OFFSETS" } - 1;
 }
 
 sub to_OBSERVATION_MODE {
@@ -233,7 +233,7 @@ sub to_OBSERVATION_MODE {
 sub from_OBSERVATION_MODE {
     my $self = shift;
     my $generic_headers = shift;
-   "HIERARCH.ESO.DPR.TECH",  $generic_headers->{ "ORAC_OBSERVATION_MODE" };
+   "HIERARCH.ESO.DPR.TECH",  $generic_headers->{ "OBSERVATION_MODE" };
 }
 
 # OBJECT, SKY, and DARK need no change.
@@ -257,7 +257,7 @@ sub to_OBSERVATION_TYPE {
 sub from_OBSERVATION_TYPE {
     my $self = shift;
     my $generic_headers = shift;
-   "HIERARCH.ESO.DPR.TYPE",  $generic_headers->{ "ORAC_OBSERVATION_TYPE" };
+   "HIERARCH.ESO.DPR.TYPE",  $generic_headers->{ "OBSERVATION_TYPE" };
 }
 
 # Cater for OBJECT keyword with unhelpful value.
@@ -318,7 +318,7 @@ sub to_SLIT_ANGLE {
 sub from_SLIT_ANGLE {
     my $self = shift;
     my $generic_headers = shift;
-   "HIERARCH.ESO.ADA.POSANG",  $generic_headers->{ "ORAC_SLIT_ANGLE" };
+   "HIERARCH.ESO.ADA.POSANG",  $generic_headers->{ "SLIT_ANGLE" };
 }
 
 sub to_STANDARD {
@@ -335,7 +335,7 @@ sub to_STANDARD {
 sub from_STANDARD {
     my $self = shift;
     my $generic_headers = shift;
-   "STANDARD",  $generic_headers->{ "ORAC_STANDARD" };
+   "STANDARD",  $generic_headers->{ "STANDARD" };
 }
 
 sub to_UTDATE {
@@ -393,7 +393,7 @@ sub to_WAVEPLATE_ANGLE {
 sub from_WAVEPLATE_ANGLE {
     my $self = shift;
     my $generic_headers = shift;
-   "HIERARCH.ESO.ADA.POSANG",  $generic_headers->{ "ORAC_WAVEPLATE_ANGLE" };
+   "HIERARCH.ESO.ADA.POSANG",  $generic_headers->{ "WAVEPLATE_ANGLE" };
 }
 
 # Use the nominal reference pixel if correctly supplied, failing that
@@ -418,7 +418,7 @@ sub to_X_REFERENCE_PIXEL{
 sub from_X_REFERENCE_PIXEL {
     my $self = shift;
     my $generic_headers = shift;
-   "CRPIX1", $generic_headers->{"ORAC_X_REFERENCE_PIXEL"};
+   "CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"};
 }
 
 # Use the nominal reference pixel if correctly supplied, failing that
@@ -443,7 +443,7 @@ sub to_Y_REFERENCE_PIXEL{
 sub from_Y_REFERENCE_PIXEL {
     my $self = shift;
     my $generic_headers = shift;
-   "CRPIX2", $generic_headers->{"ORAC_Y_REFERENCE_PIXEL"};
+   "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"};
 }
 
 sub to_X_LOWER_BOUND {
