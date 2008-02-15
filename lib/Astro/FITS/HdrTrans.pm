@@ -453,6 +453,11 @@ calculated without requiring that all translation are performed. For example,
   $class = Astro::FITS::HdrTrans::determine_class( \%hdr, undef, 1 );
   $value = $class->to_OBSERVATION_ID( \%hdr, $frameset );
 
+If the key _TRANSLATION_CLASS exists and this class allows translation
+and no override classes have been specified, that class is returned
+without checking all classes. This key is automatically filled in when
+a translation from fits is executed.
+
 =cut
 
 sub determine_class {
@@ -463,6 +468,17 @@ sub determine_class {
   # Default classes if empty or undef
   my @defclasses = __PACKAGE__->translation_classes;
   if (!defined $classes || !@$classes) {
+      # see if we have an override
+      if (exists $hdr->{_TRANSLATION_CLASS} && defined $hdr->{_TRANSLATION_CLASS}) {
+          my $class = $hdr->{_TRANSLATION_CLASS};
+          my $loaded = eval "require $class";
+          if ($loaded) {
+              if ($class->can("can_translate") && $class->can_translate($hdr) ) {
+                  return $class;
+              }
+          }
+      }
+      # did no have an override so use defaults
       $classes = \@defclasses;
   }
 

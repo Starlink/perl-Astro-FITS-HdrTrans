@@ -63,6 +63,10 @@ A list of failed translations is available in the _UNDEFINED_TRANSLATIONS
 key in the generic hash. This points to a reference to an array of all
 the failed generic translations.
 
+The class used for the translation is stored in the key _TRANSLATION_CLASS.
+This can then be used to reverse the translation without having to
+re-scan the headers.
+
 =cut
 
 sub translate_from_FITS {
@@ -82,7 +86,7 @@ sub translate_from_FITS {
     $frameset = $opts{frameset};
   }
 
-  croak "translate_to_FITS: Not a hash reference!"
+  croak "translate_from_FITS: Not a hash reference!"
     unless (ref($FITS) && ref($FITS) eq 'HASH');
 
   # Now we need to loop over the known generic headers
@@ -105,6 +109,9 @@ sub translate_from_FITS {
 
   # store the failed translations (if we had any)
   $generic{_UNDEFINED_TRANSLATIONS} = \@failed if @failed;
+
+  # store the translation class
+  $generic{_TRANSLATION_CLASS} = $class;
 
   return %generic;
 }
