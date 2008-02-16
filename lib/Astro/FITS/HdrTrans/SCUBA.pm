@@ -348,6 +348,10 @@ sub to_UTDATE {
     my $utdate = $FITS_headers->{'DATE'};
     $return = Time::Piece->strptime( $utdate, "%Y-%m-%dT%T" );
   }
+  if (defined $return) {
+      $return = sprintf('%04d%02d%02d',$return->year,
+                        $return->mon, $return->mday);
+  }
   return $return;
 }
 
@@ -362,10 +366,12 @@ sub from_UTDATE {
   my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{UTDATE}) &&
-     UNIVERSAL::isa( $generic_headers->{UTDATE}, "Time::Piece" ) ) {
-    my $date = $generic_headers->{UTDATE};
-    $return_hash{'UTDATE'} = join ':', $date->year, $date->mon, $date->mday;
+  if(exists($generic_headers->{UTDATE}) ) {
+      my $date = $generic_headers->{UTDATE};
+      $return_hash{UTDATE} = join(':',
+                                  substr($date,0,4),
+                                  substr($date,4,2),
+                                  substr($date,6,2));
   }
   return %return_hash;
 }

@@ -214,10 +214,11 @@ sub from_UTDATE {
     my %return_hash;
     if (exists $generic_headers->{UTDATE}) {
         my $date = $generic_headers->{UTDATE};
-        $date = Time::Piece->strptime($date,'%Y%m%d');
         return () unless defined $date;
         $return_hash{UTDATE} = sprintf("%04d.%02d%02d",
-                                       $date->year, $date->mon, $date->mday);
+                                       substr($date,0,4),
+                                       substr($date,4,2),
+                                       substr($date,6,2));
     }
     return %return_hash;
 }

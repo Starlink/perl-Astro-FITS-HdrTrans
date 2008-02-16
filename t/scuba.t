@@ -14,7 +14,7 @@ eval {
 if( $@ ) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 24;
+  plan tests => 21;
 }
 
 # Test compilation.
@@ -31,10 +31,7 @@ tie %hdr, "Astro::FITS::Header", $fits;
 # Translate this header.
 my %generic_header = Astro::FITS::HdrTrans::translate_from_FITS( \%hdr );
 
-isa_ok( $generic_header{'UTDATE'}, "Time::Piece", "UTDATE is Time::Piece" );
-is( $generic_header{'UTDATE'}->year, 2004, "UTDATE year is 2004" );
-is( $generic_header{'UTDATE'}->mon,     3, "UTDATE month is 3" );
-is( $generic_header{'UTDATE'}->mday,   12, "UTDATE day is 12" );
+is( $generic_header{'UTDATE'}, 20040312, "UTDATE year is 20040312" );
 is( $generic_header{'UTSTART'}->year, 2004, "UTSTART year is 2004" );
 is( $generic_header{'UTSTART'}->mon,     3, "UTSTART month is 3" );
 is( $generic_header{'UTSTART'}->mday,   12, "UTSTART day is 12" );
