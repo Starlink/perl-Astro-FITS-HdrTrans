@@ -55,8 +55,6 @@ my %UNIT_MAP = (
 		DEC_TELESCOPE_OFFSET => 'DECOFF',
                 DETECTOR_BIAS        => 'DET_BIAS',
 		RA_TELESCOPE_OFFSET  => 'RAOFF',
-		# Also Michelle + UFTI
-		SPEED_GAIN           => 'SPD_GAIN',
 	       );
 
 
@@ -163,35 +161,58 @@ sub from_Y_REFERENCE_PIXEL {
 
 =item B<to_RA_SCALE>
 
-Pixel scale in degrees.
+Pixel scale along the RA axis. If the pixel scale is not defined in
+the PIXELSIZ header, then default to -0.08144 arcseconds for data
+taken after 19990901, or -0.286 arcseconds for any other data. The
+value is returned in degrees, and will always be negative.
 
 =cut
 
 sub to_RA_SCALE {
-    my $self = shift;
-    my $FITS_headers = shift;
-    my $pixel_size = $FITS_headers->{PIXELSIZ};
-    $pixel_size /= 3600 if defined $pixel_size; # arcsec to degrees
-    return $pixel_size;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $pixel_size = $FITS_headers->{PIXELSIZ};
+  my $utdate = $self->to_UTDATE( $FITS_headers );
+
+  if( ! defined( $pixel_size ) ) {
+    if( $utdate > 19990901 ) {
+      $pixel_size = -0.08144;
+    } else {
+      $pixel_size = -0.286;
+    }
+  } else {
+
+    # Headers may be in scientific notation, but with a 'D' instead of
+    # an 'E'. Translate to an 'E' so Perl doesn't fall over.
+    $pixel_size =~ s/D/E/;
+  }
+
+  $pixel_size /= 3600 if defined $pixel_size; # arcsec to degrees
+  if( $pixel_size > 0.0 ) { $pixel_size *= -1.0 }
+  return $pixel_size;
 }
 
 =item B<from_RA_SCALE>
 
-Generate the PIXLSIZE header.
+Generate the PIXELSIZ header. The header will be returned in
+arcseconds, and will always be positive.
 
 =cut
 
 sub from_RA_SCALE {
-    my $self = shift;
-    my $generic_headers = shift;
-    my $scale = abs($generic_headers->{RA_SCALE});
-    $scale *= 3600 if defined $scale;
-    return ("PIXELSIZ", $scale );
+  my $self = shift;
+  my $generic_headers = shift;
+  my $scale = abs($generic_headers->{RA_SCALE});
+  $scale *= 3600 if defined $scale;
+  return ("PIXELSIZ", $scale );
 }
 
 =item B<to_DEC_SCALE>
 
-Pixel scale in degrees.
+Pixel scale along the Declination axis. If the pixel scale is not
+defined in the PIXELSIZ header, then default to 0.08144 arcseconds for
+data taken after 19990901, or 0.286 arcseconds for any other data. The
+value is returned in degrees, and will always be positive.
 
 =cut
 
@@ -199,13 +220,29 @@ sub to_DEC_SCALE {
     my $self = shift;
     my $FITS_headers = shift;
     my $pixel_size = $FITS_headers->{PIXELSIZ};
+    my $utdate = $self->to_UTDATE( $FITS_headers );
+
+    if( ! defined( $pixel_size ) ) {
+      if( $utdate > 19990901 ) {
+        $pixel_size = 0.08144;
+      } else {
+        $pixel_size = 0.286;
+      }
+    } else {
+
+      # Headers may be in scientific notation, but with a 'D' instead of
+      # an 'E'. Translate to an 'E' so Perl doesn't fall over.
+      $pixel_size =~ s/D/E/;
+    }
+
     $pixel_size /= 3600 if defined $pixel_size; # arcsec to degrees
-    return $pixel_size;
+    return abs( $pixel_size );
 }
 
 =item B<from_DEC_SCALE>
 
-Generate the PIXLSIZE header.
+Generate the PIXELSIZ header. The header will be returned in
+arcseconds, and will always be positive.
 
 =cut
 
@@ -255,6 +292,67 @@ sub to_NUMBER_OF_EXPOSURES {
     my $FITS_headers = shift;
     my @n = $self->via_subheader( $FITS_headers, "NEXP" );
     return ($n[-1]);
+}
+
+=item B<to_SPEED_GAIN>
+
+For data taken before 22 November 2000, the SPD_GAIN header was not
+written. Obtain the SPEED_GAIN from the detector bias if the SPD_GAIN
+header is not defined. If the detector bias is between 0.61 and 0.63,
+then the SPEED_GAIN is Standard. Otherwise, it is Deepwell.
+
+=cut
+
+sub to_SPEED_GAIN {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  if( defined( $FITS_headers->{SPD_GAIN} ) ) {
+    $return = $FITS_headers->{SPD_GAIN};
+  } else {
+    my $detector_bias = $self->to_DETECTOR_BIAS( $FITS_headers );
+    if( $detector_bias > 0.61 && $detector_bias < 0.63 ) {
+      $return = "Standard";
+    } else {
+      $return = "Deepwell";
+    }
+  }
+  return $return;
+}
+
+=item B<from_SPEED_GAIN>
+
+Translates the SPEED_GAIN generic header into the SPD_GAIN
+IRCAM-specific header. Note that this will break bi-directional tests
+as the SPD_GAIN header did not exist in data taken before 22 November
+2000.
+
+=cut
+
+sub from_SPEED_GAIN {
+  my $self = shift;
+  my $generic_headers = shift;
+  return( "SPD_GAIN", $generic_headers->{"SPEED_GAIN"} )
+}
+
+=item B<to_UTDATE>
+
+=cut
+
+sub to_UTDATE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  if( defined( $FITS_headers->{IDATE} ) ) {
+    if( ref( $FITS_headers->{IDATE} ) eq 'ARRAY' ) {
+      $return = $FITS_headers->{IDATE}->[0];
+    } else {
+      $return = $FITS_headers->{IDATE};
+    }
+  }
+  return $return;
 }
 
 =back
