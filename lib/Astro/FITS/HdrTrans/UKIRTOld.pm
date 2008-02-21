@@ -72,8 +72,10 @@ sub to_UTSTART {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  my $utdate = (exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : 
-               undef );
+  my $utdate = ( exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : undef );
+  if( ref( $utdate ) eq 'ARRAY' ) {
+    $utdate = $utdate->[0];
+  }
   my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTSTART" );
   my $utdechour = $rutstart[0];
 
@@ -121,8 +123,10 @@ sub to_UTEND {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  my $utdate = (exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : 
-               undef );
+  my $utdate = (exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : undef );
+  if( ref( $utdate ) eq 'ARRAY' ) {
+    $utdate = $utdate->[0];
+  }
   my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTEND" );
   my $utdechour = $rutend[-1];
 
