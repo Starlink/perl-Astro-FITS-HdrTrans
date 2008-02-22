@@ -50,12 +50,12 @@ my %CONST_MAP = (
 # at comments.
 
 my %UNIT_MAP = (
-		# IRCAM Specific
+                # IRCAM Specific
                 OBSERVATION_NUMBER   => 'RUN', # cf OBSNUM
-		DEC_TELESCOPE_OFFSET => 'DECOFF',
+                DEC_TELESCOPE_OFFSET => 'DECOFF',
                 DETECTOR_BIAS        => 'DET_BIAS',
-		RA_TELESCOPE_OFFSET  => 'RAOFF',
-	       );
+                RA_TELESCOPE_OFFSET  => 'RAOFF',
+               );
 
 
 # Create the translation methods
