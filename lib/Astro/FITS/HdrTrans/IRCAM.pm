@@ -336,25 +336,6 @@ sub from_SPEED_GAIN {
   return( "SPD_GAIN", $generic_headers->{"SPEED_GAIN"} )
 }
 
-=item B<to_UTDATE>
-
-=cut
-
-sub to_UTDATE {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $return;
-  if( defined( $FITS_headers->{IDATE} ) ) {
-    if( ref( $FITS_headers->{IDATE} ) eq 'ARRAY' ) {
-      $return = $FITS_headers->{IDATE}->[0];
-    } else {
-      $return = $FITS_headers->{IDATE};
-    }
-  }
-  return $return;
-}
-
 =back
 
 =head1 REVISION
