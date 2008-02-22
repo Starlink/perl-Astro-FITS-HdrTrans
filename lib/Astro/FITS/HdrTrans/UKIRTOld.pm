@@ -44,7 +44,6 @@ my %UNIT_MAP = (
 		DR_RECIPE            => "DRRECIPE",
 		EXPOSURE_TIME        => "DEXPTIME",
 		GAIN                 => "DEPERDN",
-                UTDATE               => "IDATE",
 	       );
 
 # Create the translation methods
@@ -61,6 +60,36 @@ these are many-to-many)
 
 =over 4
 
+=item B<to_UTDATE>
+
+Converts IDATE into UTDATE without any modification. Flattens
+duplicate headers into a single header.
+
+=cut
+
+sub to_UTDATE {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+  my $utdate = ( exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : undef );
+  if( defined( $utdate ) && ref( $utdate ) eq 'ARRAY' ) {
+    $return = $utdate->[0];
+  } else {
+    $return = $utdate;
+  }
+  return $return;
+}
+
+=item B<from_UTDATE>
+
+Converts UTDATE into IDATE without any modification.
+
+=cut
+
+sub from_UTDATE {
+  return ( "IDATE", $_[1]->{'UTDATE'} );
+}
+
 =item B<to_UTSTART>
 
 Converts FITS header UT date/time values for the start of the observation
@@ -72,10 +101,7 @@ sub to_UTSTART {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  my $utdate = ( exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : undef );
-  if( ref( $utdate ) eq 'ARRAY' ) {
-    $utdate = $utdate->[0];
-  }
+  my $utdate = $self->to_UTDATE( $FITS_headers );
   my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTSTART" );
   my $utdechour = $rutstart[0];
 
@@ -123,10 +149,7 @@ sub to_UTEND {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  my $utdate = (exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : undef );
-  if( ref( $utdate ) eq 'ARRAY' ) {
-    $utdate = $utdate->[0];
-  }
+  my $utdate = $self->to_UTDATE( $FITS_headers );
   my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTEND" );
   my $utdechour = $rutend[-1];
 
