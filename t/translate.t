@@ -50,6 +50,7 @@ $test_header_1{'IDATE'} = '20030301';
 $test_header_1{'RUTSTART'} = "9.5333334";
 $test_header_1{'RUTEND'} = "9.5416667";
 $test_header_1{'PIXELSIZ'} = 0.081;
+$test_header_1{'DET_BIAS'} = 0.80;
 
 # Test header translation for test_header_1.
 
