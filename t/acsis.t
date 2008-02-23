@@ -23,7 +23,7 @@ if( $@ ) {
   if( $@ ) {
     plan skip_all => 'Test requires Astro::FITS::Header::NDF module';
   } else {
-    plan tests => 24;
+    plan tests => 25;
   }
 }
 
@@ -75,3 +75,5 @@ is( sprintf( "%.6f", $generic_header{'RA_BASE'} ),  "146.944415", "RA_BASE is 14
 is( sprintf( "%.6f", $generic_header{'DEC_BASE'} ), "13.204779", "DEC_BASE is 13.204780" );
 is( $generic_header{'REST_FREQUENCY'}, 345795989900, "REST_FREQUENCY is 345795989900" );
 is( sprintf( "%.6f", $generic_header{'VELOCITY'} ), "-25.900000", "VELOCITY is -25.900000" );
+
+is( $generic_header{'DR_RECIPE'}, 'REDUCE_SCIENCE', "DR_RECIPE is REDUCE_SCIENCE" );
