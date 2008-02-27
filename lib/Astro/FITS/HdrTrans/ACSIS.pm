@@ -316,7 +316,7 @@ sub to_RA_BASE {
   my $self = shift;
   my $FITS_headers = shift;
 
-  my $coords = _calc_coords( $FITS_headers );
+  my $coords = $self->_calc_coords( $FITS_headers );
   return undef unless defined $coords;
   return $coords->ra( format => 'deg' );
 }
@@ -335,7 +335,7 @@ sub to_DEC_BASE {
   my $self = shift;
   my $FITS_headers = shift;
 
-  my $coords = _calc_coords( $FITS_headers );
+  my $coords = $self->_calc_coords( $FITS_headers );
   return undef unless defined $coords;
   return $coords->dec( format => 'deg' );
 }
@@ -504,6 +504,7 @@ Returns an Astro::Coords object.
 =cut
 
 sub _calc_coords {
+  my $self = shift;
   my $FITS_headers = shift;
 
   # Force dates to be standardized
@@ -530,16 +531,10 @@ sub _calc_coords {
                                     el => $el_start,
                                   );
     $coords->telescope( new Astro::Telescope( $telescope ) );
-    $dateobs =~ /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)$/;
 
-    my $dt = DateTime->new( year      => $1,
-                            month     => $2,
-                            day       => $3,
-                            hour      => $4,
-                            minute    => $5,
-                            second    => $6,
-                            time_zone => "UTC",
-                          );
+    # convert ISO date to object
+    my $dt = $self->_parse_iso_date( $dateobs );
+    return unless defined $dt;
 
     $coords->datetime( $dt );
 
