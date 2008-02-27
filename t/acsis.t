@@ -23,7 +23,7 @@ if( $@ ) {
   if( $@ ) {
     plan skip_all => 'Test requires Astro::FITS::Header::NDF module';
   } else {
-    plan tests => 25;
+    plan tests => 26;
   }
 }
 
@@ -77,3 +77,4 @@ is( $generic_header{'REST_FREQUENCY'}, 345795989900, "REST_FREQUENCY is 34579598
 is( sprintf( "%.6f", $generic_header{'VELOCITY'} ), "-25.900000", "VELOCITY is -25.900000" );
 
 is( $generic_header{'DR_RECIPE'}, 'REDUCE_SCIENCE', "DR_RECIPE is REDUCE_SCIENCE" );
+is( $generic_header{'OBSERVATION_TYPE'}, 'grid', "OBSERVATION_TYPE is science" );
