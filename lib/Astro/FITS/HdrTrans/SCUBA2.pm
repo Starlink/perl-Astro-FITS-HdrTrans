@@ -69,12 +69,12 @@ C<can_translate> method.
 
   $inst = $class->this_instrument();
 
-Returns "SCUBA2".
+Returns "SCUBA-2".
 
 =cut
 
 sub this_instrument {
-  return "SCUBA2";
+  return "SCUBA-2";
 }
 
 =back
