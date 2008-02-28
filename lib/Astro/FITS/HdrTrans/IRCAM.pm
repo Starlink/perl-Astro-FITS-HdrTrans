@@ -192,6 +192,25 @@ sub to_RA_SCALE {
   return $pixel_size;
 }
 
+
+=item B<to_POLARIMETRY>
+
+Checks the filter name.
+
+=cut
+
+sub to_POLARIMETRY {
+  my $self = shift;
+  my $FITS_headers = shift;
+  if( exists( $FITS_headers->{FILTER} ) &&
+      $FITS_headers->{FILTER} =~ /pol/i ) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
 =item B<from_RA_SCALE>
 
 Generate the PIXELSIZ header. The header will be returned in
