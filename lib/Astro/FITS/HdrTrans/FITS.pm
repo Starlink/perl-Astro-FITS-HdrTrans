@@ -38,23 +38,23 @@ $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 # header that is constant
 my %CONST_MAP = (
 
-		);
+                );
 
 # unit mapping implies that the value propogates directly
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-                DATA_UNITS           => 'BUNIT',
-		INSTRUMENT           => 'INSTRUME',
-		TELESCOPE            => 'TELESCOP',
-		ROTATION             => 'CROTA2',
-		DEC_SCALE            => "CDELT2",
-		RA_SCALE             => "CDELT1",
-		X_BASE               => "CRPIX1",
-                X_REFERENCE_PIXEL    => "CRPIX1",
-		Y_BASE               => "CRPIX2",
-                Y_REFERENCE_PIXEL    => "CRPIX2",
-	       );
+                 DATA_UNITS           => 'BUNIT',
+                 DEC_SCALE            => "CDELT2",
+                 INSTRUMENT           => 'INSTRUME',
+                 RA_SCALE             => "CDELT1",
+                 ROTATION             => 'CROTA2',
+                 TELESCOPE            => 'TELESCOP',
+                 X_BASE               => "CRPIX1",
+                 X_REFERENCE_PIXEL    => "CRPIX1",
+                 Y_BASE               => "CRPIX2",
+                 Y_REFERENCE_PIXEL    => "CRPIX2",
+               );
 
 
 # Create the translation methods
@@ -67,7 +67,7 @@ provide both from- and to-FITS conversions All these routines are
 methods and the to_ routines all take a reference to a hash and return
 the translated value (a many-to-one mapping) The from_ methods take a
 reference to a generic hash and return a translated hash (sometimes
-these are many-to-many)
+these are many-to-many).
 
 =over 4
 
@@ -89,6 +89,41 @@ sub to_UTDATE {
     return $utstart->strftime( '%Y%m%d' );
   }
   return;
+}
+
+
+=item B<to_UTEND>
+
+Converts UT date in C<DATE-END> header into C<Time::Piece> object.
+
+=cut
+
+sub to_UTEND {
+  my $class = shift;
+  my $FITS_headers = shift;
+  my $return;
+  if(exists($FITS_headers->{'DATE-END'})) {
+    $return = $class->_parse_iso_date( $FITS_headers->{'DATE-END'});
+  }
+  return $return;
+}
+
+=item B<from_UTEND>
+
+Returns the ending observation time in FITS restricted ISO8601 format:
+YYYY-MM-DDThh:mm:ss.
+
+=cut
+
+sub from_UTEND {
+  my $class = shift;
+  my $generic_headers = shift;
+  my %return_hash;
+  if(exists($generic_headers->{UTEND})) {
+    my $date = $generic_headers->{UTEND};
+    $return_hash{'DATE-END'} = $date->datetime;
+  }
+  return %return_hash;
 }
 
 
@@ -126,40 +161,6 @@ sub from_UTSTART {
   return %return_hash;
 }
 
-=item B<to_UTEND>
-
-Converts UT date in C<DATE-END> header into C<Time::Piece> object.
-
-=cut
-
-sub to_UTEND {
-  my $class = shift;
-  my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{'DATE-END'})) {
-    $return = $class->_parse_iso_date( $FITS_headers->{'DATE-END'});
-  }
-  return $return;
-}
-
-=item B<from_UTEND>
-
-Returns the ending observation time in FITS restricted ISO8601 format:
-YYYY-MM-DDThh:mm:ss.
-
-=cut
-
-sub from_UTEND {
-  my $class = shift;
-  my $generic_headers = shift;
-  my %return_hash;
-  if(exists($generic_headers->{UTEND})) {
-    my $date = $generic_headers->{UTEND};
-    $return_hash{'DATE-END'} = $date->datetime;
-  }
-  return %return_hash;
-}
-
 =back
 
 =head1 REVISION
@@ -183,7 +184,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -192,7 +193,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 

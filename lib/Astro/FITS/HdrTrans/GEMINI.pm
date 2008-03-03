@@ -49,18 +49,18 @@ my %CONST_MAP = (
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-            AIRMASS_START       => "AMSTART",
-            AIRMASS_END         => "AMEND",
-            DEC_BASE            => "CRVAL2",
-	    EXPOSURE_TIME       => "EXPTIME",
-            EQUINOX             => "EQUINOX",
-	    INSTRUMENT          => "INSTRUME",
-            NUMBER_OF_EXPOSURES => "NSUBEXP",
-	    NUMBER_OF_EXPOSURES => "COADDS",
-            OBJECT              => "OBJECT",
-            X_REFERENCE_PIXEL   => "CRPIX1",
-            Y_REFERENCE_PIXEL   => "CRPIX2"
-    );
+                 AIRMASS_END         => "AMEND",
+                 AIRMASS_START       => "AMSTART",
+                 DEC_BASE            => "CRVAL2",
+                 EXPOSURE_TIME       => "EXPTIME",
+                 EQUINOX             => "EQUINOX",
+                 INSTRUMENT          => "INSTRUME",
+                 NUMBER_OF_EXPOSURES => "NSUBEXP",
+                 NUMBER_OF_EXPOSURES => "COADDS",
+                 OBJECT              => "OBJECT",
+                 X_REFERENCE_PIXEL   => "CRPIX1",
+                 Y_REFERENCE_PIXEL   => "CRPIX2"
+               );
 
 # Create the translation methods
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
@@ -116,8 +116,8 @@ sub to_DEC_TELESCOPE_OFFSET {
 }
 
 sub from_DEC_TELESCOPE_OFFSET {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "DECOFFSE",  $generic_headers->{ "DEC_TELESCOPE_OFFSET" };
 }
 
@@ -177,6 +177,7 @@ sub to_RA_SCALE {
 sub to_RA_TELESCOPE_OFFSET {
     my $self = shift;
     my $FITS_headers = shift;
+
 # It's simple when there's a header.
     my $offset = $FITS_headers->{ "RAOFFSET" };
 
@@ -241,12 +242,12 @@ sub to_UTSTART {
    my $return;
    if (exists $FITS_headers->{'DATE-OBS'}) {
        my $iso;
-       if ($FITS_headers->{'DATE-OBS'} =~ /T/) {
+       if ( $FITS_headers->{'DATE-OBS'} =~ /T/ ) {
            # standard format
            $iso = $FITS_headers->{'DATE-OBS'};
-       } elsif (exists $FITS_headers->{UTSTART}) {           
+       } elsif ( exists $FITS_headers->{UTSTART} ) {           
            $iso = $FITS_headers->{'DATE-OBS'}. "T" . $FITS_headers->{UTSTART};
-       } elsif (exists $FITS_headers->{UT}) {           
+       } elsif ( exists $FITS_headers->{UT} ) {           
            $iso = $FITS_headers->{'DATE-OBS'}. "T" . $FITS_headers->{UT};
        }
        $return = $self->_parse_iso_date( $iso ) if $iso;
@@ -258,12 +259,12 @@ sub to_UTEND {
    my $self = shift;
    my $FITS_headers = shift;
    my $return;
-   if (exists $FITS_headers->{'DATE-END'}) {
+   if ( exists $FITS_headers->{'DATE-END'} ) {
        $return = $self->_parse_iso_date( $FITS_headers->{'DATE-END'} );
    } elsif (exists $FITS_headers->{'DATE-OBS'}) {
        my $iso;
        my $ut;
-       if ($FITS_headers->{'DATE-OBS'} =~ /T/) {
+       if ( $FITS_headers->{'DATE-OBS'} =~ /T/ ) {
            $ut = $FITS_headers->{'DATE-OBS'};
            $ut =~ s/T.*$//;
        } else {
@@ -281,29 +282,29 @@ sub to_UTEND {
 sub to_UTDATE {
    my $self = shift;
    my $FITS_headers = shift;
-   return $self->get_UT_date($FITS_headers);
+   return $self->get_UT_date( $FITS_headers );
 }
 
 sub from_UTEND {
     my $self = shift;
     my $generic_headers = shift;
-    my $utend = $generic_headers->{UTEND}->strptime('%T');
-    return ("UTEND"=> $utend);
+    my $utend = $generic_headers->{UTEND}->strptime( '%T' );
+    return ( "UTEND"=> $utend );
 }
 
 sub from_UTSTART {
     my $self = shift;
     my $generic_headers = shift;
     my $utstart = $generic_headers->{UTSTART}->strptime('%T');
-    return ("UTSTART"=> $utstart);
+    return ( "UTSTART"=> $utstart );
 }
 
 sub from_UTDATE {
     my $self = shift;
     my $generic_headers = shift;
     my $ymd = $generic_headers->{UTDATE};
-    my $dobs = substr($ymd, 0, 4) ."-".substr($ymd,4,2)."-".substr($ymd,6,2);
-    return ("DATE-OBS"=>$dobs);
+    my $dobs = substr( $ymd, 0, 4 ) . "-" . substr( $ymd, 4, 2 ) ."-" . substr( $ymd, 6, 2 );
+    return ( "DATE-OBS"=>$dobs );
 }
 
 # Supplementary methods for the translations
@@ -345,7 +346,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
+the Free Software Foundation; either Version 2 of the License, or (at
 your option) any later version.
 
 This program is distributed in the hope that it will be useful,but
@@ -355,8 +356,8 @@ General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place,Suite 330, Boston, MA 02111-1307,
-USA
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
+USA.
 
 =cut
 

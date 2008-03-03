@@ -34,15 +34,17 @@ $VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-    OBSERVATION_MODE => 'imaging',
-    NSCAN_POSITIONS => 1,
-    DETECTOR_READ_TYPE => 'NDSTARE',
-    GAIN => 13.0,
-    RA_SCALE => (-0.116/3600.0), # Value in headers is too imprecise
-    DEC_SCALE => (-0.1182/3600.0),
-    ROTATION => -1.03,
-    SPEED_GAIN => 'Normal',
-		);
+                  # Value in headers is too imprecise
+                  DEC_SCALE           => (-0.1182/3600.0),
+                  DETECTOR_READ_TYPE  => 'NDSTARE',
+                  GAIN                => 13.0,
+                  OBSERVATION_MODE    => 'imaging',
+                  NSCAN_POSITIONS     => 1,
+                  # Value in headers is too imprecise
+                  RA_SCALE            => (-0.116/3600.0),
+                  ROTATION            => -1.03,
+                  SPEED_GAIN => 'Normal',
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = qw/ /;
@@ -51,9 +53,9 @@ my @NULL_MAP = qw/ /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-            EXPOSURE_TIME        => "ITIME",
-            FILTER               => "GFLT",
-            OBJECT               => 'OBJECT',
+                 EXPOSURE_TIME        => "ITIME",
+                 FILTER               => "GFLT",
+                 OBJECT               => 'OBJECT',
                );
 
 
@@ -78,7 +80,7 @@ Returns "INGRID".
 =cut
 
 sub this_instrument {
-  return qr/^SPEX/i;
+   return qr/^SPEX/i;
 }
 
 =back
@@ -110,8 +112,8 @@ sub to_AIRMASS_END {
 }
 
 sub from_AIRMASS_END {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "AMEND",  $generic_headers->{ "AIRMASS_END" };
 }
 
@@ -150,6 +152,19 @@ sub to_DEC_TELESCOPE_OFFSET {
    }
    return $offset;
 }
+
+sub to_DR_RECIPE {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $recipe = "JITTER_SELF_FLAT";
+   if ( $self->to_OBSERVATION_TYPE($FITS_headers) eq "DARK" ) {
+      $recipe = "REDUCE_DARK";
+   } elsif (  $self->to_STANDARD($FITS_headers) ) {
+      $recipe = "JITTER_SELF_FLAT_APHOT";
+   }
+   return $recipe;
+}
+
 
 sub to_NUMBER_OF_EXPOSURES {
    my $self = shift;
@@ -235,18 +250,6 @@ sub to_RA_TELESCOPE_OFFSET {
    return $offset;
 }
 
-sub to_DR_RECIPE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $recipe = "JITTER_SELF_FLAT";
-   if ( $self->to_OBSERVATION_TYPE($FITS_headers) eq "DARK" ) {
-      $recipe = "REDUCE_DARK";
-   } elsif (  $self->to_STANDARD($FITS_headers) ) {
-      $recipe = "JITTER_SELF_FLAT_APHOT";
-   }
-   return $recipe;
-}
-
 # Take a pragmatic way of defining a standard.  Not perfect, but
 # should suffice unitl we know all the names.
 sub to_STANDARD {
@@ -292,7 +295,7 @@ sub to_UTEND {
    my $FITS_headers = shift;
    my $utend = $self->to_UTSTART($FITS_headers);
    if ( defined $FITS_headers->{ITIME} && defined $FITS_headers->{NDR} ) {
-      $utend += ($FITS_headers->{ITIME} * $FITS_headers->{NDR});
+      $utend += ( $FITS_headers->{ITIME} * $FITS_headers->{NDR}) ;
    }
    return $utend;
 }
@@ -340,22 +343,22 @@ sub to_X_REFERENCE_PIXEL{
 }
 
 sub from_X_REFERENCE_PIXEL {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"};
 }
 
 sub to_X_UPPER_BOUND {
    my $self = shift;
    my $FITS_headers = shift;
-   my @bounds = $self->get_bounds($FITS_headers);
+   my @bounds = $self->get_bounds( $FITS_headers );
    return $bounds[ 2 ];
 }
 
 sub to_Y_LOWER_BOUND {
    my $self = shift;
    my $FITS_headers = shift;
-   my @bounds = $self->get_bounds($FITS_headers);
+   my @bounds = $self->get_bounds( $FITS_headers );
    return $bounds[ 1 ];
 }
 
@@ -391,7 +394,7 @@ sub from_Y_REFERENCE_PIXEL {
 sub to_Y_UPPER_BOUND {
    my $self = shift;
    my $FITS_headers = shift;
-   my @bounds = $self->get_bounds($FITS_headers);
+   my @bounds = $self->get_bounds( $FITS_headers );
    return $bounds[ 3 ];
 }
 
@@ -473,7 +476,7 @@ C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.
 
 =head1 AUTHOR
 
-Malcolm Currie E<lt>mjc@star.rl.ac.ukE<gt>,
+Malcolm J. Currie E<lt>mjc@star.rl.ac.ukE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
@@ -484,7 +487,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -493,7 +496,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA 02111-1307, USA.
 
 =cut
 
