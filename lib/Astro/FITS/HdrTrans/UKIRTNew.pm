@@ -74,16 +74,13 @@ Converts UT date in C<DATE-OBS> header into C<Time::Piece> object.
 sub to_UTSTART {
   my $self = shift;
   my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{'DATE-OBS'})) {
-    my $utstart = $FITS_headers->{'DATE-OBS'};
-    $utstart =~ s/Z//g;
-
-    # use the standard FITS parser now that we have dropped the Z
-    $return = Astro::FITS::HdrTrans::FITS->to_UTSTART( { 'DATE-OBS' => 
-							   $utstart});
-  }
-  return $return;
+  my $dateobs = (exists $FITS_headers->{"DATE-OBS"} ?
+                 $FITS_headers->{"DATE-OBS"} : undef );
+  my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTSTART" );
+  my $utstart = $rutstart[0];
+  return $self->_parse_date_info( $dateobs,
+                                  $self->to_UTDATE( $FITS_headers ),
+                                  $utstart );
 }
 
 =item B<from_UTSTART>
@@ -120,16 +117,15 @@ Converts UT date in C<DATE-END> header into C<Time::Piece> object.
 sub to_UTEND {
   my $self = shift;
   my $FITS_headers = shift;
-  my $return;
-  if(exists($FITS_headers->{'DATE-END'})) {
-    my $utstart = $FITS_headers->{'DATE-END'};
-    $utstart =~ s/Z//g;
+  my $dateend = (exists $FITS_headers->{"DATE-END"} ?
+                 $FITS_headers->{"DATE-END"} : undef );
 
-    # use the standard FITS parser now that we have dropped the Z
-    $return = Astro::FITS::HdrTrans::FITS->to_UTEND( { 'DATE-END' => 
-						       $utstart});
-  }
-  return $return;
+  my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTEND" );
+  use Data::Dumper; print Dumper(\@rutend, $FITS_headers);
+  my $utend = $rutend[-1];
+  return $self->_parse_date_info( $dateend,
+                                  $self->to_UTDATE( $FITS_headers ),
+                                  $utend );
 }
 
 =item B<from_UTEND>

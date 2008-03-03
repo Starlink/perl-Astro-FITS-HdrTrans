@@ -192,6 +192,35 @@ These are UKIRT-specific helper routines.
 
 =over 4
 
+=item B<_parse_date_info>
+
+Given either a ISO format date string or a UT date (YYYYMMDD) and
+decimal hours UT, calculate the time and return it as an object.
+Preference is given to the ISO version.
+
+  $time = $trans->_parse_date_info($iso, $yyyymmdd, $uthr );
+
+=cut
+
+sub _parse_date_info {
+    my $self = shift;
+    my ($iso, $yyyymmdd, $utdechour) = @_;
+
+    # if we do not have an ISO string, form one
+    if (!defined $iso) {
+        # convert the decimal hours to hms
+        my $uthour = int($utdechour);
+        my $utminute = int( ( $utdechour - $uthour ) * 60 );
+        my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
+        $iso = sprintf( "%04d-%02d-%02dT%02d:%02d:%02s",
+                        substr($yyyymmdd,0,4),
+                        substr($yyyymmdd,4,2),
+                        substr($yyyymmdd,6,2),
+                        $uthour, $utminute, $utsecond);
+    }
+    return $self->_parse_iso_date( $iso );
+}
+
 =back
 
 =head1 REVISION

@@ -100,22 +100,13 @@ into a C<Time::Piece> object.
 sub to_UTSTART {
   my $self = shift;
   my $FITS_headers = shift;
-  my $return;
+
   my $utdate = $self->to_UTDATE( $FITS_headers );
   my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTSTART" );
   my $utdechour = $rutstart[0];
 
-  if(defined $utdate && defined $utdechour) {
-    my $uttime;
-    $utdate =~ /(\d{4})(\d{2})(\d{2})/;
-    $utdate = join '-', $1, $2, $3;
-    my $uthour = int($utdechour);
-    my $utminute = int( ( $utdechour - $uthour ) * 60 );
-    my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
-    $uttime = join ':', $uthour, $utminute, $utsecond;
-    $return = Time::Piece->strptime( $utdate . "T" . $uttime, "%Y-%m-%dT%T" );
-  }
-  return $return;
+  # we do not have a DATE-OBS
+  return $self->_parse_date_info( undef, $utdate, $utdechour );
 }
 
 =item B<from_UTSTART>
@@ -153,17 +144,8 @@ sub to_UTEND {
   my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTEND" );
   my $utdechour = $rutend[-1];
 
-  if(defined $utdate && defined $utdechour) {
-    my $uttime;
-    $utdate =~ /(\d{4})(\d{2})(\d{2})/;
-    $utdate = join '-', $1, $2, $3;
-    my $uthour = int($utdechour);
-    my $utminute = int( ( $utdechour - $uthour ) * 60 );
-    my $utsecond = int( ( ( ( $utdechour - $uthour ) * 60 ) - $utminute ) * 60 );
-    $uttime = join ':', $uthour, $utminute, $utsecond;
-    $return = Time::Piece->strptime( $utdate . "T" . $uttime, "%Y-%m-%dT%T" );
-  }
-  return $return;
+  # we do not have a DATE-END
+  return $self->_parse_date_info( undef, $utdate, $utdechour );
 }
 
 =item B<from_UTEND>
