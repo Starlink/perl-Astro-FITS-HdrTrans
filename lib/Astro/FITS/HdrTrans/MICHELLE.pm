@@ -29,8 +29,8 @@ use Carp;
 # Inherit from FITS to get X_BASE and Y_BASE
 # UKIRTNew must come first because of DATE-OBS handling
 use base qw/ Astro::FITS::HdrTrans::UKIRTNew
-	     Astro::FITS::HdrTrans::FITS
-	     /;
+             Astro::FITS::HdrTrans::FITS
+             /;
 
 use vars qw/ $VERSION /;
 
@@ -40,35 +40,40 @@ $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 # header that is constant
 my %CONST_MAP = (
 
-		);
+                );
 
 # unit mapping implies that the value propogates directly
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-		# Michelle Specific
-		CHOP_ANGLE           => "CHPANGLE",
-		CHOP_THROW           => "CHPTHROW",
-		GRATING_DISPERSION   => "GRATDISP",
-		GRATING_NAME         => "GRATNAME",
-		GRATING_ORDER        => "GRATORD",
-		GRATING_WAVELENGTH   => "GRATPOS",
-		SAMPLING             => "SAMPLING",
-		SLIT_ANGLE           => "SLITANG",
-		# CGS4 compatible
-		NSCAN_POSITIONS      => "DETNINCR",
-		SCAN_INCREMENT       => "DETINCR",
-		# UIST compatible
-		NUMBER_OF_READS      => "NREADS",
-		POLARIMETRY          => "POLARISE",
-		SLIT_NAME            => "SLITNAME",
-		# UIST + WFCAM compatible
-		EXPOSURE_TIME        => "EXP_TIME",
-		# UFTI + IRCAM compatible
-		SPEED_GAIN           => "SPD_GAIN",
-		# CGS4 + UIST + WFCAM
-		CONFIGURATION_INDEX  => 'CNFINDEX',
-	       );
+                  # Michelle Specific
+                  CHOP_ANGLE           => "CHPANGLE",
+                  CHOP_THROW           => "CHPTHROW",
+                  GRATING_DISPERSION   => "GRATDISP",
+                  GRATING_NAME         => "GRATNAME",
+                  GRATING_ORDER        => "GRATORD",
+                  GRATING_WAVELENGTH   => "GRATPOS",
+                  SAMPLING             => "SAMPLING",
+                  SLIT_ANGLE           => "SLITANG",
+
+                  # CGS4 compatible
+                  NSCAN_POSITIONS      => "DETNINCR",
+                  SCAN_INCREMENT       => "DETINCR",
+
+                  # UIST compatible
+                  NUMBER_OF_READS      => "NREADS",
+                  POLARIMETRY          => "POLARISE",
+                  SLIT_NAME            => "SLITNAME",
+
+                  # UIST + WFCAM compatible
+                  EXPOSURE_TIME        => "EXP_TIME",
+
+                  # UFTI + IRCAM compatible
+                  SPEED_GAIN           => "SPD_GAIN",
+
+                  # CGS4 + UIST + WFCAM
+                  CONFIGURATION_INDEX  => 'CNFINDEX',
+               );
 
 
 # Create the translation methods
@@ -92,7 +97,7 @@ Returns "MICHELLE".
 =cut
 
 sub this_instrument {
-  return "MICHELLE";
+   return "MICHELLE";
 }
 
 =back
@@ -100,78 +105,6 @@ sub this_instrument {
 =head1 COMPLEX CONVERSIONS
 
 =over 4
-
-=item B<to_X_REFERENCE_PIXEL>
-
-Specify the reference pixel, which is normally near the frame centre.
-Note that offsets for polarimetry are undefined.
-
-=cut
-
-sub to_X_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $xref;
-
-# Use the average of the bounds to define the centre.
-  if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
-     my $xl = $FITS_headers->{RDOUT_X1};
-     my $xu = $FITS_headers->{RDOUT_X2};
-     $xref = $self->nint( ( $xl + $xu ) / 2 );
-
-# Use a default of the centre of the full array.
-   } else {
-      $xref = 161;
-   }
-   return $xref;
-}
-
-=item B<from_X_REFERENCE_PIXEL>
-
-Always returns the value '1' as CRPIX1.
-
-=cut
-
-sub from_X_REFERENCE_PIXEL {
-    my $self = shift;
-    return ("CRPIX1", 1.0);
-}
-
-=item B<to_Y_REFERENCE_PIXEL>
-
-Specify the reference pixel, which is normally near the frame centre.
-Note that offsets for polarimetry are undefined.
-
-=cut
-
-sub to_Y_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $yref;
-
-# Use the average of the bounds to define the centre.
-   if ( exists $FITS_headers->{RDOUT_Y1} && exists $FITS_headers->{RDOUT_Y2} ) {
-      my $yl = $FITS_headers->{RDOUT_Y1};
-      my $yu = $FITS_headers->{RDOUT_Y2};
-      $yref = $self->nint( ( $yl + $yu ) / 2 );
-
-# Use a default of the centre of the full array.
-   } else {
-      $yref = 121;
-   }
-   return $yref;
-}
-
-=item B<from_Y_REFERENCE_PIXEL>
-
-Always returns the value '1' as CRPIX2.
-
-=cut
-
-sub from_Y_REFERENCE_PIXEL {
-    my $self = shift;
-    return ("CRPIX2", 1.0);
-}
 
 =item B<to_DEC_TELESCOPE_OFFSET>
 
@@ -233,6 +166,35 @@ sub from_DEC_TELESCOPE_OFFSET {
         $tdecoff = $generic_headers->{DEC_TELESCOPE_OFFSET};
     }
     return ("TDECOFF",$tdecoff);
+}
+
+=item B<to_DETECTOR_INDEX>
+
+This is the DINDEX header. It's only available in a subheader although
+the primary header is tested to enable round tripping. This
+could either be in a "SUBHEADERS" array or in named "In" subheaders.
+The difference depends on how the fits header was constructed.
+
+=cut
+
+sub to_DETECTOR_INDEX {
+    my $self = shift;
+    my $FITS_headers = shift;
+    my @results = $self->via_subheader( $FITS_headers, "DINDEX" );
+    return $results[-1];
+}
+
+=item B<from_DETECTOR_INDEX>
+
+Returns the detector index in a "DINDEX" header. Note that this value
+can not be returned as a sub header.
+
+=cut
+
+sub from_DETECTOR_INDEX {
+    my $self = shift;
+    my $generic_headers = shift;
+    return ("DINDEX", $generic_headers->{DETECTOR_INDEX});
 }
 
 =item B<to_DETECTOR_READ_TYPE>
@@ -341,33 +303,76 @@ sub _to_RA_TELESCOPE_OFFSET {
    return $raoff;
 }
 
-=item B<to_DETECTOR_INDEX>
+=item B<to_X_REFERENCE_PIXEL>
 
-This is the DINDEX header. It's only available in a subheader although
-the primary header is tested to enable round tripping. This
-could either be in a "SUBHEADERS" array or in named "In" subheaders.
-The difference depends on how the fits header was constructed.
+Specify the reference pixel, which is normally near the frame centre.
+Note that offsets for polarimetry are undefined.
 
 =cut
 
-sub to_DETECTOR_INDEX {
-    my $self = shift;
-    my $FITS_headers = shift;
-    my @results = $self->via_subheader( $FITS_headers, "DINDEX" );
-    return $results[-1];
+sub to_X_REFERENCE_PIXEL{
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $xref;
+
+# Use the average of the bounds to define the centre.
+  if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
+     my $xl = $FITS_headers->{RDOUT_X1};
+     my $xu = $FITS_headers->{RDOUT_X2};
+     $xref = $self->nint( ( $xl + $xu ) / 2 );
+
+# Use a default of the centre of the full array.
+   } else {
+      $xref = 161;
+   }
+   return $xref;
 }
 
-=item B<from_DETECTOR_INDEX>
+=item B<from_X_REFERENCE_PIXEL>
 
-Returns the detector index in a "DINDEX" header. Note that this value
-can not be returned as a sub header.
+Always returns the value '1' as CRPIX1.
 
 =cut
 
-sub from_DETECTOR_INDEX {
+sub from_X_REFERENCE_PIXEL {
     my $self = shift;
-    my $generic_headers = shift;
-    return ("DINDEX", $generic_headers->{DETECTOR_INDEX});
+    return ("CRPIX1", 1.0);
+}
+
+=item B<to_Y_REFERENCE_PIXEL>
+
+Specify the reference pixel, which is normally near the frame centre.
+Note that offsets for polarimetry are undefined.
+
+=cut
+
+sub to_Y_REFERENCE_PIXEL{
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $yref;
+
+# Use the average of the bounds to define the centre.
+   if ( exists $FITS_headers->{RDOUT_Y1} && exists $FITS_headers->{RDOUT_Y2} ) {
+      my $yl = $FITS_headers->{RDOUT_Y1};
+      my $yu = $FITS_headers->{RDOUT_Y2};
+      $yref = $self->nint( ( $yl + $yu ) / 2 );
+
+# Use a default of the centre of the full array.
+   } else {
+      $yref = 121;
+   }
+   return $yref;
+}
+
+=item B<from_Y_REFERENCE_PIXEL>
+
+Always returns the value '1' as CRPIX2.
+
+=cut
+
+sub from_Y_REFERENCE_PIXEL {
+    my $self = shift;
+    return ("CRPIX2", 1.0);
 }
 
 =back
@@ -382,17 +387,20 @@ C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.
 
 =head1 AUTHOR
 
+Malcolm J. Currie E<lt>mjc@star.rl.ac.ukE<gt>
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2008 Science and Technology Facilities Council.
+Copyright (C) 2006-2007 Particle Physics and Astronomy Research Council.
+ACopyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -401,7 +409,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 
