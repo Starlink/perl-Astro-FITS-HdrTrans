@@ -89,11 +89,14 @@ sub to_OBSERVATION_ID {
     my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
     my $dateobs = $self->to_UTSTART( $FITS_headers );
 
-    my $datetime = $dateobs->datetime;
-    $datetime =~ s/-//g;
-    $datetime =~ s/://g;
+    my $datetime;
+    if (defined $dateobs) {
+        $datetime = $dateobs->datetime;
+        $datetime =~ s/-//g;
+        $datetime =~ s/://g;
 
-    $return = join '_', $instrume, $obsnum, $datetime;
+        $return = join '_', $instrume, $obsnum, $datetime;
+    }
   }
 
   return $return;
