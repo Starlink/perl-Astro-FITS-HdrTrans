@@ -32,6 +32,7 @@ WriteMakefile(
                                     'Test::More' => 0,
                                     'Time::Piece' => 0,
                                    },
+               'EXE_FILES'      => [qw/ translatehdr /],
                'dist'           => { COMPRESS => "gzip -9f"},
                ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
                ( ABSTRACT_FROM  => $file,
