@@ -73,6 +73,9 @@ Converts the C<OBSID> header directly into the C<OBSERVATION_ID>
 generic header, or if that header does not exist, converts the
 C<INSTRUME>, C<RUNNR>, and C<DATE-OBS> headers into C<OBSERVATION_ID>.
 
+The form of the observation ID string is documented in
+JSA/ANA/001 (http://docs.jach.hawaii.edu/JCMT/JSA/ANA/001/jsa_ana_001.pdf).
+
 =cut
 
 sub to_OBSERVATION_ID {
