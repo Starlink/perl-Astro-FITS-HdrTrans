@@ -34,8 +34,8 @@ $VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-    POLARIMETRY => 0,
-		);
+                  POLARIMETRY   => 0,
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = qw/ /;
@@ -68,7 +68,7 @@ Returns "NAOS+CONICA".
 =cut
 
 sub this_instrument {
-  return "NAOS+CONICA";
+   return "NAOS+CONICA";
 }
 
 =back
@@ -140,6 +140,95 @@ sub to_DEC_TELESCOPE_OFFSET {
 # place on the sky, not the motion of the telescope.
    return -1.0 * $decoffset;
 }
+
+# Derive the translation between observing template and recipe name.
+sub to_DR_RECIPE {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $recipe = "QUICK_LOOK";
+
+# Obtain the observing template.  These are equivalent
+# to the UKIRT OT science programmes and their tied DR recipes.
+# However, there are some wrinkles and variations to be tested.
+   my $template = $FITS_headers->{"HIERARCH.ESO.TPL.ID"};
+   my $seq = $FITS_headers->{"HIERARCH.ESO.TPL.PRESEQ"};
+
+   if ( $template =~ /_img_obs_AutoJitter/ ||
+        $template =~ /_img_obs_GenericOffset/ ) {
+      $recipe = "JITTER_SELF_FLAT";
+
+   } elsif ( $template =~ /_img_cal_StandardStar/ ||
+             $template =~ /_img_cal_StandardStarOff/ ||
+             $template =~ /_img_tec_Zp/ ||
+             $template =~ /_img_tec_ZpNoChop/ ||
+             $seq =~ /_img_cal_StandardStar/ ||
+             $seq =~ /_img_cal_StandardStarOff/ ) {
+      $recipe = "JITTER_SELF_FLAT_APHOT";
+
+   } elsif ( $template =~ /_img_obs_AutoJitterOffset/ ||
+             $template =~ /_img_obs_FixedSkyOffset/ ) {
+      $recipe = "CHOP_SKY_JITTER";
+
+# The following two perhaps should be using NOD_CHOP and a variant of
+# NOD_CHOP_APHOT to cope with the three source images (central double
+# flux) rather than four.
+   } elsif ( $template =~ /_img_obs_AutoChopNod/ ||
+             $seq =~ /_img_obs_AutoChopNod/ ) {
+      $recipe = "NOD_SELF_FLAT_NO_MASK";
+
+   } elsif ( $template =~ /_img_cal_ChopStandardStar/ ) {
+      $recipe = "NOD_SELF_FLAT_NO_MASK_APHOT";
+
+   } elsif ( $template =~ /_cal_Darks/ ||
+             $seq =~ /_cal_Darks/ ) {
+      $recipe = "REDUCE_DARK";
+
+   } elsif ( $template =~ /_img_cal_TwFlats/ ||
+             $template =~ /_img_cal_SkyFlats/ ) {
+      $recipe = "SKY_FLAT_MASKED";
+
+   } elsif ( $template =~ /_img_cal_LampFlats/ ) {
+      $recipe = "LAMP_FLAT";
+
+# Imaging spectroscopy.  There appears to be no distinction
+# for flats from target, hence no division into POL_JITTER and
+# SKY_FLAT_POL.
+   } elsif ( $template =~ /_pol_obs_GenericOffset/ ||
+             $template =~ /_pol_cal_StandardStar/ ) {
+      $recipe = "POL_JITTER";
+
+   } elsif ( $template =~ /_pol_obs_AutoChopNod/ ||
+             $template =~ /_pol_cal_ChopStandardStar/ ) {
+      $recipe = "POL_NOD_CHOP";
+
+   } elsif ( $template =~ /_pol_cal_LampFlats/ ) {
+      $recipe = "POL_JITTER";
+
+# Spectroscopy.  EXTENDED_SOURCE may be more appropriate for
+# the NACO_spec_obs_GenericOffset template.
+   } elsif ( $template =~ /_spec_obs_AutoNodOnSlit/ ||
+             $template =~ /_spec_obs_GenericOffset/ ||
+             $template =~ /_spec_obs_AutoChopNod/ ) {
+      $recipe = "POINT_SOURCE";
+
+   } elsif ( $template =~ /_spec_cal_StandardStar/ ||
+             $template =~ /_spec_cal_StandardStarNod/ ||
+             $template =~ /_spec_cal_AutoNodOnSlit/  ) {
+      $recipe = "STANDARD_STAR";
+
+   } elsif ( $template =~ /_spec_cal_NightCalib/ ) {
+      $recipe = "REDUCE_SINGLE_FRAME";
+
+   } elsif ( $template =~ /_spec_cal_Arcs/ ||
+             $seq =~ /_spec_cal_Arcs/ ) {
+      $recipe = "REDUCE_ARC";
+
+   } elsif ( $template =~ /_spec_cal_LampFlats/ ) {
+      $recipe = "LAMP_FLAT";
+   }
+   return $recipe;
+}
+
 
 # Filters appear to be in wheels 4 to 6.  It appears the filter
 # in just one of the three.
@@ -263,94 +352,6 @@ sub to_RA_TELESCOPE_OFFSET {
    return -1.0 * $raoffset;
 }
 
-# Derive the translation between observing template and recipe name.
-sub to_DR_RECIPE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $recipe = "QUICK_LOOK";
-
-# Obtain the observing template.  These are equivalent
-# to the UKIRT OT science programmes and their tied DR recipes.
-# However, there are some wrinkles and variations to be tested.
-   my $template = $FITS_headers->{"HIERARCH.ESO.TPL.ID"};
-   my $seq = $FITS_headers->{"HIERARCH.ESO.TPL.PRESEQ"};
-
-   if ( $template =~ /_img_obs_AutoJitter/ ||
-        $template =~ /_img_obs_GenericOffset/ ) {
-      $recipe = "JITTER_SELF_FLAT";
-
-   } elsif ( $template =~ /_img_cal_StandardStar/ ||
-             $template =~ /_img_cal_StandardStarOff/ ||
-             $template =~ /_img_tec_Zp/ ||
-             $template =~ /_img_tec_ZpNoChop/ ||
-             $seq =~ /_img_cal_StandardStar/ ||
-             $seq =~ /_img_cal_StandardStarOff/ ) {
-      $recipe = "JITTER_SELF_FLAT_APHOT";
-
-   } elsif ( $template =~ /_img_obs_AutoJitterOffset/ ||
-             $template =~ /_img_obs_FixedSkyOffset/ ) {
-      $recipe = "CHOP_SKY_JITTER";
-
-# The following two perhaps should be using NOD_CHOP and a variant of
-# NOD_CHOP_APHOT to cope with the three source images (central double
-# flux) rather than four.
-   } elsif ( $template =~ /_img_obs_AutoChopNod/ ||
-             $seq =~ /_img_obs_AutoChopNod/ ) {
-      $recipe = "NOD_SELF_FLAT_NO_MASK";
-
-   } elsif ( $template =~ /_img_cal_ChopStandardStar/ ) {
-      $recipe = "NOD_SELF_FLAT_NO_MASK_APHOT";
-
-   } elsif ( $template =~ /_cal_Darks/ ||
-             $seq =~ /_cal_Darks/ ) {
-      $recipe = "REDUCE_DARK";
-
-   } elsif ( $template =~ /_img_cal_TwFlats/ ||
-             $template =~ /_img_cal_SkyFlats/ ) {
-      $recipe = "SKY_FLAT_MASKED";
-
-   } elsif ( $template =~ /_img_cal_LampFlats/ ) {
-      $recipe = "LAMP_FLAT";
-
-# Imaging spectroscopy.  There appears to be no distinction
-# for flats from target, hence no division into POL_JITTER and
-# SKY_FLAT_POL.
-   } elsif ( $template =~ /_pol_obs_GenericOffset/ ||
-             $template =~ /_pol_cal_StandardStar/ ) {
-      $recipe = "POL_JITTER";
-
-   } elsif ( $template =~ /_pol_obs_AutoChopNod/ ||
-             $template =~ /_pol_cal_ChopStandardStar/ ) {
-      $recipe = "POL_NOD_CHOP";
-
-   } elsif ( $template =~ /_pol_cal_LampFlats/ ) {
-      $recipe = "POL_JITTER";
-
-# Spectroscopy.  EXTENDED_SOURCE may be more appropriate for
-# the NACO_spec_obs_GenericOffset template.
-   } elsif ( $template =~ /_spec_obs_AutoNodOnSlit/ ||
-             $template =~ /_spec_obs_GenericOffset/ ||
-             $template =~ /_spec_obs_AutoChopNod/ ) {
-      $recipe = "POINT_SOURCE";
-
-   } elsif ( $template =~ /_spec_cal_StandardStar/ ||
-             $template =~ /_spec_cal_StandardStarNod/ ||
-             $template =~ /_spec_cal_AutoNodOnSlit/  ) {
-      $recipe = "STANDARD_STAR";
-
-   } elsif ( $template =~ /_spec_cal_NightCalib/ ) {
-      $recipe = "REDUCE_SINGLE_FRAME";
-
-   } elsif ( $template =~ /_spec_cal_Arcs/ ||
-             $seq =~ /_spec_cal_Arcs/ ) {
-      $recipe = "REDUCE_ARC";
-
-   } elsif ( $template =~ /_spec_cal_LampFlats/ ) {
-      $recipe = "LAMP_FLAT";
-   }
-   return $recipe;
-}
-
 # Just translate to shorter strings for ease and to fit within the
 # night log.
 sub to_SPEED_GAIN {
@@ -397,17 +398,19 @@ C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.
 
 =head1 AUTHOR
 
+Malcolm J. Currie E<lt>mjc@star.rl.ac.ukE<gt>
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
+Copyright (C) 2008 Science and Technology Facilities Council.
 Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -416,7 +419,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 

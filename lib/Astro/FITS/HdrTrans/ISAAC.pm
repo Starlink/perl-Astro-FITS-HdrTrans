@@ -34,8 +34,8 @@ $VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-    POLARIMETRY => 0,
-		);
+                  POLARIMETRY   => 0,
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = qw/ /;
@@ -68,7 +68,7 @@ Returns "ISAAC".
 =cut
 
 sub this_instrument {
-  return "ISAAC";
+   return "ISAAC";
 }
 
 =back
@@ -413,17 +413,19 @@ C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.
 
 =head1 AUTHOR
 
+Malcolm J. Currie E<lt>mjc@star.rl.ac.ukE<gt>
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
+Copyright (C) 2008 Science and Technology Facilities Council.
 Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -432,7 +434,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 

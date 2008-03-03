@@ -34,14 +34,14 @@ $VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-    OBSERVATION_MODE => 'imaging',
-    NSCAN_POSITIONS => 1,
-    NUMBER_OF_EXPOSURES => 1,
-    INSTRUMENT => "ClassicCam",
-    GAIN => 7.5,
-    DETECTOR_READ_TYPE => "NDSTARE",
-    ROTATION => 0, # assume good alignment for now
-		);
+                  DETECTOR_READ_TYPE    => "NDSTARE",
+                  GAIN                  => 7.5,
+                  INSTRUMENT            => "ClassicCam",
+                  NSCAN_POSITIONS       => 1,
+                  NUMBER_OF_EXPOSURES   => 1,
+                  OBSERVATION_MODE      => 'imaging',
+                  ROTATION              => 0, # assume good alignment for now
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = qw/ /;
@@ -50,17 +50,17 @@ my @NULL_MAP = qw/ /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-           AIRMASS_END            => "AIRMASS",
-           DEC_TELESCOPE_OFFSET   => "DSECS",
-           EQUINOX                => "EQUINOX",
-           EXPOSURE_TIME          => "EXPTIME",
-           FILTER                 => "FILTER",
-           OBJECT                 => "OBJECT",
-           OBSERVATION_NUMBER     => "IRPICNO",
-           RA_TELESCOPE_OFFSET    => "ASECS",
-           SPEED_GAIN             => "SPEED",
-           X_DIM                  => "NAXIS1",
-           Y_DIM                  => "NAXIS2"
+                 AIRMASS_END            => "AIRMASS",
+                 DEC_TELESCOPE_OFFSET   => "DSECS",
+                 EQUINOX                => "EQUINOX",
+                 EXPOSURE_TIME          => "EXPTIME",
+                 FILTER                 => "FILTER",
+                 OBJECT                 => "OBJECT",
+                 OBSERVATION_NUMBER     => "IRPICNO",
+                 RA_TELESCOPE_OFFSET    => "ASECS",
+                 SPEED_GAIN             => "SPEED",
+                 X_DIM                  => "NAXIS1",
+                 Y_DIM                  => "NAXIS2"
                );
 
 
@@ -442,7 +442,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -451,7 +451,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 

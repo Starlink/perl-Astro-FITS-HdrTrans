@@ -43,30 +43,30 @@ $VERSION = sprintf("%d", q$Revision: 14385 $ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-    SCAN_INCREMENT => 1,
-    NSCAN_POSITIONS => 1,
+                  SCAN_INCREMENT      => 1,
+                  NSCAN_POSITIONS     => 1,
                 );
 
 # unit mapping implies that the value propogates directly
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-            DEC_SCALE            => "CDELT1",
-            RA_SCALE             => "CDELT2",
+                 DEC_SCALE            => "CDELT1",
+                 RA_SCALE             => "CDELT2",
 
 # then the spectroscopy...
-            SLIT_NAME            => "HIERARCH.ESO.INS.OPTI1.ID",
-            X_DIM                => "HIERARCH.ESO.DET.WIN.NX",
-            Y_DIM                => "HIERARCH.ESO.DET.WIN.NY",
+                 SLIT_NAME            => "HIERARCH.ESO.INS.OPTI1.ID",
+                 X_DIM                => "HIERARCH.ESO.DET.WIN.NX",
+                 Y_DIM                => "HIERARCH.ESO.DET.WIN.NY",
 
 # then the general.
-            CHOP_ANGLE           => "HIERARCH.ESO.SEQ.CHOP.POSANGLE",
-            CHOP_THROW           => "HIERARCH.ESO.SEQ.CHOP.THROW",
-            EXPOSURE_TIME        => "EXPTIME",
-            NUMBER_OF_EXPOSURES  => "HIERARCH.ESO.DET.NDIT",
-            NUMBER_OF_READS      => "HIERARCH.ESO.DET.NCORRS",
-            OBSERVATION_NUMBER   => "OBSNUM",
-    );
+                 CHOP_ANGLE           => "HIERARCH.ESO.SEQ.CHOP.POSANGLE",
+                 CHOP_THROW           => "HIERARCH.ESO.SEQ.CHOP.THROW",
+                 EXPOSURE_TIME        => "EXPTIME",
+                 NUMBER_OF_EXPOSURES  => "HIERARCH.ESO.DET.NDIT",
+                 NUMBER_OF_READS      => "HIERARCH.ESO.DET.NCORRS",
+                 OBSERVATION_NUMBER   => "OBSNUM",
+               );
 
 # Create the translation methods
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
@@ -97,8 +97,8 @@ sub to_AIRMASS_END {
 }
 
 sub from_AIRMASS_END {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "HIERARCH.ESO.TEL.AIRM.END", $generic_headers->{ "AIRMASS_END" };
 }
 
@@ -115,19 +115,19 @@ sub to_AIRMASS_START {
 }
 
 sub from_AIRMASS_START {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "HIERARCH.ESO.TEL.AIRM.START", $generic_headers->{ "AIRMASS_START" };
 }
 
 sub to_CONFIGURATION_INDEX {
-    my $self = shift;
-    my $FITS_headers = shift;
-    my $instindex = 0;
-    if ( exists $FITS_headers->{"HIERARCH.ESO.INS.GRAT.ENC"} ) {
-       $instindex = $FITS_headers->{"HIERARCH.ESO.INS.GRAT.ENC"};
-    }
-    return $instindex;
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $instindex = 0;
+   if ( exists $FITS_headers->{"HIERARCH.ESO.INS.GRAT.ENC"} ) {
+      $instindex = $FITS_headers->{"HIERARCH.ESO.INS.GRAT.ENC"};
+   }
+   return $instindex;
 }
 
 sub to_DEC_BASE {
@@ -255,8 +255,8 @@ sub to_OBSERVATION_TYPE {
 }
 
 sub from_OBSERVATION_TYPE {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "HIERARCH.ESO.DPR.TYPE",  $generic_headers->{ "OBSERVATION_TYPE" };
 }
 
@@ -316,8 +316,8 @@ sub to_SLIT_ANGLE {
 }
 
 sub from_SLIT_ANGLE {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "HIERARCH.ESO.ADA.POSANG",  $generic_headers->{ "SLIT_ANGLE" };
 }
 
@@ -333,47 +333,50 @@ sub to_STANDARD {
 }
 
 sub from_STANDARD {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "STANDARD",  $generic_headers->{ "STANDARD" };
 }
 
 sub to_UTDATE {
    my $self = shift;
    my $FITS_headers = shift;
-   return $self->get_UT_date($FITS_headers);
+   return $self->get_UT_date( $FITS_headers );
 }
 
 sub to_UTEND {
    my $self = shift;
    my $FITS_headers = shift;
 
-# Obtain the start time
+# Obtain the start time.
    my $start = $self->to_UTSTART( $FITS_headers );
 
-# Approximate end time
-   return $self->_add_seconds( $start, $FITS_headers->{EXPTIME});
+# Approximate end time.
+   return $self->_add_seconds( $start, $FITS_headers->{EXPTIME} );
 }
 
 sub to_UTSTART {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $return;
-  if (exists $FITS_headers->{'DATE-OBS'}) {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $return;
+   if ( exists $FITS_headers->{'DATE-OBS'} ) {
       $return = $self->_parse_iso_date( $FITS_headers->{'DATE-OBS'} );
-  } elsif (exists $FITS_headers->{UTC}) {
-      # seconds in UT day
-      # so first need the UT day
+   } elsif (exists $FITS_headers->{UTC}) {
+
+# Converts the UT date in YYYYMMDD format obytained from the headers to a 
+# date object at midnight.  Then add the seconds past midnight to the 
+# object.
       my $base = $self->to_UTDATE( $FITS_headers );
       my $basedate = $self->_utdate_to_object( $base );
-      $return = $self->_add_seconds( $basedate, $FITS_headers->{UTC});
+      $return = $self->_add_seconds( $basedate, $FITS_headers->{UTC} );
 
-  } elsif(exists($FITS_headers->{"HIERARCH.ESO.OBS.START"})) {
-    # Use the backup of the observation start header, which is encoded in
-    # FITS data format, i.e. yyyy-mm-ddThh:mm:ss.
-    $return = $self->_parse_iso_date( $FITS_headers->{"HIERARCH.ESO.OBS.START"});
-  }
-  return $return;
+   } elsif ( exists( $FITS_headers->{"HIERARCH.ESO.OBS.START"} ) ) {
+
+# Use the backup of the observation start header, which is encoded in
+# FITS data format, i.e. yyyy-mm-ddThh:mm:ss.
+     $return = $self->_parse_iso_date( $FITS_headers->{"HIERARCH.ESO.OBS.START"});
+   }
+   return $return;
 }
 
 sub to_WAVEPLATE_ANGLE {
@@ -391,8 +394,8 @@ sub to_WAVEPLATE_ANGLE {
 }
 
 sub from_WAVEPLATE_ANGLE {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "HIERARCH.ESO.ADA.POSANG",  $generic_headers->{ "WAVEPLATE_ANGLE" };
 }
 
@@ -415,10 +418,28 @@ sub to_X_REFERENCE_PIXEL{
    return $xref;
 }
 
+sub to_X_LOWER_BOUND {
+   my $self = shift;
+   my $FITS_headers = shift;
+   return $self->nint( $FITS_headers->{"HIERARCH.ESO.DET.WIN.STARTX"} );
+}
+
 sub from_X_REFERENCE_PIXEL {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"};
+}
+
+sub to_X_UPPER_BOUND {
+   my $self = shift;
+   my $FITS_headers = shift;
+   return $FITS_headers->{"HIERARCH.ESO.DET.WIN.STARTX"} - 1 + $FITS_headers->{"HIERARCH.ESO.DET.WIN.NX"};
+}
+
+sub to_Y_LOWER_BOUND {
+   my $self = shift;
+   my $FITS_headers = shift;
+   return $self->nint( $FITS_headers->{"HIERARCH.ESO.DET.WIN.STARTY"} );
 }
 
 # Use the nominal reference pixel if correctly supplied, failing that
@@ -441,27 +462,9 @@ sub to_Y_REFERENCE_PIXEL{
 }
 
 sub from_Y_REFERENCE_PIXEL {
-    my $self = shift;
-    my $generic_headers = shift;
+   my $self = shift;
+   my $generic_headers = shift;
    "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"};
-}
-
-sub to_X_LOWER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   return $self->nint( $FITS_headers->{"HIERARCH.ESO.DET.WIN.STARTX"} );
-}
-
-sub to_Y_LOWER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   return $self->nint( $FITS_headers->{"HIERARCH.ESO.DET.WIN.STARTY"} );
-}
-
-sub to_X_UPPER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   return $FITS_headers->{"HIERARCH.ESO.DET.WIN.STARTX"} - 1 + $FITS_headers->{"HIERARCH.ESO.DET.WIN.NX"};
 }
 
 sub to_Y_UPPER_BOUND {
@@ -575,6 +578,7 @@ C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>.
 
 =head1 AUTHOR
 
+Malcolm J. Currie E<lt>mjc@star.rl.ac.ukE<gt>
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
@@ -585,7 +589,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
+the Free Software Foundation; either Version 2 of the License, or (at
 your option) any later version.
 
 This program is distributed in the hope that it will be useful,but
@@ -595,8 +599,8 @@ General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place,Suite 330, Boston, MA 02111-1307,
-USA
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
+USA.
 
 =cut
 

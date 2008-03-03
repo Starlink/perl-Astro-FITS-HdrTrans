@@ -34,8 +34,8 @@ $VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-    POLARIMETRY => 0,
-		);
+                  POLARIMETRY => 0,
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = qw/ /;
@@ -68,7 +68,7 @@ Returns "SOFI".
 =cut
 
 sub this_instrument {
-  return "SOFI";
+   return "SOFI";
 }
 
 =back
@@ -92,12 +92,12 @@ sub to_DEC_TELESCOPE_OFFSET {
              exists $FITS_headers->{"HIERARCH.ESO.SEQ.CUMOFFSETY"} ) {
 
 # Obtain the x-y offsets in arcsecs.
-      my ($x_as, $y_as) = $self->xy_offsets($FITS_headers);
+      my ($x_as, $y_as) = $self->xy_offsets( $FITS_headers );
 
 # Define degrees to radians conversion and obtain the rotation angle.
       my $dtor = atan2( 1, 1 ) / 45.0;
 
-      my $rotangle = $self->rotation($FITS_headers);
+      my $rotangle = $self->rotation( $FITS_headers );
       my $cosrot = cos( $rotangle * $dtor );
       my $sinrot = sin( $rotangle * $dtor );
 
@@ -161,8 +161,8 @@ sub to_GRATING_DISPERSION {
    my $order = 0;
    if ( exists $FITS_headers->{"HIERARCH.ESO.INS.GRAT.ORDER"} ) {
       $order = $FITS_headers->{"HIERARCH.ESO.INS.GRAT.ORDER"};
-    }
-    if ( $self->to_GRATING_NAME($FITS_headers) eq "LR" ) {
+   }
+   if ( $self->to_GRATING_NAME($FITS_headers) eq "LR" ) {
       if ( lc( $order ) eq "blue" || $self->to_FILTER($FITS_headers) eq "GBF" ) {
          $dispersion = 6.96e-4;
       } else {
@@ -196,7 +196,7 @@ sub to_GRATING_NAME{
       $name = $FITS_headers->{"HIERARCH.ESO.INS.GRAT.NAME"};
 
 # Name is missing for low resolution.
-   } elsif ( $self->to_FILTER($FITS_headers) =~ /^G[BR]F/ ) {
+   } elsif ( $self->to_FILTER( $FITS_headers ) =~ /^G[BR]F/ ) {
       $name = "LR"; 
    }
    return $name;
@@ -210,9 +210,9 @@ sub to_GRATING_WAVELENGTH{
       $wavelength = $FITS_headers->{"HIERARCH.ESO.INS.GRAT.WLEN"};
 
 # Wavelength is missing for low resolution.
-   } elsif ( $self->to_FILTER($FITS_headers) =~ /^GBF/ ) {
+   } elsif ( $self->to_FILTER( $FITS_headers ) =~ /^GBF/ ) {
       $wavelength = 1.3; 
-   } elsif ( $self->to_FILTER($FITS_headers) =~ /^GRF/ ) {
+   } elsif ( $self->to_FILTER( $FITS_headers ) =~ /^GRF/ ) {
       $wavelength = 2.0; 
    }
    return $wavelength;
@@ -269,12 +269,12 @@ sub to_RA_TELESCOPE_OFFSET {
              exists $FITS_headers->{"HIERARCH.ESO.SEQ.CUMOFFSETY"} ) {
 
 # Obtain the x-y offsets in arcsecs.
-      my ($x_as, $y_as) = $self->xy_offsets($FITS_headers);
+      my ($x_as, $y_as) = $self->xy_offsets( $FITS_headers );
 
 # Define degrees to radians conversion and obtain the rotation angle.
       my $dtor = atan2( 1, 1 ) / 45.0;
 
-      my $rotangle = $self->rotation($FITS_headers);
+      my $rotangle = $self->rotation( $FITS_headers );
       my $cosrot = cos( $rotangle * $dtor );
       my $sinrot = sin( $rotangle * $dtor );
 
@@ -401,7 +401,7 @@ sub xy_offsets {
    }
    my $x_as = 0.0;
    my $y_as = 0.0;
-   my $mode = uc( $self->get_instrument_mode($FITS_headers) );
+   my $mode = uc( $self->get_instrument_mode( $FITS_headers ) );
    if ( !( $expno == 1 && ( $mode eq "IMAGE" || $mode eq "POLARIMETRY" ) ) ) {
       if ( exists $FITS_headers->{"HIERARCH.ESO.SEQ.CUMOFFSETX"} ) {
          $x_as = $FITS_headers->{"HIERARCH.ESO.SEQ.CUMOFFSETX"} * $pixscale;
@@ -426,17 +426,19 @@ C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.
 
 =head1 AUTHOR
 
+Malcolm J. Currie E<lt>mjc@star.rl.ac.ukE<gt>
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
+Copyright (C) 2008 Science and Technology Facilities Council.
 Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -445,7 +447,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 

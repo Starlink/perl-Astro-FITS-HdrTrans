@@ -34,12 +34,12 @@ $VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-    OBSERVATION_MODE => 'imaging',
-    STANDARD => 0, # hardwire for now as all objects not a standard.
-    GAIN => 12.3, # hardwire for now
-    SPEED_GAIN => "NA",
-    WAVEPLATE_ANGLE => 0, # hardwire for now
-		);
+                  GAIN                 => 12.3, # hardwire for now
+                  OBSERVATION_MODE     => 'imaging',
+                  SPEED_GAIN           => "NA",
+                  STANDARD             => 0, # hardwire for now as all objects not a standard.
+                  WAVEPLATE_ANGLE      => 0, # hardwire for now
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = qw/ /;
@@ -48,7 +48,7 @@ my @NULL_MAP = qw/ /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-            DETECTOR_READ_TYPE   => "MODE",
+                  DETECTOR_READ_TYPE   => "MODE",
                );
 
 
@@ -73,7 +73,7 @@ Returns "NIRI".
 =cut
 
 sub this_instrument {
-  return qr/^NIRI/;
+   return qr/^NIRI/;
 }
 
 =back
@@ -203,6 +203,7 @@ C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.
 
 =head1 AUTHOR
 
+Malcolm J. Currie E<lt>mjc@star.rl.ac.ukE<gt>
 Paul Hirst E<lt>p.hirst@jach.hawaii.eduE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
@@ -214,7 +215,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -223,7 +224,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 
