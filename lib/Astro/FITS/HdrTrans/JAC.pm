@@ -4,7 +4,7 @@ package Astro::FITS::HdrTrans::JAC;
 
 =head1 NAME
 
-Astro::FITS::HdrTrans::JAC - Base calss for translation of Joint
+Astro::FITS::HdrTrans::JAC - Base class for translation of Joint
 Astronomy Centre instruments.
 
 =head1 SYNOPSIS
