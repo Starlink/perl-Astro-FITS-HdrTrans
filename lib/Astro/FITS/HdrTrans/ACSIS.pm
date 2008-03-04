@@ -24,6 +24,7 @@ use Carp;
 use Astro::Coords;
 use Astro::Telescope;
 use DateTime;
+use DateTime::TimeZone;
 
 # inherit from the Base translation class and not HdrTrans
 # itself (which is just a class-less wrapper)
@@ -40,6 +41,9 @@ use vars qw/ $VERSION /;
 $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 
 our $COORDS;
+
+# Cache UTC definition
+our $UTC = DateTime::TimeZone->new( name => 'UTC' );
 
 # in each class we have three sets of data.
 #   - constant mappings
@@ -549,11 +553,14 @@ sub _convert_sybase_date {
   $sybase_date =~ s/:\d\d\d//;
   $sybase_date =~ s/\s*$//;
 
-  $sybase_date =~ /\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s+(\d{1,2}):(\d\d):(\d\d)(AM|PM)/;
+  return unless 
+      $sybase_date =~ /\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s+(\d{1,2}):(\d\d):(\d\d)(AM|PM)/;
 
   my $hour = $4;
-  if( uc($7) eq 'PM' && $hour < 12 ) {
-    $hour += 12;
+  if (uc($7) eq 'AM' && $hour == 12) {
+      $hour = 0;
+  } elsif( uc($7) eq 'PM' && $hour < 12 ) {
+      $hour += 12;
   }
 
   my %mon_lookup = ( 'Jan' => 1,
@@ -576,8 +583,8 @@ sub _convert_sybase_date {
                               hour => $hour,
                               minute => $5,
                               second => $6,
+                              time_zone => $UTC,
                             );
-
   return $return;
 }
 
