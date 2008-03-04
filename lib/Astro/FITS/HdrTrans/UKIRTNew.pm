@@ -121,7 +121,6 @@ sub to_UTEND {
                  $FITS_headers->{"DATE-END"} : undef );
 
   my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTEND" );
-  use Data::Dumper; print Dumper(\@rutend, $FITS_headers);
   my $utend = $rutend[-1];
   return $self->_parse_date_info( $dateend,
                                   $self->to_UTDATE( $FITS_headers ),
