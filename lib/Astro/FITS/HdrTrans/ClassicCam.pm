@@ -74,9 +74,8 @@ __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 =item B<this_instrument>
 
 The name of the instrument required to match (case insensitively)
-against the INSTRUME/INSTRUMENT keyword to allow this class to
-translate the specified headers. Called by the default
-C<can_translate> method.
+against the CHIP keyword to allow this class to translate the
+specified headers. Called by the default C<can_translate> method.
 
   $inst = $class->this_instrument();
 
@@ -89,6 +88,33 @@ sub this_instrument {
 }
 
 =back
+
+=item B<can_translate>
+
+Returns true if the supplied headers can be handled by this class.
+
+  $cando = $class->can_translate( \%hdrs );
+
+For this class, in the absence of an INSTRUME keyword, the method will
+return true if the B<CHIP> header exists and matches 'C-CAM'.  It's
+not clear how robust this is, or over what range of epochs this
+keyword was written.
+
+=cut
+
+sub can_translate {
+   my $self = shift;
+   my $headers = shift;
+
+   if ( exists $headers->{CHIP} &&
+        defined $headers->{CHIP} &&
+        $headers->{CHIP} =~ /^C-CAM/i ) {
+      return 1;
+   } else {
+      return 0;
+   }
+}
+
 
 =head1 COMPLEX CONVERSIONS
 
