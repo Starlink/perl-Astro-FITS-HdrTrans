@@ -264,11 +264,15 @@ sub to_OBSERVATION_ID {
     my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
     my $dateobs = $self->to_UTSTART( $FITS_headers );
 
-    my $datetime = $dateobs->datetime;
-    $datetime =~ s/-//g;
-    $datetime =~ s/://g;
+    if( defined( $backend ) &&
+        defined( $obsnum ) &&
+        defined( $dateobs ) ) {
+      my $datetime = $dateobs->datetime;
+      $datetime =~ s/-//g;
+      $datetime =~ s/://g;
 
-    $return = join '_', $backend, $obsnum, $datetime;
+      $return = join '_', $backend, $obsnum, $datetime;
+    }
   }
 
   return $return;
@@ -340,6 +344,7 @@ sub to_DEC_BASE {
   my $FITS_headers = shift;
 
   my $coords = $self->_calc_coords( $FITS_headers );
+
   return undef unless defined $coords;
   return $coords->dec( format => 'deg' );
 }
@@ -545,6 +550,7 @@ sub _calc_coords {
     $COORDS = $coords;
     return $COORDS;
   }
+  return undef;
 }
 
 sub _convert_sybase_date {
