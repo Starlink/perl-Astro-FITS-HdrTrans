@@ -627,6 +627,8 @@ sub _try_dates {
     return;
 }
 
+=back
+
 =head1 REVISION
 
  $Id$

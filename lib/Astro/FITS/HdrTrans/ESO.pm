@@ -6,7 +6,6 @@ package Astro::FITS::HdrTrans::ESO;
 
 Astro::FITS::HdrTrans::ESO - Base class for translation of ESO instruments
 
-
 =head1 SYNOPSIS
 
   use Astro::FITS::HdrTrans::ESO;

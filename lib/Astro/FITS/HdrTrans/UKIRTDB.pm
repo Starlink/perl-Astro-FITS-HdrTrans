@@ -121,6 +121,7 @@ sub can_translate {
     }
 }
 
+=back
 
 =head1 COMPLEX CONVERSIONS
 
@@ -533,10 +534,6 @@ sub from_RA_BASE {
   }
   return %return_hash;
 }
-
-=back
-
-          );
 
 =back
 

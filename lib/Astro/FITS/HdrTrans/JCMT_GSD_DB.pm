@@ -118,6 +118,8 @@ sub can_translate {
     return 0;
 }
 
+=back
+
 =head1 COMPLEX CONVERSIONS
 
 These methods are more complicated than a simple mapping. We have to

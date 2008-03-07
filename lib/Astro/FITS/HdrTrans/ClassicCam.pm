@@ -87,8 +87,6 @@ sub this_instrument {
   return qr/^ClassicCam/i;
 }
 
-=back
-
 =item B<can_translate>
 
 Returns true if the supplied headers can be handled by this class.
@@ -115,6 +113,7 @@ sub can_translate {
    }
 }
 
+=back
 
 =head1 COMPLEX CONVERSIONS
 

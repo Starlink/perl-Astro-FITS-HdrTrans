@@ -84,7 +84,11 @@ sub this_instrument {
   return qr/^IRCAM\d?/i;
 }
 
+=back
+
 =head1 COMPLEX CONVERSIONS
+
+=over 4
 
 =item B<to_AIRMASS_END>
 
@@ -282,9 +286,6 @@ sub from_SPEED_GAIN {
    return( "SPD_GAIN", $generic_headers->{"SPEED_GAIN"} )
 }
 
-=back
-
-
 =item B<to_X_REFERENCE_PIXEL>
 
 Specify the reference pixel, which is normally near the frame centre.
@@ -359,6 +360,7 @@ sub from_Y_REFERENCE_PIXEL {
    return ( "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"} );
 }
 
+=back
 
 =head1 REVISION
 
@@ -375,7 +377,6 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
-
 
 Copyright (C) 2008 Science and Technology Facilities Council.
 Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.

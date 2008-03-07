@@ -95,6 +95,8 @@ sub this_instrument {
 
 =over 4
 
+=item B<to_DATA_UNITS>
+
 Return the data units.
 
 =cut
