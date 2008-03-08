@@ -17,11 +17,8 @@ use warnings;
 use strict;
 use Carp;
 
-# Inherit from Base
-use base qw/ Astro::FITS::HdrTrans::Base /;
-
-# Import DATE-OBS handling
-use Astro::FITS::HdrTrans::FITS qw/ UTSTART UTEND to_UTDATE /;
+# Inherit from generic JAC class
+use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 use vars qw/ $VERSION /;
 
