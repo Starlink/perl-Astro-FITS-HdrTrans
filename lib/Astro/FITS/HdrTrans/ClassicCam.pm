@@ -24,7 +24,7 @@ use warnings;
 use strict;
 use Carp;
 
-# Inherit from GEMINI
+# Inherit from FITS.
 use base qw/ Astro::FITS::HdrTrans::FITS /;
 
 use vars qw/ $VERSION /;
