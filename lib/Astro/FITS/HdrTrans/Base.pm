@@ -480,12 +480,12 @@ sub via_subheader {
 =head1 PROTECTED IMPORTS
 
 Not all translation methods warrant a full blown inheritance.  For
-cases where 1 or 2 translation routines should be imported
+cases where one or two translation routines should be imported
 (e.g. reading DATE-OBS FITS standard headers without importing the
-additoinal FITS methods) a special import routine can be used when
+additional FITS methods) a special import routine can be used when
 using the class.
 
-  use Astro::FITS::Header::FITS qw/ ROTATION /;
+  use Astro::FITS::HdrTrans::FITS qw/ ROTATION /;
 
 This will load the from_ROTATION and to_ROTATION methods into
 the namespace.
