@@ -27,9 +27,6 @@ use Carp;
 # Inherit from UKIRTNew
 use base qw/ Astro::FITS::HdrTrans::UKIRTNew /;
 
-# we also want to import a restrictive set of FITS functionality
-use Astro::FITS::HdrTrans::FITS qw/ DEC_SCALE RA_SCALE ROTATION /;
-
 use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
