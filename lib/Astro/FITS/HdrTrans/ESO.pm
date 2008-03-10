@@ -527,7 +527,7 @@ sub rotation {
    my $FITS_headers = shift;
    my $rotangle;
 
-# Define degrees to radians conversion.
+# Define degrees-to-radians conversion.
    my $dtor = atan2( 1, 1 ) / 45.0;
 
 # The PC matrix first.
@@ -549,7 +549,6 @@ sub rotation {
       my $cdelt1 = $sgn * sqrt( $cd11**2 + $cd21**2 );
       my $sgn2;
       if( $cdelt1 < 0 ) { $sgn2 = -1; } else { $sgn2 = 1; }
-      my $rad = 57.2957795131;
       $rotangle = atan2( -$cd21 * $dtor, $sgn2 * $cd11 * $dtor ) / $dtor;
 
 # Orientation may be encapsulated in the slit position angle for
