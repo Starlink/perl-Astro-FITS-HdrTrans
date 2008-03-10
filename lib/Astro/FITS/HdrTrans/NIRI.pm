@@ -23,6 +23,7 @@ use 5.006;
 use warnings;
 use strict;
 use Carp;
+use Astro::SLA;
 
 # Inherit from GEMINI
 use base qw/ Astro::FITS::HdrTrans::GEMINI /;
@@ -103,7 +104,17 @@ sub to_OBSERVATION_NUMBER {
    return $obsnum;
 }
 
-# Convert the CD matrix to an average rotation.
+=item B<to_ROTATION>
+
+Converts a linear transformation CD matrix into a single rotation angle.
+This angle is measured counter-clockwise from the positive x-axis.
+It uses the SLALIB routine slaDcmpf obtain the rotation angle without
+assuming perpendicular axes.
+
+This routine also copes with errors in the matrix that can generate angles
++/-90 degrees instead of near 0 that they should be.
+
+=cut
 
 sub to_ROTATION {
    my $self = shift;
@@ -124,7 +135,7 @@ sub to_ROTATION {
       my @coeffs = ( 0.0, $cd11, $cd21, 0.0, $cd12, $cd22 );
       slaDcmpf( @coeffs, $xz, $yz, $xs, $ys, $perp, $rotation );
 
-# Radians to degrees conversion.
+# Convert from radians to degrees.
       my $rtod = 45 / atan2( 1, 1 );
       $rotation *= $rtod;
 
