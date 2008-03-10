@@ -244,6 +244,7 @@ C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>.
 
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
+Malcolm J. Currie E<lt>mjc@star.rl.ac.ukE<gt>
 
 =head1 COPYRIGHT
 
