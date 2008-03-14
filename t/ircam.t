@@ -14,7 +14,7 @@ eval {
 if( $@ ) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 12;
+  plan tests => 14;
 }
 
 # Test compilation.
@@ -42,6 +42,11 @@ is( $generic_header{'AIRMASS_START'}, 1.142, "AIRMASS_START is 1.142" );
 is( $generic_header{'AIRMASS_END'}, 1.142, "AIRMASS_END is 1.142" );
 is( $generic_header{'NUMBER_OF_EXPOSURES'}, 75, "NUMBER_OF_EXPOSURES is 75" );
 is( $generic_header{'SPEED_GAIN'}, "Deepwell", "SPEED_GAIN is \"Deepwell\"" );
+is( $generic_header{'TELESCOPE'}, "UKIRT", "TELESCOPE is \"UKIRT\"" );
+
+# Check the reverse translations.
+my %specific_header = Astro::FITS::HdrTrans::translate_to_FITS( \%generic_header );
+is( $specific_header{'TELESCOP'}, "UKIRT,Mauna_Kea,HI", "TELESCOP is \"UKIRT,Mauna_Kea,HI" );
 
 sub readfits {
   my $file = shift;

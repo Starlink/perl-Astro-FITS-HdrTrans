@@ -303,6 +303,24 @@ sub _to_RA_TELESCOPE_OFFSET {
    return $raoff;
 }
 
+=item B<from_TELESCOPE>
+
+For data taken before 20010906, return 'UKATC'. For data taken on and
+after 20010906, return 'UKIRT'. Returned header is C<TELESCOP>.
+
+=cut
+
+sub from_TELESCOPE {
+  my $self = shift;
+  my $generic_headers = shift;
+  my $utdate = $generic_headers->{'UTDATE'};
+  if( $utdate < 20010906 ) {
+    return( "TELESCOP", "UKATC" );
+  } else {
+    return( "TELESCOP", "UKIRT" );
+  }
+}
+
 =item B<to_X_REFERENCE_PIXEL>
 
 Specify the reference pixel, which is normally near the frame centre.

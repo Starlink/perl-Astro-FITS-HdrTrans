@@ -283,6 +283,25 @@ sub from_SPEED_GAIN {
    return( "SPD_GAIN", $generic_headers->{"SPEED_GAIN"} )
 }
 
+=item B<from_TELESCOPE>
+
+For data taken before 20000607, return 'UKIRT, Mauna Kea, HI'. For
+data taken on and after 20000607, return
+'UKIRT,Mauna_Kea,HI'. Returned header is C<TELESCOP>.
+
+=cut
+
+sub from_TELESCOPE {
+  my $self = shift;
+  my $generic_headers = shift;
+  my $utdate = $generic_headers->{'UTDATE'};
+  if( $utdate < 20000607 ) {
+    return( "TELESCOP", "UKIRT, Mauna Kea, HI" );
+  } else {
+    return( "TELESCOP", "UKIRT,Mauna_Kea,HI" );
+  }
+}
+
 =item B<to_X_REFERENCE_PIXEL>
 
 Specify the reference pixel, which is normally near the frame centre.

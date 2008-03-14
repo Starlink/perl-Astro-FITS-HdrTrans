@@ -60,7 +60,6 @@ my %UNIT_MAP = (
 		OBSERVATION_TYPE     => "OBSTYPE",
 		PROJECT              => "PROJECT",
 		STANDARD             => "STANDARD",
-		TELESCOPE            => "TELESCOP",
 		WAVEPLATE_ANGLE      => "WPLANGLE",
                 X_APERTURE           => "APER_X",
                 Y_APERTURE           => "APER_Y",
@@ -181,6 +180,29 @@ sub from_RA_BASE {
       defined( $generic_headers->{RA_BASE} ) ) {
     $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
   }
+  return %return_hash;
+}
+
+=item B<to_TELESCOPE>
+
+Sets the generic header C<TELESCOPE> to 'UKIRT', so that it is
+SLALib-compliant.
+
+=cut
+
+sub to_TELESCOPE {
+  return "UKIRT";
+}
+
+=item B<from_TELESCOPE>
+
+Sets the specific header C<TELESCOP> to 'UKIRT'. Note that this will
+probably be sub-classed.
+
+=cut
+
+sub from_TELESCOPE {
+  my %return_hash = ( TELESCOP => 'UKIRT' );
   return %return_hash;
 }
 

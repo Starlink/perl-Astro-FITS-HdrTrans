@@ -41,7 +41,7 @@ eval {
 if ($@) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 466;
+  plan tests => 463;
 }
 
 require_ok( "Astro::FITS::HdrTrans" );
@@ -49,17 +49,17 @@ require_ok( "Astro::FITS::HdrTrans" );
 # AS a basic test, count the number of expected FITS headers
 # per instrument
 my %COUNT = (
-             ufti => 43,
-             uist_ifu => 56,
-             uist_sp => 56,
-             uist_im => 56,
-             cgs4 => 53,
-             michelle => 57,
-             ircam => 44,
-             scuba => 38,
-             wfcam => 45,
-             acsis => 42,
-             scuba2 => 21,
+             ufti => 42,
+             uist_ifu => 55,
+             uist_sp => 55,
+             uist_im => 55,
+             cgs4 => 52,
+             michelle => 56,
+             ircam => 43,
+             scuba => 37,
+             wfcam => 44,
+             acsis => 41,
+             scuba2 => 20,
             );
 
 my $datadir = File::Spec->catdir( "t","data");
@@ -92,7 +92,7 @@ for my $hdrfile (sort readdir $dh) {
 
   # for testing, dump the contents of the new FITS header
   # This allows simple comparison with alternate implementations
-  # print Dumper(\%nfits);
+   print Dumper(\%nfits);
 
   # Now count the number of headers
   my @keys = keys %nfits;

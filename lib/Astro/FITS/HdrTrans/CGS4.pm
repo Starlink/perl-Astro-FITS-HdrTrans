@@ -239,6 +239,17 @@ sub to_SAMPLING {
   return $return;
 }
 
+=item B<from_TELESCOPE>
+
+Returns 'UKIRT, Mauna Kea, HI' for the C<TELESCOP> FITS header.
+
+=cut
+
+sub from_TELESCOPE {
+  my %return = ( "TELESCOP", "UKIRT, Mauna Kea, HI" );
+  return %return;
+}
+
 =back
 
 =head1 REVISION

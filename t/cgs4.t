@@ -14,7 +14,7 @@ eval {
 if( $@ ) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 21;
+  plan tests => 23;
 }
 
 # Test compilation.
@@ -51,6 +51,12 @@ is( $generic_header{'OBSERVATION_ID'}, "cgs4_64_20050126T070657", "OBSERVATION_I
 is( $generic_header{'POLARIMETRY'}, 0, "POLARIMETRY is 0" );
 is( $generic_header{'DEC_TELESCOPE_OFFSET'}, -5.736, "DEC_TELESCOPE_OFFSET is -5.736" );
 is( $generic_header{'SAMPLING'}, '1x2', "SAMPLING is 1x2" );
+is( $generic_header{'TELESCOPE'}, 'UKIRT', "TELESCOPE is UKIRT" );
+
+# Translate the header back to specific headers.
+my %specific_header = Astro::FITS::HdrTrans::translate_to_FITS( \%generic_header );
+is( $specific_header{'TELESCOP'}, 'UKIRT, Mauna Kea, HI', "TELESCOP is UKIRT, Mauna Kea, HI" );
+
 
 sub readfits {
   my $file = shift;
