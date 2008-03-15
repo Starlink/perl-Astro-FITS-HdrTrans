@@ -30,54 +30,53 @@ use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 
-# for a constant mapping, there is no FITS header, just a generic
-# header that is constant
+# For a constant mapping, there is no FITS header, just a generic
+# header that is constant.
 my %CONST_MAP = (
 
-		);
+                );
 
-# unit mapping implies that the value propogates directly
-# to the output with only a keyword name change
-
+# Unit mapping implies that the value propogates directly
+# to the output with only a keyword name change.
 my %UNIT_MAP = (
-		DETECTOR_READ_TYPE   => "MODE",   # Also UFTI
-		DR_RECIPE            => "DRRECIPE",
-		EXPOSURE_TIME        => "DEXPTIME",
-		GAIN                 => "DEPERDN",
-	       );
+                 DETECTOR_READ_TYPE   => "MODE",   # Also UFTI
+                 DR_RECIPE            => "DRRECIPE",
+                 EXPOSURE_TIME        => "DEXPTIME",
+                 GAIN                 => "DEPERDN",
+               );
 
-# Create the translation methods
+# Create the translation methods.
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
 =head1 COMPLEX CONVERSIONS
 
-These methods are more complicated than a simple mapping. We have to
-provide both from- and to-FITS conversions All these routines are
+These methods are more complicated than a simple mapping.  We have to
+provide both from- and to-FITS conversions.  All these routines are
 methods and the to_ routines all take a reference to a hash and return
-the translated value (a many-to-one mapping) The from_ methods take a
-reference to a generic hash and return a translated hash (sometimes
-these are many-to-many)
+the translated value (a many-to-one mapping).  The from_ methods take
+a reference to a generic hash and return a translated hash (sometimes
+these are many-to-many).
 
 =over 4
 
 =item B<to_UTDATE>
 
-Converts IDATE into UTDATE without any modification. Flattens
+Converts IDATE into UTDATE without any modification.  Flattens
 duplicate headers into a single header.
 
 =cut
 
 sub to_UTDATE {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $return;
-  my $utdate = ( exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : undef );
-  if( defined( $utdate ) && ref( $utdate ) eq 'ARRAY' ) {
-    $return = $utdate->[0];
-  } else {
-    $return = $utdate;
-  }
-  return $return;
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $return;
+   my $utdate = ( exists $FITS_headers->{IDATE} ? $FITS_headers->{IDATE} : undef );
+   if ( defined( $utdate ) && ref( $utdate ) eq 'ARRAY' ) {
+      $return = $utdate->[0];
+   } else {
+      $return = $utdate;
+   }
+   return $return;
 }
 
 =item B<from_UTDATE>
@@ -87,7 +86,7 @@ Converts UTDATE into IDATE without any modification.
 =cut
 
 sub from_UTDATE {
-  return ( "IDATE", $_[1]->{'UTDATE'} );
+   return ( "IDATE", $_[1]->{'UTDATE'} );
 }
 
 =item B<to_UTSTART>
@@ -98,15 +97,15 @@ into a C<Time::Piece> object.
 =cut
 
 sub to_UTSTART {
-  my $self = shift;
-  my $FITS_headers = shift;
+   my $self = shift;
+   my $FITS_headers = shift;
 
-  my $utdate = $self->to_UTDATE( $FITS_headers );
-  my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTSTART" );
-  my $utdechour = $rutstart[0];
+   my $utdate = $self->to_UTDATE( $FITS_headers );
+   my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTSTART" );
+   my $utdechour = $rutstart[0];
 
-  # we do not have a DATE-OBS
-  return $self->_parse_date_info( undef, $utdate, $utdechour );
+# We do not have a DATE-OBS.
+   return $self->_parse_date_info( undef, $utdate, $utdechour );
 }
 
 =item B<from_UTSTART>
@@ -117,16 +116,16 @@ Converts a C<Time::Piece> object into two FITS headers for IRCAM: IDATE
 =cut
 
 sub from_UTSTART {
-  my $class = shift;
-  my $generic_headers = shift;
-  my %return_hash;
-  if(exists($generic_headers->{UTSTART})) {
-    my $date = $generic_headers->{UTSTART};
-    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
-    $return_hash{IDATE} = sprintf("%4d%02d%02d", $date->year, $date->mon, $date->mday);
-    $return_hash{RUTSTART} = $date->hour + ( $date->minute / 60 ) + ( $date->second / 3600 );
-  }
-  return %return_hash;
+   my $class = shift;
+   my $generic_headers = shift;
+   my %return_hash;
+   if ( exists($generic_headers->{UTSTART} ) ) {
+      my $date = $generic_headers->{UTSTART};
+      if ( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+      $return_hash{IDATE} = sprintf( "%4d%02d%02d", $date->year, $date->mon, $date->mday );
+      $return_hash{RUTSTART} = $date->hour + ( $date->minute / 60 ) + ( $date->second / 3600 );
+   }
+   return %return_hash;
 }
 
 =item B<to_UTEND>
@@ -137,15 +136,15 @@ a C<Time::Piece> object.
 =cut
 
 sub to_UTEND {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $return;
-  my $utdate = $self->to_UTDATE( $FITS_headers );
-  my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTEND" );
-  my $utdechour = $rutend[-1];
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $return;
+   my $utdate = $self->to_UTDATE( $FITS_headers );
+   my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "RUTEND" );
+   my $utdechour = $rutend[-1];
 
-  # we do not have a DATE-END
-  return $self->_parse_date_info( undef, $utdate, $utdechour );
+# We do not have a DATE-END.
+   return $self->_parse_date_info( undef, $utdate, $utdechour );
 }
 
 =item B<from_UTEND>
@@ -156,16 +155,16 @@ Converts a C<Time::Piece> object into two FITS headers for IRCAM: IDATE
 =cut
 
 sub from_UTEND {
-  my $class = shift;
-  my $generic_headers = shift;
-  my %return_hash;
-  if(exists($generic_headers->{UTEND})) {
-    my $date = $generic_headers->{UTEND};
-    if( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
-    $return_hash{IDATE} = sprintf("%4d%02d%02d", $date->year, $date->mon, $date->mday);
-    $return_hash{RUTEND} = $date->hour + ( $date->minute / 60 ) + ( $date->second / 3600 );
-  }
-  return %return_hash;
+   my $class = shift;
+   my $generic_headers = shift;
+   my %return_hash;
+   if ( exists($generic_headers->{UTEND} ) ) {
+      my $date = $generic_headers->{UTEND}; 
+      if ( ! UNIVERSAL::isa( $date, "Time::Piece" ) ) { return; }
+       $return_hash{IDATE} = sprintf( "%4d%02d%02d", $date->year, $date->mon, $date->mday );
+       $return_hash{RUTEND} = $date->hour + ( $date->minute / 60 ) + ( $date->second / 3600 );
+   }
+   return %return_hash;
 }
 
 =item B<to_INST_DHS>
@@ -177,10 +176,10 @@ the name of the instrument and a UKDHS suffix.
 =cut
 
 sub to_INST_DHS {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $inst = $self->to_INSTRUMENT( $FITS_headers );
-  return $inst . '_UKDHS';
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $inst = $self->to_INSTRUMENT( $FITS_headers );
+   return $inst . '_UKDHS';
 }
 
 =back
@@ -206,7 +205,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -215,7 +214,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 
