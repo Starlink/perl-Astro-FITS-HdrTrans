@@ -44,15 +44,11 @@ my @NULL_MAP = qw/ DETECTOR_INDEX /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-                 # UFTI specific
-                 EXPOSURE_TIME        => "INT_TIME",
-
                  # CGS4 + IRCAM
                  DETECTOR_READ_TYPE   => "MODE",
 
                  # MICHELLE + IRCAM compatible
                  SPEED_GAIN           => "SPD_GAIN",
-
                );
 
 
@@ -84,14 +80,51 @@ sub this_instrument {
 
 =head1 COMPLEX CONVERSIONS
 
-These methods are more complicated than a simple mapping. We have to
-provide both from- and to-FITS conversions All these routines are
+These methods are more complicated than a simple mapping.  We have to
+provide both from- and to-FITS conversions.  All these routines are
 methods and the to_ routines all take a reference to a hash and return
-the translated value (a many-to-one mapping) The from_ methods take a
+the translated value (a many-to-one mapping).  The from_ methods take a
 reference to a generic hash and return a translated hash (sometimes
-these are many-to-many)
+these are many-to-many).
 
 =over 4
+
+=item B<to_DEC_SCALE>
+
+Sets the declination scale in arcseconds per pixel derived
+from keyword C<CDELT2>.  The default is time dependent, as tabulated
+in the UFTI web page.
+L<http://www.jach.hawaii.edu/UKIRT/instruments/ufti/PARAMETERS.html#1>
+The default scale assumes north is to the top.
+
+=cut
+
+sub to_DEC_SCALE {
+   my $self = shift;
+   my $FITS_headers = shift;
+
+# Default from 20011115.
+   my $scale = 0.09085;
+
+# Note in the raw data these are in arcseconds, not degrees.
+   if ( defined( $FITS_headers->{CDELT2} ) ) {
+      $scale = $FITS_headers->{CDELT2};
+
+# Allow for missing values using measured scales.
+   } else {
+      my $date = $self->to_UTDATE( $FITS_headers );
+      if ( defined( $date ) ) {
+         if ( $date < 19990701 ) {
+            $scale = 0.09075;
+         } elsif ( $date < 20010401 ) {
+            $scale = 0.09088;
+         } elsif ( $date < 20011115 ) {
+            $scale = 0.09060;
+         }
+      }
+   }
+   return $scale;
+}
 
 =item B<to_POLARIMETRY>
 
@@ -110,11 +143,113 @@ sub to_POLARIMETRY {
    }
 }
 
+=item B<to_RA_BASE>
+
+Converts the decimal hours in the FITS header C<RABASE> into
+decimal degrees for the generic header C<RA_BASE>.
+
+Note that this is different from the original translation within
+ORAC-DR where it was to decimal hours.
+
+There was a period from 2000-05-07 to 2000-07-19 inclusive,
+where degrees, not hours, were written whenever the data were
+stored as NDF format.  However, there wasn't a clean changover
+during ORAC-DR commissioning.  So use the presence of the
+DHSVER keyword to discriminate between the two formats.
+
+=cut
+
+sub to_RA_BASE {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $return;
+   if ( exists($FITS_headers->{RABASE} ) ) {
+      my $date = $self->to_UTDATE( $FITS_headers );
+      if ( exists( $FITS_headers->{DHSVER} ) && 
+           defined( $date ) && $date > 20000507 && $date < 20000720 ) {
+         $return = $FITS_headers->{RABASE};
+      } else {
+         $return = $FITS_headers->{RABASE} * 15;
+      }
+   }
+   return $return;
+}
+
+=item B<from_RA_BASE>
+
+Converts the decimal degrees in the generic header C<RA_BASE>
+into decimal hours for the FITS header C<RABASE>.
+
+  %fits = $class->from_RA_BASE( \%generic );
+
+There was a period from 2000-05-07 to 2000-07-19 inclusive, where
+degrees, not hours, were written whenever the data were stored as NDF
+format.  However, there wasn't a clean changover during ORAC-DR
+commissioning.  So use the presence of the C<DHSVER> keyword to
+discriminate between the two formats.  For symmetry and consistency,
+retain these units during the problem period.
+
+=cut
+
+sub from_RA_BASE {
+   my $self = shift;
+   my $generic_headers = shift;
+   my %return_hash;
+   if ( exists( $generic_headers->{RA_BASE} ) &&
+        defined( $generic_headers->{RA_BASE} ) ) {
+      my $date = $self->to_UTDATE( $generic_headers );
+      if ( exists( $generic_headers->{DHSVER} ) && 
+           defined( $date ) && $date > 20000507 && $date < 20000720 ) {
+         $return_hash{'RABASE'} = $generic_headers->{RA_BASE};
+      } else {
+         $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
+      }
+   }
+   return %return_hash;
+}
+
+=item B<to_RA_SCALE>
+
+Sets the right-ascension scale in arcseconds per pixel derived
+from keyword C<CDELT1>.  The default is time dependent, as tabulated
+in the UFTI web page.
+L<http://www.jach.hawaii.edu/UKIRT/instruments/ufti/PARAMETERS.html#1>
+The default scale assumes east is to the left.
+
+=cut
+
+sub to_RA_SCALE {
+   my $self = shift;
+   my $FITS_headers = shift;
+
+# Default from 20011115.
+   my $scale = -0.09085;
+
+# Note in the raw data these are in arcseconds, not degrees.
+   if ( defined( $FITS_headers->{CDELT1} ) ) {
+      $scale = $FITS_headers->{CDELT1};
+
+# Allow for missing values using measured scales.
+   } else {
+      my $date = $self->to_UTDATE( $FITS_headers );
+      if ( defined( $date ) ) {
+         if ( $date < 19990701 ) {
+            $scale = -0.09075;
+         } elsif ( $date < 20010401 ) {
+            $scale = -0.09088;
+         } elsif ( $date < 20011115 ) {
+            $scale = -0.09060;
+         }
+      }
+   }
+   return $scale;
+}
+
 =item B<to_UTDATE>
 
-Converts FITS header values into C<Time::Piece> object. This differs
-from the base class in the use of the DATE rather than UTDATE header item
-and the formatting of the DATE keyword is not an integer.
+Converts FITS header values into C<Time::Piece> object.  This differs
+from the base class in the use of the C<DATE> rather than C<UTDATE>
+header item and the formatting of the DATE keyword is not an integer.
 
 =cut
 
@@ -124,6 +259,14 @@ sub to_UTDATE {
    my $return;
    if ( exists( $FITS_headers->{DATE} ) ) {
       my $utdate = $FITS_headers->{DATE};
+
+# This is a kludge to work with old data which has multiple values of
+# the DATE keyword with the last value being blank (these were early
+# UFTI data).  Return the first value, since the last value can be
+# blank.
+      if ( ref( $utdate ) eq 'ARRAY' ) {
+         $utdate = $utdate->[0];
+      }
       $return = Time::Piece->strptime( $utdate, "%Y-%m-%d" );
       $return = $return->strftime( '%Y%m%d' );
    }
@@ -134,8 +277,8 @@ sub to_UTDATE {
 =item B<from_UTDATE>
 
 Converts UT date in C<Time::Piece> object into C<YYYY-MM-DD> format
-for DATE header. This differs from the base class in the use of the
-DATE rather than UTDATE header item.
+for DATE header.  This differs from the base class in the use of the
+C<DATE> rather than C<UTDATE> header item.
 
 =cut
 
@@ -152,6 +295,53 @@ sub from_UTDATE {
    }
    return %return_hash;
 }
+
+=item B<to_UTEND>
+
+Converts UT date in C<DATE-END> header into C<Time::Piece> object.
+Allows for blank C<DATE-END> string present in early UFTI data.
+
+=cut
+
+sub to_UTEND {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $dateend = ( exists $FITS_headers->{"DATE-END"} ?
+                   $FITS_headers->{"DATE-END"} : undef );
+
+# Some early data had blank DATE-OBS strings.
+   if ( defined( $dateend ) && $dateend eq " " ) { $dateend = undef; }
+
+   my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTEND" );
+   my $utend = $rutend[-1];
+   return $self->_parse_date_info( $dateend,
+                                   $self->to_UTDATE( $FITS_headers ),
+                                   $utend );
+}
+
+=item B<to_UTSTART>
+
+Converts UT date in C<DATE-OBS> header into C<Time::Piece> object.
+Allows for blank C<DATE-OBS> string present in early UFTI data.
+
+=cut
+
+sub to_UTSTART {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $dateobs = ( exists $FITS_headers->{"DATE-OBS"} ?
+                   $FITS_headers->{"DATE-OBS"} : undef );
+
+# Some early data had blank DATE-OBS strings.
+   if ( defined( $dateobs ) && $dateobs =~ /\s*/ ) { $dateobs = undef; }
+
+   my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTSTART" );
+   my $utstart = $rutstart[0];
+   return $self->_parse_date_info( $dateobs,
+                                   $self->to_UTDATE( $FITS_headers ),
+                                   $utstart );
+}
+
 
 =item B<to_X_REFERENCE_PIXEL>
 
