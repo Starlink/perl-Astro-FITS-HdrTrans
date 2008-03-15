@@ -38,8 +38,8 @@ $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-    POLARIMETRY => 0,
-		);
+                  POLARIMETRY => 0,
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = qw/ DETECTOR_INDEX WAVEPLATE_ANGLE /;
@@ -58,8 +58,6 @@ my %UNIT_MAP = (
                 RA_SCALE             => "CD1_2",
                 TILE_NUMBER          => "TILENUM",
 
-                # MICHELLE + UIST compatible
-                EXPOSURE_TIME        => "EXP_TIME",
                 # CGS4 + MICHELLE + WFCAM
                 CONFIGURATION_INDEX  => 'CNFINDEX',
                );
@@ -137,9 +135,9 @@ sub to_GAIN {
   my $self = shift;
   my $FITS_headers = shift;
   my $gain;
-  if( defined( $FITS_headers->{CAMNUM} ) ) {
+  if ( defined( $FITS_headers->{CAMNUM} ) ) {
     my $camnum = $FITS_headers->{CAMNUM};
-    if( $camnum == 1 || $camnum == 2 || $camnum == 3 ) {
+    if ( $camnum == 1 || $camnum == 2 || $camnum == 3 ) {
       $gain = 4.6;
     } elsif( $camnum == 4 ) {
       $gain = 5.6;
@@ -159,7 +157,7 @@ This is a null operation. The GAIN FITS header in WFCAM data is always incorrect
 =cut
 
 sub from_GAIN {
-    return ();
+   return ();
 }
 
 =item B<to_NUMBER_OF_OFFSETS>
@@ -176,30 +174,6 @@ sub to_NUMBER_OF_OFFSETS {
 
   return $njitter * $nustep + 1;
 
-}
-
-=item B<to_ROTATION>
-
-Determine the rotation of the array in world coordinates.
-
-=cut
-
-sub to_ROTATION {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $cd11 = $FITS_headers->{CD1_1};
-  my $cd12 = $FITS_headers->{CD1_2};
-  my $cd21 = $FITS_headers->{CD2_1};
-  my $cd22 = $FITS_headers->{CD2_2};
-  my $sgn;
-  if( ( $cd11 * $cd22 - $cd12 * $cd21 ) < 0 ) { $sgn = -1; } else { $sgn = 1; }
-  my $cdelt1 = $sgn * sqrt( $cd11**2 + $cd21**2 );
-  my $sgn2;
-  if( $cdelt1 < 0 ) { $sgn2 = -1; } else { $sgn2 = 1; }
-  my $rad = 57.2957795131;
-  my $rotation = $rad * atan2( -$cd21 / $rad, $sgn2 * $cd11 / $rad );
-
-  return $rotation;
 }
 
 =item B<to_RA_BASE>
