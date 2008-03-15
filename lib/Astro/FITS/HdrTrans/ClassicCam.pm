@@ -31,8 +31,8 @@ use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
 
-# for a constant mapping, there is no FITS header, just a generic
-# header that is constant
+# For a constant mapping, there is no FITS header, just a generic
+# header that is constant.
 my %CONST_MAP = (
                   DETECTOR_READ_TYPE    => "NDSTARE",
                   GAIN                  => 7.5,
@@ -46,9 +46,8 @@ my %CONST_MAP = (
 # NULL mappings used to override base class implementations
 my @NULL_MAP = qw/ /;
 
-# unit mapping implies that the value propogates directly
-# to the output with only a keyword name change
-
+# Unit mapping implies that the value propogates directly
+# to the output with only a keyword name change.
 my %UNIT_MAP = (
                  AIRMASS_END            => "AIRMASS",
                  DEC_TELESCOPE_OFFSET   => "DSECS",
@@ -64,7 +63,7 @@ my %UNIT_MAP = (
                );
 
 
-# Create the translation methods
+# Create the translation methods.
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 
 =head1 METHODS
@@ -74,8 +73,8 @@ __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 =item B<this_instrument>
 
 The name of the instrument required to match (case insensitively)
-against the CHIP keyword to allow this class to translate the
-specified headers. Called by the default C<can_translate> method.
+against the C<CHIP> keyword to allow this class to translate the
+specified headers.  Called by the default C<can_translate> method.
 
   $inst = $class->this_instrument();
 
@@ -84,7 +83,7 @@ Returns "ClassicCam".
 =cut
 
 sub this_instrument {
-  return qr/^ClassicCam/i;
+   return qr/^ClassicCam/i;
 }
 
 =item B<can_translate>
@@ -93,9 +92,9 @@ Returns true if the supplied headers can be handled by this class.
 
   $cando = $class->can_translate( \%hdrs );
 
-For this class, in the absence of an INSTRUME keyword, the method will
-return true if the B<CHIP> header exists and matches 'C-CAM'.  It's
-not clear how robust this is, or over what range of epochs this
+For this class, in the absence of an C<INSTRUME> keyword, the method
+will return true if the C<CHIP> header exists and matches 'C-CAM'.
+It is not clear how robust this is, or over what range of epochs this
 keyword was written.
 
 =cut
@@ -117,7 +116,19 @@ sub can_translate {
 
 =head1 COMPLEX CONVERSIONS
 
+These methods are more complicated than a simple mapping.  We have to
+provide both from- and to-FITS conversions.  All these routines are
+methods and the to_ routines all take a reference to a hash and return
+the translated value (a many-to-one mapping).  The from_ methods take a
+reference to a generic hash and return a translated hash (sometimes
+these are many-to-many).
+
 =over 4
+
+=item B<to_AIRMASS_START>
+
+Sets a default airmass at the start of the observation if the C<AIRMASS>
+keyword is not defined.
 
 =cut
 
@@ -131,7 +142,13 @@ sub to_AIRMASS_START {
    return $airmass;
 }
 
-# Convert from sexagesimal d:m:s to decimal degrees.
+=item B<to_DEC_BASE>
+
+Converts the base declination from sexagesimal d:m:s to decimal
+degrees using the C<DEC> keyword, defaulting to 0.0.
+
+=cut
+
 sub to_DEC_BASE {
    my $self = shift;
    my $FITS_headers = shift;
@@ -143,13 +160,22 @@ sub to_DEC_BASE {
    return $dec;
 }
 
-# This is N to the top, i.e increasing with pixel index, for
-# declinations south of -29 degrees.  It is flipped north of
-# -29 degrees.
+=item B<to_DEC_SCALE>
+
+Sets the declination scale in decimal degrees per pixel.  It has a
+fixed absolute value of 0.115 arcsec/pixel, but its sign depends on
+the declination.  The scale increases with pixel index, i.e. has north
+to the top, for declinations south of -29 degrees.  It is flipped
+north of -29 degrees.  The default scale assumes north is up.
+
+=cut
+
 sub to_DEC_SCALE {
    my $self = shift;
    my $FITS_headers = shift;
    my $scale = 0.115;
+
+# Find the declination, converting from sexagesimal d:m:s.
    my $sexa = $FITS_headers->{"DEC"};
    if ( defined( $sexa ) ) {
       my $dec = $self->dms_to_degrees( $sexa );
@@ -160,74 +186,14 @@ sub to_DEC_SCALE {
    return $scale;
 }
 
-sub to_NUMBER_OF_OFFSETS {
-   my $self = shift;
-   my $FITS_headers = shift;
-# Allow for the UKIRT convention of the final offset to 0,0, and a
-# default dither pattern of 5.
-   my $noffsets = 6;
+=item B<to_DR_RECIPE>
 
-# The number of gripu members appears to be given by keyword LOOP.
-   if ( defined $FITS_headers->{NOFFSETS} ) {
-      $noffsets = $FITS_headers->{NOFFSETS};
-   }
-
-   return $noffsets;
-}
-
-sub to_NUMBER_OF_READS {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $reads = 2;
-   if ( defined $FITS_headers->{READS_EP} && $FITS_headers->{PRE_EP} ) {
-      $reads = $FITS_headers->{READS_EP} + $FITS_headers->{PRE_EP};
-   }
-   return $reads;
-}
-
-sub to_OBSERVATION_TYPE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $type = "OBJECT";
-   if ( defined $FITS_headers->{OBJECT} ) {
-      my $object = uc( $FITS_headers->{OBJECT} );
-      if ( $object eq "DARK" ) {
-         $type = $object;
-      } elsif ( $object =~ /FLAT/ ) {
-         $type = "FLAT";
-      }
-   }
-   return $type;
-}
-
-# Convert from sexagesimal h:m:s to decimal degrees.
-sub to_RA_BASE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $ra = 0.0;
-   my $sexa = $FITS_headers->{"RA"};
-   if ( defined( $sexa ) ) {
-      $ra = $self->hms_to_degrees( $sexa );
-   }
-   return $ra;
-}
-
-# This is E to the right, i.e increasing with pixel index, for
-# declinations south of -29 degrees.  It is flipped north of
-# -29 degrees.
-sub to_RA_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $scale = 0.115;
-   my $sexa = $FITS_headers->{"DEC"};
-   if ( defined( $sexa ) ) {
-      my $dec = $self->dms_to_degrees( $sexa );
-      if ( $dec > -29 ) {
-         $scale *= -1;
-      }
-   }
-   return $scale;
-}
+Returns the data-reduction recipe name.  The selection depends on the
+value of the C<OBJECT> keyword.  The default is "QUICK_LOOK".  A dark
+returns "REDUCE_DARK", a sky flat "SKY_FLAT_MASKED", a dome flat
+"SKY_FLAT", and an object's recipe is "JITTER_SELF_FLAT".
+   
+=cut
 
 sub to_DR_RECIPE {
    my $self = shift;
@@ -249,29 +215,154 @@ sub to_DR_RECIPE {
    return $recipe;
 }
 
-# Cope with non-standard format in DATE-OBS.  Guessing format is
-# ddmmmyy, not supported by Time::DateParse, so parse it.
+=item B<to_NUMBER_OF_OFFSETS>
+
+Stores the number of offsets using the UKIRT convention, i.e. adding
+one to the numer of dither positions, and a default dither pattern of
+5.
+
+=cut
+
+sub to_NUMBER_OF_OFFSETS {
+   my $self = shift;
+   my $FITS_headers = shift;
+
+# Allow for the UKIRT convention of the final offset to 0,0, and a
+# default dither pattern of 5.
+   my $noffsets = 6;
+
+# The number of group members appears to be given by keyword NOFFSETS.
+   if ( defined $FITS_headers->{NOFFSETS} ) {
+      $noffsets = $FITS_headers->{NOFFSETS};
+   }
+   return $noffsets;
+}
+
+=item B<to_NUMBER_OF_READS>
+
+Stores the number of reads of the detector, with a default of 2, from
+the sum of keywords C<REASDS_EP> and C<PRE_EP>.
+
+=cut
+
+sub to_NUMBER_OF_READS {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $reads = 2;
+   if ( defined $FITS_headers->{READS_EP} && $FITS_headers->{PRE_EP} ) {
+      $reads = $FITS_headers->{READS_EP} + $FITS_headers->{PRE_EP};
+   }
+   return $reads;
+}
+
+=item B<to_OBSERVATION_TYPE>
+
+Determines the observation type from the C<OBJECT> keyword provided it is
+"DARK" for a dark frame, or "FLAT" for a flat-field frame.  All other
+values of C<OBJECT> return a value of "OBJECT", i.e. of a source.
+
+=cut
+
+sub to_OBSERVATION_TYPE {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $type = "OBJECT";
+   if ( defined $FITS_headers->{OBJECT} ) {
+      my $object = uc( $FITS_headers->{OBJECT} );
+      if ( $object eq "DARK" ) {
+         $type = $object;
+      } elsif ( $object =~ /FLAT/ ) {
+         $type = "FLAT";
+      }
+   }
+   return $type;
+}
+
+=item B<to_RA_BASE>
+
+Converts the base right ascension from sexagesimal h:m:s to decimal degrees
+using the C<RA> keyword, defaulting to 0.0.
+
+=cut
+
+sub to_RA_BASE {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $ra = 0.0;
+   my $sexa = $FITS_headers->{"RA"};
+   if ( defined( $sexa ) ) {
+      $ra = $self->hms_to_degrees( $sexa );
+   }
+   return $ra;
+}
+
+=item B<to_RA_SCALE>
+
+Sets the right-ascension scale in decimal degrees per pixel.  It has a
+fixed absolute value of 0.115 arcsec/pixel, but its sign depends on
+the declination.  The scale increases with pixel index, i.e. has east
+to the right, for declinations south of -29 degrees.  It is flipped
+north of -29 degrees.  The default scale assumes east is to the right.
+
+=cut
+
+sub to_RA_SCALE {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $scale = 0.115;
+   my $sexa = $FITS_headers->{"DEC"};
+   if ( defined( $sexa ) ) {
+      my $dec = $self->dms_to_degrees( $sexa );
+      if ( $dec > -29 ) {
+         $scale *= -1;
+      }
+   }
+   return $scale;
+}
+
+=item B<to_UTDATE>
+
+Returns the UT date as C<Time::Piece> object.  It copes with non-standard
+format in C<DATE-OBS>.
+
+=cut
+
 sub to_UTDATE {
    my $self = shift;
    my $FITS_headers = shift;
-   return $self->get_UT_date($FITS_headers);
+
+# Guessing the format is ddmmmyy, which is not supported by
+# Time::DateParse, so parse it.
+   return $self->get_UT_date( $FITS_headers );
 }
 
-# UT header gives end of observation in HH:MM:SS format
+=item B<to_UTEND>
 
+Returns the UT time of the end of the observation as a C<Time::Piece> object.  
+
+=cut
+
+# UT header gives end of observation in HH:MM:SS format.
 sub to_UTEND {
    my $self = shift;
    my $FITS_headers = shift;
 
-   # get the UTDATE in YYYYMMDD format
+# Get the UTDATE in YYYYMMDD format.
    my $ymd = $self->to_UTDATE( $FITS_headers );
-   my $iso = sprintf("%04d-%02d-%02dT%s",
-                     substr($ymd,0,4),
-                     substr($ymd,4,2),
-                     substr($ymd,6,2),
-                     $FITS_headers->{UT});
+   my $iso = sprintf( "%04d-%02d-%02dT%s",
+                      substr( $ymd, 0, 4 ),
+                      substr( $ymd, 4, 2 ),
+                      substr( $ymd, 6, 2 ),
+                      $FITS_headers->{UT} );
    return $self->_parse_iso_date( $iso );
 }
+
+=item B<from_UTEND>
+
+Returns the UT time of the end of the observation in HH:MM:SS format
+and stores it in the C<UTEND> keyword.
+
+=cut
 
 sub from_UTEND {
    my $self = shift;
@@ -283,16 +374,22 @@ sub from_UTEND {
    return;
 }
 
-# Derive from the end time, less the exposure time and some
-# allowance for the read time.
+=item B<to_UTSTART>
+
+Returns an estimated UT time of the start of the observation as a 
+C<Time::Piece> object.  The start time is derived from the end time,
+less the C<EXPTIME> exposure time and some allowance for the read time.
+
+=cut
+
 sub to_UTSTART {
    my $self = shift;
    my $FITS_headers = shift;
 
    my $utend = $self->to_UTEND( $FITS_headers );
 
-   my $nreads = $self->to_NUMBER_OF_READS($FITS_headers);
-   my $speed = $self->get_speed_sec($FITS_headers);
+   my $nreads = $self->to_NUMBER_OF_READS( $FITS_headers );
+   my $speed = $self->get_speed_sec( $FITS_headers );
    if ( defined $FITS_headers->{EXPTIME} ) {
        my $offset = -1 * ( $FITS_headers->{EXPTIME} + $speed * $nreads );
        $utend = $self->_add_seconds( $utend, $offset );
@@ -300,33 +397,68 @@ sub to_UTSTART {
    return $utend;
 }
 
+=item B<to_X_LOWER_BOUND>
+
+Returns the lower bound along the X-axis of the area of the detector
+as a pixel index.
+
+=cut
+
 sub to_X_LOWER_BOUND {
    my $self = shift;
    my $FITS_headers = shift;
-   my @bounds = $self->quad_bounds($FITS_headers);
+   my @bounds = $self->quad_bounds( $FITS_headers );
    return $bounds[ 0 ];
 }
+
+=item B<to_X_REFERENCE_PIXEL>
+
+Specifies the X-axis reference pixel near the frame centre.
+
+=cut
 
 sub to_X_REFERENCE_PIXEL {
    my $self = shift;
    my $FITS_headers = shift;
-   my @bounds = $self->quad_bounds($FITS_headers);
+   my @bounds = $self->quad_bounds( $FITS_headers );
    return int( ( $bounds[ 0 ] + $bounds[ 2 ] ) / 2 ) + 1;
 }
+
+=item B<to_X_UPPER_BOUND>
+
+Returns the upper bound along the X-axis of the area of the detector
+as a pixel index.
+
+=cut
 
 sub to_X_UPPER_BOUND {
    my $self = shift;
    my $FITS_headers = shift;
-   my @bounds = $self->quad_bounds($FITS_headers);
+   my @bounds = $self->quad_bounds( $FITS_headers );
    return $bounds[ 2 ];
 }
+
+=item B<to_Y_LOWER_BOUND>
+
+Returns the lower bound along the Y-axis of the area of the detector
+as a pixel index.
+
+=cut
 
 sub to_Y_LOWER_BOUND {
    my $self = shift;
    my $FITS_headers = shift;
-   my @bounds = $self->quad_bounds($FITS_headers);
+
+# Find the pixel bounds of the quadrant or whole detector.
+   my @bounds = $self->quad_bounds( $FITS_headers );
    return $bounds[ 1 ];
 }
+
+=item B<to_Y_REFERENCE_PIXEL>
+
+Specifies the Y-axis reference pixel near the frame centre.
+
+=cut
 
 sub to_Y_REFERENCE_PIXEL {
    my $self = shift;
@@ -335,19 +467,42 @@ sub to_Y_REFERENCE_PIXEL {
    return int( ( $bounds[ 1 ] + $bounds[ 3 ] ) / 2 ) + 1;
 }
 
+=item B<to_Y_UPPER_BOUND>
+
+Returns the upper bound along the Y-axis of the area of the detector
+as a pixel index.
+
+=cut
+
 sub to_Y_UPPER_BOUND {
    my $self = shift;
    my $FITS_headers = shift;
-   my @bounds = $self->quad_bounds($FITS_headers);
+
+# Find the pixel bounds of the quadrant or whole detector.
+   my @bounds = $self->quad_bounds( $FITS_headers );
    return $bounds[ 3 ];
 }
 
+=back
+
+=cut
 
 # Supplementary methods for the translations
 # ------------------------------------------
 
-# Converts a sky angle specified in d:m:s format into decimal degrees.
-# Argument is the sexagesimal format angle.
+=head1 HELPER ROUTINES
+
+These are ClassicCam-specific helper routines.
+
+=over 4
+
+=item B<dms_to_degrees>
+
+Converts a sky angle specified in d:m:s format into decimal degrees.
+The argument is the sexagesimal format angle.
+
+=cut
+
 sub dms_to_degrees {
    my $self = shift;
    my $sexa = shift;
@@ -359,7 +514,13 @@ sub dms_to_degrees {
    return $dms;
 }
 
-# Returns the UT date in YYYYMMDD format.
+=item B<get_speed_sec>
+
+Returns the detector speed in seconds.  It uses the C<SPEED> to derive a
+time in decimal seconds.  The default is 0.743.
+
+=cut
+
 sub get_speed_sec {
    my $self = shift;
    my $FITS_headers = shift;
@@ -374,7 +535,13 @@ sub get_speed_sec {
    return $speed;
 }
 
-# Returns the detector speed in seconds.
+=item B<get_UT_date>
+
+Returns the UT date in YYYYMMDD format.  It parses the non-standard 
+ddMmmyy C<DATE-OBS> keyword.
+
+=cut
+
 sub get_UT_date {
    my $self = shift;
    my $FITS_headers = shift;
@@ -397,7 +564,13 @@ sub get_UT_date {
    return join "", $year, $month, $day;
 }
 
-# Returns the UT time of observation in decimal hours.
+=item B<get_UT_hours>
+
+Returns the UT time of the end of observation in decimal hours from
+the C<UT> keyeword.
+
+=cut
+
 sub get_UT_hours {
    my $self = shift;
    my $FITS_headers = shift;
@@ -409,8 +582,14 @@ sub get_UT_hours {
    }
 }
 
-# Converts a sky angle specified in h:m:s format into decimal degrees.
-# It takes no account of latitude.  Argument is the sexagesimal format angle.
+=item B<hms_to_degrees>
+
+Converts a sky angle specified in h:m:s format into decimal degrees.
+It takes no account of latitude.  The argument is the sexagesimal
+format angle.
+
+=cut
+
 sub hms_to_degrees {
    my $self = shift;
    my $sexa = shift;
@@ -422,8 +601,17 @@ sub hms_to_degrees {
    return $hms;
 }
 
-# Guess for the moment that QUAD 1,2,3,4 correspond to LL, LR, UL, UR
-# quadrants, and 5 is thw whole 256x256-pixel array.
+=item B<quad_bounds>
+
+Returns the detector bounds in pixels of the region of the detector
+used.  The region will be one of the four quadrants or the full
+detector.  We guess for the moment that keword C<QUAD> values of 
+1, 2, 3, 4 correspond to lower-left, lower-right, upper-left,
+upper-right quadrants respectively, and 5 is the whole 
+256x256-pixel array.
+
+=cut
+
 sub quad_bounds {
    my $self = shift;
    my $FITS_headers = shift;
@@ -443,12 +631,11 @@ sub quad_bounds {
    return @bounds;
 }
 
-
 =back
 
 =head1 REVISION
 
- $Id: SOFI.pm 14879 2008-02-13 21:51:31Z timj $
+ $Id: ClassicCam.pm 14879 2008-02-13 21:51:31Z timj $
 
 =head1 SEE ALSO
 
