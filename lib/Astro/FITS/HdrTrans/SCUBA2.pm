@@ -17,37 +17,37 @@ use warnings;
 use strict;
 use Carp;
 
-# Inherit from generic JAC class
+# Inherit from generic JAC class.
 use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 
-# for a constant mapping, there is no FITS header, just a generic
-# header that is constant
+# For a constant mapping, there is no FITS header, just a generic
+# header that is constant.
 my %CONST_MAP = (
-		);
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = ();
 
-# unit mapping implies that the value propogates directly
-# to the output with only a keyword name change
+# Unit mapping implies that the value propogates directly
+# to the output with only a keyword name change.
 
 my %UNIT_MAP = (
-		AIRMASS_START        => "AMSTART",
-		AIRMASS_END          => "AMEND",
-		INSTRUMENT           => "INSTRUME",
-		DR_RECIPE            => "DRRECIPE",
-		DR_GROUP             => "DRGROUP",
-		OBJECT               => "OBJECT",
-		OBSERVATION_NUMBER   => "OBSNUM",
-		OBSERVATION_MODE     => "OBSMODE",
-		OBSERVATION_TYPE     => "OBSTYPE",
-		STANDARD             => "STANDARD",
-		TELESCOPE            => "TELESCOP",
-	       );
+                 AIRMASS_START        => "AMSTART",
+                 AIRMASS_END          => "AMEND",
+                 INSTRUMENT           => "INSTRUME",
+                 DR_GROUP             => "DRGROUP",
+                 DR_RECIPE            => "DRRECIPE",
+                 OBJECT               => "OBJECT",
+                 OBSERVATION_MODE     => "OBSMODE",
+                 OBSERVATION_NUMBER   => "OBSNUM",
+                 OBSERVATION_TYPE     => "OBSTYPE",
+                 STANDARD             => "STANDARD",
+                 TELESCOPE            => "TELESCOP",
+               );
 
 
 # Create the translation methods
@@ -95,7 +95,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
 This program is distributed in the hope that it will be useful,but WITHOUT ANY
@@ -104,7 +104,7 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 
