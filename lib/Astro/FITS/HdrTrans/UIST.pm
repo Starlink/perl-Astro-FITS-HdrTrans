@@ -68,9 +68,6 @@ my %UNIT_MAP = (
                  POLARIMETRY          => "POLARISE",
                  SLIT_NAME            => "SLITNAME",
 
-                 # MICHELLE + WFCAM compatible
-                 EXPOSURE_TIME        => "EXP_TIME",
-
                  # CGS4 + MICHELLE + WFCAM
                  CONFIGURATION_INDEX  => 'CNFINDEX',
                );
