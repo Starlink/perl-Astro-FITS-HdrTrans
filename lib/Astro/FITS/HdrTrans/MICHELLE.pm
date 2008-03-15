@@ -26,11 +26,8 @@ use strict;
 use Carp;
 
 # Inherit from UKIRT
-# Inherit from FITS to get X_BASE and Y_BASE
 # UKIRTNew must come first because of DATE-OBS handling
-use base qw/ Astro::FITS::HdrTrans::UKIRTNew
-             Astro::FITS::HdrTrans::FITS
-             /;
+use base qw/ Astro::FITS::HdrTrans::UKIRTNew /;
 
 use vars qw/ $VERSION /;
 
