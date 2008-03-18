@@ -123,7 +123,28 @@ sub to_DEC_SCALE {
          }
       }
    }
-   return $scale;
+
+# Allow for D notation, which is not recognised by Perl, so that
+# supplied strings are valid numbers.
+    $scale =~ s/D/E/;
+
+    return $scale;
+}
+
+=item B<to_FILE_FORMAT>
+
+Determines the file format being used.  It is either C<"HDS"> (meaning
+an HDS container file of NDFs) or C<"FITS"> and is determined by the
+presence of the DHSVER header.
+
+=cut
+
+sub to_FILE_FORMAT {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my $format = "HDS";
+   if ( ! exists( $FITS_headers->{DHSVER} ) ) { $format = "FITS"; }
+   return $format;
 }
 
 =item B<to_POLARIMETRY>
@@ -151,11 +172,11 @@ decimal degrees for the generic header C<RA_BASE>.
 Note that this is different from the original translation within
 ORAC-DR where it was to decimal hours.
 
-There was a period from 2000-05-07 to 2000-07-19 inclusive,
-where degrees, not hours, were written whenever the data were
-stored as NDF format.  However, there wasn't a clean changover
-during ORAC-DR commissioning.  So use the presence of the
-DHSVER keyword to discriminate between the two formats.
+There was a period from 2000-05-07 to 2000-07-19 inclusive, where
+degrees, not hours, were written whenever the data were stored as NDF
+format.  However, there wasn't a clean changover during ORAC-DR
+commissioning.  So use the FILE_FORMAT to discriminate between the two
+formats.
 
 =cut
 
@@ -165,7 +186,9 @@ sub to_RA_BASE {
    my $return;
    if ( exists($FITS_headers->{RABASE} ) ) {
       my $date = $self->to_UTDATE( $FITS_headers );
-      if ( exists( $FITS_headers->{DHSVER} ) && 
+      my $format = $self->to_FILE_FORMAT( $FITS_headers );
+      
+      if ( defined( $format ) && $format eq "HDS" && 
            defined( $date ) && $date > 20000507 && $date < 20000720 ) {
          $return = $FITS_headers->{RABASE};
       } else {
@@ -184,10 +207,10 @@ into decimal hours for the FITS header C<RABASE>.
 
 There was a period from 2000-05-07 to 2000-07-19 inclusive, where
 degrees, not hours, were written whenever the data were stored as NDF
-format.  However, there wasn't a clean changover during ORAC-DR
-commissioning.  So use the presence of the C<DHSVER> keyword to
-discriminate between the two formats.  For symmetry and consistency,
-retain these units during the problem period.
+format.  However, there was not a clean changover during ORAC-DR
+commissioning.  So use the generic header FILE_FORMAT to discriminate
+between the two formats.  For symmetry and consistency, retain these
+units during the problem period.
 
 =cut
 
@@ -195,10 +218,11 @@ sub from_RA_BASE {
    my $self = shift;
    my $generic_headers = shift;
    my %return_hash;
-   if ( exists( $generic_headers->{RA_BASE} ) &&
-        defined( $generic_headers->{RA_BASE} ) ) {
+   if ( defined( $generic_headers->{RA_BASE} ) ) {
       my $date = $self->to_UTDATE( $generic_headers );
-      if ( exists( $generic_headers->{DHSVER} ) && 
+
+      if ( defined( $generic_headers->{FILE_FORMAT} ) && 
+           $generic_headers->{FILE_FORMAT} eq "HDS" &&
            defined( $date ) && $date > 20000507 && $date < 20000720 ) {
          $return_hash{'RABASE'} = $generic_headers->{RA_BASE};
       } else {
@@ -215,6 +239,8 @@ from keyword C<CDELT1>.  The default is time dependent, as tabulated
 in the UFTI web page.
 L<http://www.jach.hawaii.edu/UKIRT/instruments/ufti/PARAMETERS.html#1>
 The default scale assumes east is to the left.
+
+It corrects for an erroneous sign in early data.
 
 =cut
 
@@ -242,6 +268,23 @@ sub to_RA_SCALE {
          }
       }
    }
+
+# Allow for D notation, which is not recognised by Perl, so that
+# supplied strings are valid numbers.
+    $scale =~ s/D/E/;
+
+# Correct the RA scale.  The RA scale originates from the erroneous
+# positive CDELT1.  Reverse the sign to give the correct increment 
+# per pixel.
+   if ( $scale > 0.0 ) { $scale *= -1.0; }
+
+# The CDELTn headers are either part of a WCS in expressed in the
+# AIPS-convention, or the values we require.  Angles for the former
+# are measured in degrees.  The sign of the scale may be negative.
+   if ( $FITS_headers->{CTYPE1} eq "RA---TAN" && abs( $scale ) < 1.0E-3 ) {
+      $scale *= 3600.0;
+   }
+
    return $scale;
 }
 

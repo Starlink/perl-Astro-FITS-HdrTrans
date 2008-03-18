@@ -109,6 +109,7 @@ my @generic_headers = qw(
                          EPOCH
                          EQUINOX
                          EXPOSURE_TIME
+                         FILE_FORMAT
                          FILENAME
                          FILTER
                          FRONTEND
