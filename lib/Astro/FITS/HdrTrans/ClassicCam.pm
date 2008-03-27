@@ -43,7 +43,7 @@ my %CONST_MAP = (
                   ROTATION              => 0, # assume good alignment for now
                 );
 
-# NULL mappings used to override base class implementations
+# NULL mappings used to override base-class implementations
 my @NULL_MAP = qw/ /;
 
 # Unit mapping implies that the value propogates directly
@@ -162,7 +162,7 @@ sub to_DEC_BASE {
 
 =item B<to_DEC_SCALE>
 
-Sets the declination scale in decimal degrees per pixel.  It has a
+Sets the declination scale in arcseconds  per pixel.  It has a
 fixed absolute value of 0.115 arcsec/pixel, but its sign depends on
 the declination.  The scale increases with pixel index, i.e. has north
 to the top, for declinations south of -29 degrees.  It is flipped
@@ -218,7 +218,7 @@ sub to_DR_RECIPE {
 =item B<to_NUMBER_OF_OFFSETS>
 
 Stores the number of offsets using the UKIRT convention, i.e. adding
-one to the numer of dither positions, and a default dither pattern of
+one to the number of dither positions, and a default dither pattern of
 5.
 
 =cut
@@ -298,7 +298,7 @@ sub to_RA_BASE {
 
 =item B<to_RA_SCALE>
 
-Sets the right-ascension scale in decimal degrees per pixel.  It has a
+Sets the right-ascension scale in arcseconds per pixel.  It has a
 fixed absolute value of 0.115 arcsec/pixel, but its sign depends on
 the declination.  The scale increases with pixel index, i.e. has east
 to the right, for declinations south of -29 degrees.  It is flipped
@@ -499,7 +499,7 @@ These are ClassicCam-specific helper routines.
 =item B<dms_to_degrees>
 
 Converts a sky angle specified in d:m:s format into decimal degrees.
-The argument is the sexagesimal format angle.
+The argument is the sexagesimal-format angle.
 
 =cut
 
