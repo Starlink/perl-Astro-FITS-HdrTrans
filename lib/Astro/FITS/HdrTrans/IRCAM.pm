@@ -31,14 +31,14 @@ use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 
-# for a constant mapping, there is no FITS header, just a generic
-# header that is constant
+# For a constant mapping, there is no FITS header, just a generic
+# header that is constant.
 my %CONST_MAP = (
 
                 );
 
-# unit mapping implies that the value propogates directly
-# to the output with only a keyword name change
+# Unit mapping implies that the value propogates directly
+# to the output with only a keyword name change.
 
 # Note that header merging fails with IRCAM in some cases because
 # some items are duplicated in the .HEADER and .I1 but using different
@@ -78,7 +78,7 @@ Returns a pattern match for /^IRCAM\d?/".
 =cut
 
 sub this_instrument {
-  return qr/^IRCAM\d?/i;
+   return qr/^IRCAM\d?/i;
 }
 
 =back
@@ -116,40 +116,54 @@ sub to_AIRMASS_START {
 
 =item B<to_DEC_SCALE>
 
-Pixel scale along the Declination axis. If the pixel scale is not
-defined in the PIXELSIZ header, then default to 0.08144 arcseconds for
-data taken after 19990901, or 0.286 arcseconds for any other data.  
-The value is returned in degrees, and will always be positive.
+Pixel scale along the Declination axis in arcseconds.  If the pixel
+scale is not defined in the PIXELSIZ or CDELT2 headers, then default
+to 0.08144 arcseconds for data taken after 19990901, or 0.286
+arcseconds for older data.  The value will always be positive.
 
 =cut
 
 sub to_DEC_SCALE {
    my $self = shift;
    my $FITS_headers = shift;
-   my $pixel_size = $FITS_headers->{PIXELSIZ};
+   my $scale;
+   my $pixelsiz = $FITS_headers->{PIXELSIZ};
+   my $ctype2 = $FITS_headers->{CTYPE2};
+   my $cdelt2 = $FITS_headers->{CDELT2};
    my $utdate = $self->to_UTDATE( $FITS_headers );
 
-   if ( ! defined( $pixel_size ) ) {
-      if ( $utdate > 19990901 ) {
-         $pixel_size = 0.08144;
-      } else {
-         $pixel_size = 0.286;
-      }
+# The CDELTn headers may be part of a WCS in expressed in the AIPS-convention 
+# measured in degrees (but protect against cases where it may have been in 
+# arcsec). 
+    if ( defined( $cdelt2 ) && defined( $ctype2 ) && $ctype2 eq "DEC--TAN" ) { 
+      $scale = $cdelt2;
+      if ( abs( $scale ) < 1.0E-3 ) { $scale *= 3600.0; }
    } else {
+      $scale = $pixelsiz;
+   }
+
+# Use the default scales.  The first IRCAM scale did vary with time,
+# but the information is no longer on the UKIRT web site.
+   if ( ! defined( $scale ) ) {
+      if ( $utdate > 19990901 ) {
+         $scale = 0.08144;
+      } else {
+         $scale = 0.286;
+      }
+   }
 
 # Headers may be in scientific notation, but with a 'D' instead of
 # an 'E'.  Translate to an 'E' so Perl doesn't fall over.
-      $pixel_size =~ s/D/E/;
-   }
+   $scale =~ s/D/E/;
 
-   $pixel_size /= 3600 if defined $pixel_size; # arcsec to degrees
-   return abs( $pixel_size );
+   return abs( $scale );
 }
 
 =item B<from_DEC_SCALE>
 
-Generate the PIXELSIZ header.  The header will be returned in
-arcseconds, and will always be positive.
+Generate the PIXELSIZ or CDELT2 header for IRCAM2 or IRCAM3 data
+respectively.  The header will be returned in arcseconds, and will 
+always be positive.
 
 =cut
 
@@ -157,8 +171,9 @@ sub from_DEC_SCALE {
    my $self = shift;
    my $generic_headers = shift;
    my $scale = abs( $generic_headers->{DEC_SCALE} );
-   $scale *= 3600 if defined $scale;
-   return ("PIXELSIZ", $scale );
+
+# Need to find way to allow for new and old headers with differing units.
+   return ( "PIXELSIZ", $scale );
 }
 
 =item B<to_NUMBER_OF_EXPOSURES>
@@ -194,41 +209,57 @@ sub to_POLARIMETRY {
 
 =item B<to_RA_SCALE>
 
-Pixel scale along the RA axis. If the pixel scale is not defined in
-the PIXELSIZ header, then default to -0.08144 arcseconds for data
-taken after 19990901, or -0.286 arcseconds for any other data. The
-value is returned in degrees, and will always be negative.
+Returns the pixel scale along the RA axis in arcseconds.  If the pixel
+scale is not defined in the PIXELSIZ or CDELT1 headers, then default
+to -0.08144 arcseconds for data taken after 19990901, or -0.286
+arcseconds for older data.  The value will always be negative.
 
 =cut
 
 sub to_RA_SCALE {
    my $self = shift;
    my $FITS_headers = shift;
-   my $pixel_size = $FITS_headers->{PIXELSIZ};
+   my $scale;
+   my $pixelsiz = $FITS_headers->{PIXELSIZ};
+   my $ctype1 = $FITS_headers->{CTYPE1};
+   my $cdelt1 = $FITS_headers->{CDELT1};
    my $utdate = $self->to_UTDATE( $FITS_headers );
 
-   if ( ! defined( $pixel_size ) ) {
-      if ( $utdate > 19990901 ) {
-         $pixel_size = -0.08144;
-      } else {
-         $pixel_size = -0.286;
-      }
+# The CDELTn headers may be part of a WCS in expressed in the AIPS-convention 
+# measured in degrees (but protect against cases where it may have been in 
+# arcsec).  
+    if ( defined( $cdelt1 ) && defined( $ctype1 ) && $ctype1 eq "RA---TAN" ) { 
+      $scale = $cdelt1;
+      if ( abs( $scale ) < 1.0E-3 ) { $scale *= 3600.0; }
    } else {
+      $scale = $pixelsiz;
+   }
+
+# Use the default scales.  The first IRCAM scale did vary with time,
+# but the information is no longer on the UKIRT web site.
+   if ( ! defined( $scale ) ) {
+      if ( $utdate > 19990901 ) {
+         $scale = -0.08144;
+      } else {
+         $scale = -0.286;
+      }
+   }
 
 # Headers may be in scientific notation, but with a 'D' instead of
 # an 'E'.  Translate to an 'E' so Perl doesn't fall over.
-     $pixel_size =~ s/D/E/;
-   }
+   $scale =~ s/D/E/;
 
-   $pixel_size /= 3600 if defined $pixel_size; # arcsec to degrees
-   if ( $pixel_size > 0.0 ) { $pixel_size *= -1.0 }
-   return $pixel_size;
+# Correct erroneous positive RA scale in some headers.
+   if ( $scale > 0.0 ) { $scale *= -1.0 }
+
+   return $scale;
 }
 
 =item B<from_RA_SCALE>
 
-Generate the PIXELSIZ header.  The header will be returned in
-arcseconds, and will always be positive.
+Generates the PIXELSIZ or CDELT1 header for IRCAM2 or IRCAM3 data
+respectively.  The header will be returned in arcseconds, and will 
+always be negative.
 
 =cut
 
@@ -236,8 +267,9 @@ sub from_RA_SCALE {
    my $self = shift;
    my $generic_headers = shift;
    my $scale = abs( $generic_headers->{RA_SCALE} );
-   $scale *= 3600 if defined $scale;
-   return ("PIXELSIZ", $scale );
+
+# Need to find way to allow for new and old headers with differing units.
+   return ( "PIXELSIZ", $scale );
 }
 
 
