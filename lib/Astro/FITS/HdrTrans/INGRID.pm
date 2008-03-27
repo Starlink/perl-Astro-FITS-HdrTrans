@@ -24,26 +24,26 @@ use warnings;
 use strict;
 use Carp;
 
-# Inherit from FITS
+# Inherit from FITS.
 use base qw/ Astro::FITS::HdrTrans::FITS /;
 
 use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
 
-# for a constant mapping, there is no FITS header, just a generic
-# header that is constant
+# For a constant mapping, there is no FITS header, just a generic
+# header that is constant.
 my %CONST_MAP = (
                   POLARIMETRY         => 0,
                   OBSERVATION_MODE    => 'imaging',
                   WAVEPLATE_ANGLE     => 0,
                 );
 
-# NULL mappings used to override base class implementations
+# NULL mappings used to override base-class implementations.
 my @NULL_MAP = qw/ /;
 
-# unit mapping implies that the value propogates directly
-# to the output with only a keyword name change
+# Unit mapping implies that the value propogates directly
+# to the output with only a keyword name change.
 
 my %UNIT_MAP = (
                  AIRMASS_END          => "AIRMASS",
@@ -57,7 +57,7 @@ my %UNIT_MAP = (
                );
 
 
-# Create the translation methods
+# Create the translation methods.
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 
 =head1 METHODS
@@ -78,7 +78,7 @@ Returns "INGRID".
 =cut
 
 sub this_instrument {
-  return qr/^INGRID/;
+   return qr/^INGRID/;
 }
 
 =back
@@ -86,6 +86,11 @@ sub this_instrument {
 =head1 COMPLEX CONVERSIONS
 
 =over 4
+
+=item B<to_DEC_BASE>
+
+Converts the base declination from sexagesimal d:m:s to decimal
+degrees using the C<CAT-DEC> keyword, defaulting to 0.0.
 
 =cut
 
@@ -99,6 +104,14 @@ sub to_DEC_BASE {
    }
    return $dec;
 }
+
+=item B<to_DEC_SCALE>
+
+Sets the declination scale in arcseconds per pixel.  The C<CCDYPIXE>
+and C<INGPSCAL> headers are used when both are defined.  Otherwise it
+returns a default value of 0.2387 arcsec/pixel, assuming north is up.
+
+=cut
 
 sub to_DEC_SCALE {
    my $self = shift;
@@ -115,14 +128,19 @@ sub to_DEC_SCALE {
    return $decscale;
 }
 
-# If the telescope ofset exists in arcsec, then use it.  Otherwise
-# convert the Cartesian offsets to equatorial offsets.
+=item B<to_DEC_TELESCOPE_OFFSET>
+
+Sets the declination telescope offset in arcseconds.   It uses the
+C<CAT-DEC> and C<DEC> keywords to derive the offset, and if either
+does not exist, it returns a default of 0.0.
+
+=cut
+
 sub to_DEC_TELESCOPE_OFFSET {
    my $self = shift;
    my $FITS_headers = shift;
    my $decoffset = 0.0;
-   if ( exists $FITS_headers->{"CAT-DEC"} && exists $FITS_headers->{DEC} &&
-        exists $FITS_headers->{"CAT-RA"} && exists $FITS_headers->{RA} ) {
+   if ( exists $FITS_headers->{"CAT-DEC"} && exists $FITS_headers->{DEC} ) {
 
 # Obtain the reference and telescope declinations positions measured in degrees.
       my $refdec = $self->dms_to_degrees( $FITS_headers->{"CAT-DEC"} );
@@ -137,7 +155,15 @@ sub to_DEC_TELESCOPE_OFFSET {
    return -1.0 * $decoffset
 }
 
-# This is guesswork at present.
+=item B<to_DETECTOR_READ_TYPE>
+
+Returns the UKIRT-like detector type "STARE" or "NDSTARE" from the
+FITS C<REDMODE> and C<NUMREADS> keywords.
+
+This is guesswork at present.
+
+=cut
+
 sub to_DETECTOR_READ_TYPE {
    my $self = shift;
    my $FITS_headers = shift;
@@ -146,12 +172,21 @@ sub to_DETECTOR_READ_TYPE {
    my $nreads = $FITS_headers->{NUMREADS};
    if ( $readout_mode =~ /^mndr/i ||
         ( $readout_mode =~ /^cds/i && $nreads == 1 ) ) {
-      $read_type = "NDSTARE";
+      $read_type = "STARE";
    } elsif ( $readout_mode =~ /^cds/i ) {
       $read_type = "NDSTARE";
    }
    return $read_type;
 }
+
+=item B<to_DR_RECIPE>
+
+Returns the data-reduction recipe name.  The selection depends on the
+values of the C<OBJECT> and C<OBSTYPE> keywords.  The default is
+"QUICK_LOOK".  A dark returns "REDUCE_DARK", and an object's recipe is
+"JITTER_SELF_FLAT".
+   
+=cut
 
 # No clue what the recipe is apart for a dark and assume a dither
 # pattern means JITTER_SELF_FLAT.
@@ -173,6 +208,13 @@ sub to_DR_RECIPE {
    return $recipe;
 }
 
+=item B<to_EQUINOX>
+
+Returns the equinox in decimal years.  It's taken from the C<CAT-EQUI>
+keyword, if it exists, defaulting to 2000.0 otherwise.
+   
+=cut
+
 sub to_EQUINOX {
    my $self = shift;
    my $FITS_headers = shift;
@@ -184,6 +226,13 @@ sub to_EQUINOX {
    return $equinox;
 }
 
+=item B<to_GAIN>
+
+Returns the gain in electrons per data number.  This is taken from
+the C<GAIN> keyword, with a default of 4.1.
+
+=cut
+
 sub to_GAIN {
    my $self = shift;
    my $FITS_headers = shift;
@@ -192,6 +241,14 @@ sub to_GAIN {
    $gain = $subval if defined $subval;
    return $gain;
 }
+
+=item B<to_NUMBER_OF_OFFSETS>
+
+Returns the number of offsets.  It uses the UKIRT convention so
+it is equivalent to the number of dither positions plus one.
+The value is derived from the C<OBJECT> keyword, with a default of 6.
+
+=cut
 
 sub to_NUMBER_OF_OFFSETS {
    my $self = shift;
@@ -204,13 +261,19 @@ sub to_NUMBER_OF_OFFSETS {
    my $object = $FITS_headers->{OBJECT};
    if ( $object =~ /D-\d+\/\d+/ ) {
 
-# Extract the string betwen the solidus and the colon.  Add one
+# Extract the string between the solidus and the colon.  Add one
 # to match the UKIRT convention.
       $noffsets = substr( $object, index( $object, "/" ) + 1 );
       $noffsets = substr( $noffsets, 0, index( $noffsets, ":" ) );
    }
    return $noffsets + 1;
 }
+
+=item B<to_OBJECT>
+
+Reeturns the object name.  It is extracted from the C<OBJECT> keyword.
+
+=cut
 
 sub to_OBJECT {
    my $self = shift;
@@ -227,6 +290,13 @@ sub to_OBJECT {
    return $object;
 }
 
+=item B<to_OBSERVATION_TYPE>
+
+Determines the observation type from the C<OBSTYPE> keyword provided it is
+"TARGET" for an object dark frame.
+
+=cut
+
 sub to_OBSERVATION_TYPE {
    my $self = shift;
    my $FITS_headers = shift;
@@ -236,6 +306,13 @@ sub to_OBSERVATION_TYPE {
    }
    return $obstype;
 }
+
+=item B<to_RA_BASE>
+
+Converts the base right ascension from sexagesimal h:m:s to decimal degrees
+using the C<CAT-RA> keyword, defaulting to 0.0.
+
+=cut
 
 sub to_RA_BASE {
    my $self = shift;
@@ -247,6 +324,15 @@ sub to_RA_BASE {
    }
    return $ra;
 }
+
+=item B<to_RA_SCALE>
+
+Sets the right-ascension scale in arcseconds per pixel.  The C<CCDXPIXE>
+and C<INGPSCAL> headers are used when both are defined.  Otherwise it
+returns a default value of 0.2387 arcsec/pixel, assuming east is to
+the left.
+
+=cut
 
 sub to_RA_SCALE {
    my $self = shift;
@@ -263,14 +349,20 @@ sub to_RA_SCALE {
    return $rascale;
 }
 
-# If the telescope ofset exists in arcsec, then use it.  Otherwise
-# convert the Cartesian offsets to equatorial offsets.
+=item B<to_RA_TELESCOPE_OFFSET>
+
+Sets the right-ascension telescope offset in arcseconds.   It uses the
+C<CAT-RA>, C<RA>, C<CAT-DEC> keywords to derive the offset, and if any
+of these keywords does not exist, it returns a default of 0.0.
+
+=cut
+
 sub to_RA_TELESCOPE_OFFSET {
    my $self = shift;
    my $FITS_headers = shift;
    my $raoffset = 0.0;
 
-   if ( exists $FITS_headers->{"CAT-DEC"} && exists $FITS_headers->{DEC} &&
+   if ( exists $FITS_headers->{"CAT-DEC"} &&
         exists $FITS_headers->{"CAT-RA"} && exists $FITS_headers->{RA} ) {
 
 # Obtain the reference and telescope sky positions measured in degrees.
@@ -287,11 +379,25 @@ sub to_RA_TELESCOPE_OFFSET {
    return -1.0 * $raoffset;
 }
 
+=item B<to_ROTATION>
+
+Returns the orientation of the detector in degrees anticlockwise
+from north via east.
+
+=cut
+
 sub to_ROTATION {
    my $self = shift;
    my $FITS_headers = shift;
    return $self->rotation( $FITS_headers );
 }
+
+=item B<to_SPEED_GAIN>
+
+Returns the speed gain.  This is either "Normal" or "HiGain", the
+selection depending on the value of the C<CCDSPEED> keyword.
+
+=cut
 
 # Fixed values for the gain depend on the camera (SW or LW), and for LW
 # the readout mode.
@@ -308,6 +414,13 @@ sub to_SPEED_GAIN {
    return $spd_gain;
 }
 
+=item B<to_STANDARD>
+
+Returns whether or not the observation is of a standard source.  It is
+deemed to be a standard when the C<OBSTYPE> keyword is "STANDARD".
+
+=cut
+
 sub to_STANDARD {
    my $self = shift;
    my $FITS_headers = shift;
@@ -319,20 +432,43 @@ sub to_STANDARD {
    return $standard;
 }
 
+=item B<to_UTDATE>
+
+Returns the UT date as C<Time::Piece> object.  It copes with non-standard
+format in C<DATE-OBS>.
+
+=cut
+
 sub to_UTDATE {
    my $self = shift;
    my $FITS_headers = shift;
-   return $self->get_UT_date($FITS_headers);
+   return $self->get_UT_date( $FITS_headers );
 }
+
+=item B<to_UTEND>
+
+Returns the UT time of the end of the observation as a C<Time::Piece> object.  
+
+=cut
 
 sub to_UTEND {
    my $self = shift;
    my $FITS_headers = shift;
 
 # This is the approximate end UT.
-   my $start = $self->to_UTSTART( $FITS_headers);
+   my $start = $self->to_UTSTART( $FITS_headers );
    return $self->_add_seconds( $start, $FITS_headers->{EXPTIME} );
 }
+
+=item B<to_UTSTART>
+
+Returns an estimated UT time of the start of the observation as a 
+C<Time::Piece> object.  The start time is derived from the C<DATE-OBS>
+keyword and if C<DATE-OBS> only supplies a date, the time from the 
+C<UTSTART> keyword is appended before conversaion to a C<Time::Piece>
+object.
+
+=cut
 
 sub to_UTSTART {
    my $self = shift;
@@ -351,9 +487,29 @@ sub to_UTSTART {
    return $return;
 }
 
-# Use the nominal reference pixel if correctly supplied, failing that
-# take the average of the bounds, and if these headers are also absent,
-# use a default which assumes the full array.
+=item B<to_X_LOWER_BOUND>
+
+Returns the lower bound along the X-axis of the area of the detector
+as a pixel index.
+
+=cut
+
+sub to_X_LOWER_BOUND {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my @bounds = $self->getbounds( $FITS_headers );
+   return $bounds[ 0 ];
+}
+
+=item B<to_X_REFERENCE_PIXEL>
+
+Specifies the X-axis reference pixel near the frame centre.  It uses
+the nominal reference pixel if that is correctly supplied, failing
+that it takes the average of the bounds, and if these headers are also
+absent, it uses a default which assumes the full array.
+
+=cut
+
 sub to_X_REFERENCE_PIXEL{
    my $self = shift;
    my $FITS_headers = shift;
@@ -367,8 +523,43 @@ sub to_X_REFERENCE_PIXEL{
    return $xref;
 }
 
-# Use the nominal reference pixel at the centre for now.  For sub-arrays
-# take the average of the bounds.
+=item B<to_X_UPPER_BOUND>
+
+Returns the upper bound along the X-axis of the area of the detector
+as a pixel index.
+
+=cut
+
+sub to_X_UPPER_BOUND {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my @bounds = $self->getbounds( $FITS_headers );
+   return $bounds[ 1 ];
+}
+
+=item B<to_Y_LOWER_BOUND>
+
+Returns the lower bound along the Y-axis of the area of the detector
+as a pixel index.
+
+=cut
+
+sub to_Y_LOWER_BOUND {
+   my $self = shift;
+   my $FITS_headers = shift;
+   my @bounds = $self->getbounds( $FITS_headers );
+   return $bounds[ 2 ];
+}
+
+=item B<to_Y_REFERENCE_PIXEL>
+
+Specifies the Y-axis reference pixel near the frame centre.  It uses
+the nominal reference pixel if that is correctly supplied, failing
+that it takes the average of the bounds, and if these headers are also
+absent, it uses a default which assumes the full array.
+
+=cut
+
 sub to_Y_REFERENCE_PIXEL{
    my $self = shift;
    my $FITS_headers = shift;
@@ -382,26 +573,12 @@ sub to_Y_REFERENCE_PIXEL{
    return $yref;
 }
 
-sub to_X_LOWER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @bounds = $self->getbounds( $FITS_headers );
-   return $bounds[ 0 ];
-}
+=item B<to_Y_UPPER_BOUND>
 
-sub to_Y_LOWER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @bounds = $self->getbounds( $FITS_headers );
-   return $bounds[ 2 ];
-}
+Returns the upper bound along the Y-axis of the area of the detector
+as a pixel index.
 
-sub to_X_UPPER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @bounds = $self->getbounds( $FITS_headers );
-   return $bounds[ 1 ];
-}
+=cut
 
 sub to_Y_UPPER_BOUND {
    my $self = shift;
@@ -413,8 +590,19 @@ sub to_Y_UPPER_BOUND {
 # Supplementary methods for the translations
 # ------------------------------------------
 
-# Converts a sky angle specified in d:m:s format into decimal degrees.
-# Argument is the sexagesimal format angle.
+=head1 HELPER ROUTINES
+
+These are INGRID-specific helper routines.
+
+=over 4
+
+=item B<dms_to_degrees>
+
+Converts a sky angle specified in d:m:s format into decimal degrees.
+The argument is the sexagesimal-format angle.
+
+=cut
+
 sub dms_to_degrees {
    my $self = shift;
    my $sexa = shift;
@@ -443,7 +631,13 @@ sub getbounds{
    return @bounds;
 }
 
-# Returns the UT date in YYYYMMDD format.
+=item B<get_UT_date>
+
+Returns the UT date in YYYYMMDD format.  It parses the non-standard 
+ddMmmyy C<DATE-OBS> keyword.
+
+=cut
+
 sub get_UT_date {
    my $self = shift;
    my $FITS_headers = shift;
@@ -455,8 +649,14 @@ sub get_UT_date {
    return substr( $dateobs, 0, 4 ) . substr( $dateobs, 5, 2 ) . substr( $dateobs, 8, 2 )
 }
 
-# Converts a sky angle specified in h:m:s format into decimal degrees.
-# It takes no account of latitude.  Argument is the sexagesimal format angle.
+=item B<hms_to_degrees>
+
+Converts a sky angle specified in h:m:s format into decimal degrees.
+It takes no account of latitude.  The argument is the sexagesimal
+format angle.
+
+=cut
+
 sub hms_to_degrees {
    my $self = shift;
    my $sexa = shift;
@@ -468,7 +668,13 @@ sub hms_to_degrees {
    return $hms;
 }
 
-# Derives the rotation angle from the rotation matrix.
+=item B<rotation>
+
+Derives the rotation angle in degrees from the C<ROTSKYPA> keyword, with a
+default of 0.0.
+
+=cut
+
 sub rotation{
    my $self = shift;
    my $FITS_headers = shift;
@@ -484,7 +690,7 @@ sub rotation{
 
 =head1 REVISION
 
- $Id: SOFI.pm 14879 2008-02-13 21:51:31Z timj $
+ $Id: INGRID.pm 14879 2008-02-13 21:51:31Z timj $
 
 =head1 SEE ALSO
 
