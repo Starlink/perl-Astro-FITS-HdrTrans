@@ -185,7 +185,7 @@ Returns the data-reduction recipe name.  The selection depends on the
 values of the C<OBJECT> and C<OBSTYPE> keywords.  The default is
 "QUICK_LOOK".  A dark returns "REDUCE_DARK", and an object's recipe is
 "JITTER_SELF_FLAT".
-   
+
 =cut
 
 # No clue what the recipe is apart for a dark and assume a dither
@@ -212,7 +212,7 @@ sub to_DR_RECIPE {
 
 Returns the equinox in decimal years.  It's taken from the C<CAT-EQUI>
 keyword, if it exists, defaulting to 2000.0 otherwise.
-   
+
 =cut
 
 sub to_EQUINOX {
@@ -586,6 +586,8 @@ sub to_Y_UPPER_BOUND {
    my @bounds = $self->getbounds( $FITS_headers );
    return $bounds[ 3 ];
 }
+
+=back
 
 # Supplementary methods for the translations
 # ------------------------------------------
