@@ -50,12 +50,10 @@ my @NULL_MAP = qw/ DETECTOR_INDEX WAVEPLATE_ANGLE /;
 my %UNIT_MAP = (
                 # WFCAM specific
                 CAMERA_NUMBER        => "CAMNUM",
-                DEC_SCALE            => "CD2_1",
                 DETECTOR_READ_TYPE   => "READMODE",
                 NUMBER_OF_COADDS     => "NEXP",
                 NUMBER_OF_JITTER_POSITIONS    => "NJITTER",
                 NUMBER_OF_MICROSTEP_POSITIONS => "NUSTEP",
-                RA_SCALE             => "CD1_2",
                 TILE_NUMBER          => "TILENUM",
 
                 # CGS4 + MICHELLE + WFCAM
@@ -121,6 +119,120 @@ sub to_DATA_UNITS {
 
   return $data_units;
 
+}
+
+=item B<to_DEC_SCALE>
+
+For cameras 1 and 3, converts CD2_1 to DEC_SCALE. For cameras 2 and 4,
+converts CD2_2 to DEC_SCALE. Pixel scale is returned in arcseconds per
+pixel.
+
+=cut
+
+sub to_DEC_SCALE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  my $camnum = $self->to_CAMERA_NUMBER( $FITS_headers );
+  if( defined( $camnum ) ) {
+    if( defined( $FITS_headers->{CD2_1} ) &&
+        defined( $FITS_headers->{CD2_2} ) ) {
+
+      if( $camnum == 1 || $camnum == 3 ) {
+        $return = $FITS_headers->{CD2_1} * 3600;
+      } elsif( $camnum == 2 || $camnum == 4 ) {
+        $return = $FITS_headers->{CD2_2} * 3600;
+      }
+    }
+  }
+  return $return;
+}
+
+=item B<from_DEC_SCALE>
+
+For cameras 1 and 3, converts DEC_SCALE to CD2_1. For cameras 2 and 4,
+converts DEC_SCALE to CD2_2. Returned units are degrees per pixel.
+
+=cut
+
+sub from_DEC_SCALE {
+  my $self = shift;
+  my $generic_headers = shift;
+
+  my %return_hash;
+
+  my $dec_scale = $generic_headers->{'DEC_SCALE'};
+  my $camnum = $generic_headers->{'CAMERA_NUMBER'};
+
+  if( defined( $dec_scale ) &&
+      defined( $camnum ) ) {
+
+    if( $camnum == 1 || $camnum == 3 ) {
+      $return_hash{'CD2_1'} = $dec_scale / 3600;
+    } elsif( $camnum == 2 || $camnum == 4 ) {
+      $return_hash{'CD2_2'} = $dec_scale / 3600;
+    }
+  }
+
+  return %return_hash;
+}
+
+=item B<to_RA_SCALE>
+
+For cameras 1 and 3, converts CD1_2 to RA_SCALE. For cameras 2 and 4,
+converts CD1_1 to RA_SCALE. Pixel scale is returned in arcseconds per
+pixel.
+
+=cut
+
+sub to_RA_SCALE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  my $camnum = $self->to_CAMERA_NUMBER( $FITS_headers );
+  if( defined( $camnum ) ) {
+    if( defined( $FITS_headers->{CD1_1} ) &&
+        defined( $FITS_headers->{CD1_2} ) ) {
+
+      if( $camnum == 1 || $camnum == 3 ) {
+        $return = $FITS_headers->{CD1_2} * 3600;
+      } elsif( $camnum == 2 || $camnum == 4 ) {
+        $return = $FITS_headers->{CD1_1} * 3600;
+      }
+    }
+  }
+  return $return;
+}
+
+=item B<from_RA_SCALE>
+
+For cameras 1 and 3, converts RA_SCALE to CD1_2. For cameras 2 and 4,
+converts RA_SCALE to CD1_1. Returned units are degrees per pixel.
+
+=cut
+
+sub from_RA_SCALE {
+  my $self = shift;
+  my $generic_headers = shift;
+
+  my %return_hash;
+
+  my $ra_scale = $generic_headers->{'RA_SCALE'};
+  my $camnum = $generic_headers->{'CAMERA_NUMBER'};
+
+  if( defined( $ra_scale ) &&
+      defined( $camnum ) ) {
+
+    if( $camnum == 1 || $camnum == 3 ) {
+      $return_hash{'CD1_2'} = $ra_scale / 3600;
+    } elsif( $camnum == 2 || $camnum == 4 ) {
+      $return_hash{'CD1_1'} = $ra_scale / 3600;
+    }
+  }
+
+  return %return_hash;
 }
 
 =item B<to_GAIN>
