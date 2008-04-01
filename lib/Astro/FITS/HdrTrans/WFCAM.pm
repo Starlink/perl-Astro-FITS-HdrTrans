@@ -137,9 +137,12 @@ sub to_DEC_SCALE {
   my $camnum = $self->to_CAMERA_NUMBER( $FITS_headers );
   if( defined( $camnum ) ) {
     if( defined( $FITS_headers->{CD2_1} ) &&
+        defined( $FITS_headers->{CD1_2} ) &&
         defined( $FITS_headers->{CD2_2} ) ) {
 
-      if( $camnum == 1 || $camnum == 3 ) {
+      if( $camnum == 1 ) {
+        $return = $FITS_headers->{CD2_1} * 3600;
+      } elsif( $camnum == 3 ) {
         $return = $FITS_headers->{CD2_1} * 3600;
       } elsif( $camnum == 2 || $camnum == 4 ) {
         $return = $FITS_headers->{CD2_2} * 3600;
@@ -298,6 +301,29 @@ sub to_RA_BASE {
   my $self = shift;
   my $FITS_headers = shift;
   return ($FITS_headers->{RABASE} * 15.0);
+}
+
+=item B<to_ROTATION>
+
+Determine the rotation of the array in world coordinates.
+
+=cut
+
+sub to_ROTATION {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $cd11 = $FITS_headers->{CD1_1};
+  my $cd12 = $FITS_headers->{CD1_2};
+  my $cd21 = $FITS_headers->{CD2_1};
+  my $cd22 = $FITS_headers->{CD2_2};
+
+  my $rad = 45 / atan2( 1, 1 );
+
+  my $rho_a = $rad * atan2( -$cd12 / $rad, $cd22 / $rad );
+  my $rho_b = $rad * atan2(  $cd21 / $rad, $cd11 / $rad );
+  my $rotation = -0.5 * ( $rho_a + $rho_b );
+
+  return $rotation;
 }
 
 =back
