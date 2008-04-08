@@ -364,20 +364,23 @@ sub to_REST_FREQUENCY {
   my $FITS_headers = shift;
   my $frameset = shift;
 
-  if( ! defined( $frameset ) ||
-      ! UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
+  my $return;
 
-    return 0;
+  if( defined( $frameset ) &&
+      UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
+    my $frequency = $frameset->Get( "restfreq" );
+    $return = $frequency * 1_000_000_000;
+  } elsif( exists( $FITS_headers->{'RESTFREQ'} ) ||
+           ( exists( $FITS_headers->{'SUBHEADERS'} ) &&
+             exists( $FITS_headers->{'SUBHEADERS'}->[0]->{'RESTFREQ'} ) ) ) {
 
+    $return = exists( $FITS_headers->{'RESTFREQ'} ) ?
+              $FITS_headers->{'RESTFREQ'}           :
+              $FITS_headers->{'SUBHEADERS'}->[0]->{'RESTFREQ'};
+    $return *= 1_000_000_000;
   }
 
-  my $frequency = $frameset->Get( "restfreq" );
-
-  # AST returns this in GHz, so convert to Hz.
-  $frequency *= 1_000_000_000;
-
-  return $frequency;
-
+  return $return;
 }
 
 =item B<to_SYSTEM_VELOCITY>
@@ -397,13 +400,26 @@ sub to_SYSTEM_VELOCITY {
   my $frameset = shift;
 
   my $return;
-  if( exists( $FITS_headers->{'DOPPLER'} ) &&
-      defined( $frameset ) &&
-      UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
-    my $doppler = $FITS_headers->{'DOPPLER'};
-    my $sourcevrf = $frameset->Get( "sourcevrf" );
+  if( exists( $FITS_headers->{'DOPPLER'} ) ) {
+    my $doppler = uc( $FITS_headers->{'DOPPLER'} );
 
-    $return = substr( uc( $doppler ), 0, 3 ) . substr( uc( $sourcevrf ), 0, 3 );
+    if( defined( $frameset ) &&
+        UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
+      my $sourcevrf = uc( $frameset->Get( "sourcevrf" ) );
+
+      $return = substr( $doppler, 0, 3 ) . substr( $sourcevrf, 0, 3 );
+    } elsif( exists( $FITS_headers->{'SPECSYS'} ) ) {
+      my $specsys = uc( $FITS_headers->{'SPECSYS'} );
+      $return = substr( $doppler, 0, 3 ) . substr( $specsys, 0, 3 );
+    } else {
+      my $specsys = '';
+      if( $doppler eq 'RADIO' ) {
+        $specsys = 'LSRK';
+      } elsif( $doppler eq 'OPTICAL' ) {
+        $specsys = 'HELIOCENTRIC';
+      }
+      $return = substr( $doppler, 0, 3 ) . substr( $specsys, 0, 3 );
+    }
   }
   return $return;
 }
@@ -444,6 +460,25 @@ sub to_VELOCITY {
     }
     $frameset->Set( sourcesys => $sourcesys );
     $velocity = $frameset->Get( "sourcevel" );
+  } else {
+
+    # We weren't passed a frameset, so try using other headers.
+    if( exists( $FITS_headers->{'DOPPLER'} ) &&
+        ( exists( $FITS_headers->{'ZSOURCE'} ) ||
+          exists( $FITS_headers->{'SUBHEADERS'}->[0]->{'ZSOURCE'} ) ) ) {
+      my $doppler = uc( $FITS_headers->{'DOPPLER'} );
+      my $zsource = exists( $FITS_headers->{'ZSOURCE'} ) ?
+                    $FITS_headers->{'ZSOURCE'}           :
+                    $FITS_headers->{'SUBHEADERS'}->[0]->{'ZSOURCE'};
+
+      if( $doppler eq 'REDSHIFT' ) {
+        $velocity = $zsource;
+      } elsif( $doppler eq 'OPTICAL' ) {
+        $velocity = $zsource * CLIGHT;
+      } elsif( $doppler eq 'RADIO' ) {
+        $velocity = ( CLIGHT * $zsource ) / ( 1 + $zsource );
+      }
+    }
   }
 
   return $velocity;
