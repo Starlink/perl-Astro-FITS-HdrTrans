@@ -39,15 +39,15 @@ $VERSION = sprintf("%d", q$Revision: 14385 $ =~ /(\d+)/);
 #   - unit mappings
 #   - complex mappings
 
-# for a constant mapping, there is no FITS header, just a generic
-# header that is constant
+# For a constant mapping, there is no FITS header, just a generic
+# header that is constant.
 my %CONST_MAP = (
                   SCAN_INCREMENT      => 1,
                   NSCAN_POSITIONS     => 1,
                 );
 
-# unit mapping implies that the value propogates directly
-# to the output with only a keyword name change
+# Unit mapping implies that the value propagates directly
+# to the output with only a keyword name change.
 
 my %UNIT_MAP = (
                  DEC_SCALE            => "CDELT1",
@@ -67,7 +67,7 @@ my %UNIT_MAP = (
                  OBSERVATION_NUMBER   => "OBSNUM",
                );
 
-# Create the translation methods
+# Create the translation methods.
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
 =head1 COMPLEX CONVERSIONS
