@@ -353,7 +353,7 @@ sub to_UTEND {
                    $FITS_headers->{"DATE-END"} : undef );
 
 # Some early data had blank DATE-OBS strings.
-   if ( defined( $dateend ) && $dateend eq " " ) { $dateend = undef; }
+   if ( defined( $dateend ) && $dateend !~ /\d/ ) { $dateend = undef; }
 
    my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTEND" );
    my $utend = $rutend[-1];
@@ -376,7 +376,7 @@ sub to_UTSTART {
                    $FITS_headers->{"DATE-OBS"} : undef );
 
 # Some early data had blank DATE-OBS strings.
-   if ( defined( $dateobs ) && $dateobs =~ /\s*/ ) { $dateobs = undef; }
+   if ( defined( $dateobs ) && $dateobs !~ /\d/ ) { $dateobs = undef; }
 
    my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTSTART" );
    my $utstart = $rutstart[0];
