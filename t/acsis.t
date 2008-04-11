@@ -71,8 +71,8 @@ is( $generic_header{'OBSERVATION_MODE'}, "grid_pssw", "OBSERVATION_MODE is grid_
 is( $generic_header{'VELOCITY_TYPE'}, "radio", "VELOCITY_TYPE is radio" );
 is( $generic_header{'OBSERVATION_ID'}, "acsis_12_20070425T051618", "OBSERVATION_ID is acsis_12_20070425T051618" );
 
-is( sprintf( "%.6f", $generic_header{'RA_BASE'} ),  "146.944415", "RA_BASE is 146.944415" );
-is( sprintf( "%.6f", $generic_header{'DEC_BASE'} ), "13.204779", "DEC_BASE is 13.204780" );
+is( sprintf( "%.3f", $generic_header{'RA_BASE'} ),  "146.944", "RA_BASE is 146.944" );
+is( sprintf( "%.3f", $generic_header{'DEC_BASE'} ), "13.205", "DEC_BASE is 13.205" );
 is( $generic_header{'REST_FREQUENCY'}, 345795989900, "REST_FREQUENCY is 345795989900" );
 is( sprintf( "%.6f", $generic_header{'VELOCITY'} ), "-25.900000", "VELOCITY is -25.900000" );
 
