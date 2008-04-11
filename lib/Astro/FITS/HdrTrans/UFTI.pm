@@ -244,7 +244,7 @@ It corrects for an erroneous sign in early data.
 
 =cut
 
-sub to_RA_SCALE {
+sub from_RA_SCALE {
    my $self = shift;
    my $FITS_headers = shift;
 
@@ -281,11 +281,35 @@ sub to_RA_SCALE {
 # The CDELTn headers are either part of a WCS in expressed in the
 # AIPS-convention, or the values we require.  Angles for the former
 # are measured in degrees.  The sign of the scale may be negative.
-   if ( $FITS_headers->{CTYPE1} eq "RA---TAN" && abs( $scale ) < 1.0E-3 ) {
+   if ( defined $FITS_headers->{CTYPE1} &&  
+        $FITS_headers->{CTYPE1} eq "RA---TAN" && 
+        abs( $scale ) < 1.0E-3 ) {
       $scale *= 3600.0;
    }
 
    return $scale;
+}
+
+=item B<from_RA_SCALE>
+
+Converts the generic header C<RA_SCALE> to the FITS header C<CDELT1> 
+by ensuring it has a positive sign as in the input data.  This
+sign is wrong because the right ascension increases with decreasing
+pixel index, however this conversion permits a cycle from FITS to
+generic and back to FITS to retain the original value.
+
+  %fits = $class->from_RA_SCALE( \%generic );
+
+=cut
+
+sub to_RA_SCALE {
+   my $self = shift;
+   my $generic_headers = shift;
+   my %return_hash;
+   if ( defined( $generic_headers->{RA_SCALE} ) ) {
+      $return_hash{'CDELT1'} = -1.0 * $generic_headers->{RA_BASE};
+   }
+   return %return_hash;
 }
 
 =item B<to_UTDATE>
