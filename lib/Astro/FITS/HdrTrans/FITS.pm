@@ -170,10 +170,16 @@ Converts UT date in C<DATE-END> header into C<Time::Piece> object.
 sub to_UTEND {
    my $class = shift;
    my $FITS_headers = shift;
-   my $return;
+   my $utend;
    if( exists( $FITS_headers->{'DATE-END'} ) ) {
-      $return = $class->_parse_iso_date( $FITS_headers->{'DATE-END'});
+       $utend = $FITS_headers->{'DATE-END'};
+   } else {
+       # try subheaders
+       my @end = $class->via_subheader( $FITS_headers, "DATE-END" );
+       $utend = $end[-1]; 
    }
+   my $return;
+   $return = $class->_parse_iso_date( $utend ) if defined $utend;
    return $return;
 }
 
@@ -205,10 +211,16 @@ Converts UT date in C<DATE-OBS> header into date object.
 sub to_UTSTART {
    my $class = shift;
    my $FITS_headers = shift;
-   my $return;
+
+   my $utstart;
    if ( exists( $FITS_headers->{'DATE-OBS'} ) ) {
-      $return = $class->_parse_iso_date( $FITS_headers->{'DATE-OBS'} );
+       $utstart = $FITS_headers->{"DATE-OBS"};
+   } else {
+       # try subheaders
+       $utstart = $class->via_subheader( $FITS_headers, "DATE-OBS" );
    }
+   my $return;
+   $return = $class->_parse_iso_date( $utstart ) if defined $utstart;
    return $return;
 }
 
