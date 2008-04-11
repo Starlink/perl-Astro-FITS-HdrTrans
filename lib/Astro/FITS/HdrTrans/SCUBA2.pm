@@ -50,7 +50,6 @@ my %UNIT_MAP = (
                  LATITUDE             => 'LAT-OBS',
                  LONGITUDE            => 'LONG-OBS',
                  OBJECT               => "OBJECT",
-                 OBSERVATION_MODE     => "OBSMODE",
                  OBSERVATION_NUMBER   => "OBSNUM",
                  OBSERVATION_TYPE     => "OBS_TYPE",
                  POLARIMETER          => 'POL_CONN',
@@ -87,6 +86,50 @@ Returns "SCUBA-2".
 sub this_instrument {
   return "SCUBA-2";
 }
+
+=back
+
+=head1 COMPLEX CONVERSIONS
+
+These methods are more complicated than a simple mapping. We have to
+provide both from- and to-FITS conversions All these routines are
+methods and the to_ routines all take a reference to a hash and return
+the translated value (a many-to-one mapping) The from_ methods take a
+reference to a generic hash and return a translated hash (sometimes
+these are many-to-many)
+
+=over 4
+
+=item B<to_OBSERVATION_MODE>
+
+If Observation type is SCIENCE, return the sample mode, else
+return the sample mode and observation type. For example, "STARE",
+"SCAN", "SCAN_POINTING".
+
+Do not currently take into account polarimeter or FTS.
+
+=cut
+
+sub to_OBSERVATION_MODE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+  if( exists( $FITS_headers->{'SAM_MODE'} ) &&
+      exists( $FITS_headers->{'OBS_TYPE'} ) ) {
+    my $sam_mode = $FITS_headers->{'SAM_MODE'};
+    $sam_mode =~ s/\s//g;
+    my $obs_type = $FITS_headers->{'OBS_TYPE'};
+    $obs_type =~ s/\s//g;
+
+    $return = $sam_mode;
+    if ($obs_type !~ /science/i) {
+      $return .= "_$obs_type";
+    }
+  }
+  return $return;
+}
+
 
 =back
 
