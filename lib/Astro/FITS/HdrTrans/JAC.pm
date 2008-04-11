@@ -40,30 +40,30 @@ $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 #   - unit mappings
 #   - complex mappings
 
-# for a constant mapping, there is no FITS header, just a generic
-# header that is constant
+# For a constant mapping, there is no FITS header, just a generic
+# header that is constant.
 my %CONST_MAP = (
                 );
 
-# unit mapping implies that the value propogates directly
-# to the output with only a keyword name change
+# Unit mapping implies that the value propagates directly
+# to the output with only a keyword name change.
 
 my %UNIT_MAP = (
     MSBID              => 'MSBID',
     MSB_TRANSACTION_ID => 'MSBTID',
     );
 
-# Create the translation methods
+# Create the translation methods.
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
 =head1 COMPLEX CONVERSIONS
 
-These methods are more complicated than a simple mapping. We have to
+These methods are more complicated than a simple mapping.  We have to
 provide both from- and to-FITS conversions All these routines are
 methods and the to_ routines all take a reference to a hash and return
-the translated value (a many-to-one mapping) The from_ methods take a
-reference to a generic hash and return a translated hash (sometimes
-these are many-to-many)
+the translated value (a many-to-one mapping).  The from_ methods take
+a reference to a generic hash and return a translated hash (sometimes
+these are many-to-many).
 
 =over 4
 
@@ -79,30 +79,30 @@ JSA/ANA/001 (http://docs.jach.hawaii.edu/JCMT/JSA/ANA/001/jsa_ana_001.pdf).
 =cut
 
 sub to_OBSERVATION_ID {
-  my $self = shift;
-  my $FITS_headers = shift;
+   my $self = shift;
+   my $FITS_headers = shift;
 
-  my $return;
-  if( exists( $FITS_headers->{'OBSID'} ) &&
-      defined( $FITS_headers->{'OBSID'} ) ) {
-    $return = $FITS_headers->{'OBSID'};
-  } else {
+   my $return;
+   if ( exists( $FITS_headers->{'OBSID'} ) &&
+        defined( $FITS_headers->{'OBSID'} ) ) {
+      $return = $FITS_headers->{'OBSID'};
+   } else {
 
-    my $instrume = lc( $self->to_INSTRUMENT( $FITS_headers ) );
-    my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
-    my $dateobs = $self->to_UTSTART( $FITS_headers );
+      my $instrume = lc( $self->to_INSTRUMENT( $FITS_headers ) );
+      my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
+      my $dateobs = $self->to_UTSTART( $FITS_headers );
 
-    my $datetime;
-    if (defined $dateobs) {
-        $datetime = $dateobs->datetime;
-        $datetime =~ s/-//g;
-        $datetime =~ s/://g;
+      my $datetime;
+      if ( defined $dateobs ) {
+         $datetime = $dateobs->datetime;
+         $datetime =~ s/-//g;
+         $datetime =~ s/://g;
 
-        $return = join '_', $instrume, $obsnum, $datetime;
-    }
-  }
+         $return = join '_', $instrume, $obsnum, $datetime;
+      }
+   }
 
-  return $return;
+   return $return;
 
 }
 
@@ -128,7 +128,7 @@ All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
+the Free Software Foundation; either Version 2 of the License, or (at
 your option) any later version.
 
 This program is distributed in the hope that it will be useful,but
@@ -138,8 +138,8 @@ General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place,Suite 330, Boston, MA 02111-1307,
-USA
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
+USA.
 
 =cut
 
