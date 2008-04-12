@@ -307,7 +307,7 @@ sub from_RA_SCALE {
    my $generic_headers = shift;
    my %return_hash;
    if ( defined( $generic_headers->{RA_SCALE} ) ) {
-      $return_hash{'CDELT1'} = -1.0 * $generic_headers->{RA_BASE};
+      $return_hash{'CDELT1'} = -1.0 * $generic_headers->{RA_SCALE};
    }
    return %return_hash;
 }
