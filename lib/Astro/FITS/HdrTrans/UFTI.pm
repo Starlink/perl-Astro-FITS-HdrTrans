@@ -244,7 +244,7 @@ It corrects for an erroneous sign in early data.
 
 =cut
 
-sub from_RA_SCALE {
+sub to_RA_SCALE {
    my $self = shift;
    my $FITS_headers = shift;
 
@@ -302,7 +302,7 @@ generic and back to FITS to retain the original value.
 
 =cut
 
-sub to_RA_SCALE {
+sub from_RA_SCALE {
    my $self = shift;
    my $generic_headers = shift;
    my %return_hash;
