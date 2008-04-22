@@ -97,6 +97,10 @@ in the UFTI web page.
 L<http://www.jach.hawaii.edu/UKIRT/instruments/ufti/PARAMETERS.html#1>
 The default scale assumes north is to the top.
 
+The actual C<CDELT2> value is scaled if its unit is degree/pixel,
+as suggested by its size, and the presence of header C<CTYPE2> set 
+to 'DEC--TAN' indicating that the WCS follows the AIPS convention.
+
 =cut
 
 sub to_DEC_SCALE {
@@ -249,6 +253,10 @@ L<http://www.jach.hawaii.edu/UKIRT/instruments/ufti/PARAMETERS.html#1>
 The default scale assumes east is to the left.
 
 It corrects for an erroneous sign in early data.
+
+The actual C<CDELT1> value is scaled if its unit is degree/pixel,
+as suggested by its size, and the presence of header C<CTYPE1> set 
+to 'RA---TAN' indicating that the WCS follows the AIPS convention.
 
 =cut
 
