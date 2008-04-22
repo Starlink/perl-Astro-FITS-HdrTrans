@@ -128,6 +128,14 @@ sub to_DEC_SCALE {
 # supplied strings are valid numbers.
     $scale =~ s/D/E/;
 
+# The CDELTn headers are either part of a WCS in expressed in the
+# AIPS-convention, or the values we require.  Angles for the former
+# are measured in degrees.  The sign of the scale may be negative.
+   if ( defined $FITS_headers->{CTYPE2} &&  
+        $FITS_headers->{CTYPE2} eq "DEC--TAN" &&
+        abs( $scale ) < 1.0E-3 ) {
+      $scale *= 3600.0;
+   }
     return $scale;
 }
 
@@ -282,7 +290,7 @@ sub to_RA_SCALE {
 # AIPS-convention, or the values we require.  Angles for the former
 # are measured in degrees.  The sign of the scale may be negative.
    if ( defined $FITS_headers->{CTYPE1} &&  
-        $FITS_headers->{CTYPE1} eq "RA---TAN" && 
+        $FITS_headers->{CTYPE1} eq "RA---TAN" &&
         abs( $scale ) < 1.0E-3 ) {
       $scale *= 3600.0;
    }
