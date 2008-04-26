@@ -46,6 +46,7 @@ my %UNIT_MAP = (
                  ELEVATION_START      => 'ELSTART',
                  ELEVATION_END        => 'ELEND',
                  FILENAME             => "FILE_ID",
+                 FILTER               => "FILTER",
                  HUMIDITY             => "HUMSTART",
                  LATITUDE             => 'LAT-OBS',
                  LONGITUDE            => 'LONG-OBS',
