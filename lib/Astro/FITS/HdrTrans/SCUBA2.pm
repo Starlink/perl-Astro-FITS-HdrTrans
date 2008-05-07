@@ -27,6 +27,7 @@ $VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
 # For a constant mapping, there is no FITS header, just a generic
 # header that is constant.
 my %CONST_MAP = (
+		 DATA_UNITS => 'pW',
                 );
 
 # NULL mappings used to override base class implementations
@@ -36,15 +37,12 @@ my @NULL_MAP = ();
 # to the output with only a keyword name change.
 
 my %UNIT_MAP = (
-                 AIRMASS_START        => "AMSTART",
-                 AIRMASS_END          => "AMEND",
+		 AIRMASS_START        => 'AMSTART',
                  AZIMUTH_START        => 'AZSTART',
-                 AZIMUTH_END          => 'AZEND',
                  INSTRUMENT           => "INSTRUME",
                  DR_GROUP             => "DRGROUP",
                  DR_RECIPE            => "RECIPE",
-                 ELEVATION_START      => 'ELSTART',
-                 ELEVATION_END        => 'ELEND',
+		 ELEVATION_START      => "ELSTART",
                  FILENAME             => "FILE_ID",
                  FILTER               => "FILTER",
                  HUMIDITY             => "HUMSTART",
@@ -63,9 +61,15 @@ my %UNIT_MAP = (
                  Y_APERTURE           => "INSTAP_Y",
                );
 
+# Values that are derived from the last subheader entry
+my %ENDOBS_MAP = (
+		  AIRMASS_END         => 'AMEND',
+		  AZIMUTH_END         => 'AZEND',
+		  ELEVATION_END       => 'ELEND',
+		  );
 
 # Create the translation methods
-__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
+__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP, \%ENDOBS_MAP );
 
 =head1 METHODS
 
@@ -130,7 +134,6 @@ sub to_OBSERVATION_MODE {
   }
   return $return;
 }
-
 
 =back
 

@@ -72,9 +72,14 @@ my %UNIT_MAP = (
                   CONFIGURATION_INDEX  => 'CNFINDEX',
                );
 
+# Derived from end entry in subheader
+my %ENDOBS_MAP = (
+		  DETECTOR_INDEX => 'DINDEX',
+		  );
+
 
 # Create the translation methods
-__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
+__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, undef, \%ENDOBS_MAP );
 
 =head1 METHODS
 
@@ -163,35 +168,6 @@ sub from_DEC_TELESCOPE_OFFSET {
         $tdecoff = $generic_headers->{DEC_TELESCOPE_OFFSET};
     }
     return ("TDECOFF",$tdecoff);
-}
-
-=item B<to_DETECTOR_INDEX>
-
-This is the DINDEX header. It's only available in a subheader although
-the primary header is tested to enable round tripping. This
-could either be in a "SUBHEADERS" array or in named "In" subheaders.
-The difference depends on how the fits header was constructed.
-
-=cut
-
-sub to_DETECTOR_INDEX {
-    my $self = shift;
-    my $FITS_headers = shift;
-    my @results = $self->via_subheader( $FITS_headers, "DINDEX" );
-    return $results[-1];
-}
-
-=item B<from_DETECTOR_INDEX>
-
-Returns the detector index in a "DINDEX" header. Note that this value
-can not be returned as a sub header.
-
-=cut
-
-sub from_DETECTOR_INDEX {
-    my $self = shift;
-    my $generic_headers = shift;
-    return ("DINDEX", $generic_headers->{DETECTOR_INDEX});
 }
 
 =item B<to_DETECTOR_READ_TYPE>

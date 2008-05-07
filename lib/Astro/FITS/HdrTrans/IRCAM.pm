@@ -47,6 +47,7 @@ my %CONST_MAP = (
 # at comments.
 
 my %UNIT_MAP = (
+		 AIRMASS_START        => 'AMSTART',
                  # IRCAM Specific
                  OBSERVATION_NUMBER   => 'RUN', # cf. OBSNUM
                  DEC_TELESCOPE_OFFSET => 'DECOFF',
@@ -54,9 +55,14 @@ my %UNIT_MAP = (
                  RA_TELESCOPE_OFFSET  => 'RAOFF',
                );
 
+# END observation unit maps
+my %ENDOBS_MAP = (
+		  AIRMASS_END         => 'AMEND',
+		  NUMBER_OF_EXPOSURES => 'NEXP', # need it from the last subheader
+		  );
 
 # Create the translation methods
-__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
+__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, undef, \%ENDOBS_MAP );
 
 # Im
 
@@ -86,33 +92,6 @@ sub this_instrument {
 =head1 COMPLEX CONVERSIONS
 
 =over 4
-
-=item B<to_AIRMASS_END>
-
-Airmass at the start of the observation.
-
-=cut
-
-sub to_AIRMASS_END {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @am = $self->via_subheader( $FITS_headers, "AMEND" );
-   return ( $am[-1] );
-}
-
-=item B<to_AIRMASS_START>
-
-Airmass at start of observation.
-
-=cut
-
-sub to_AIRMASS_START {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @am = $self->via_subheader( $FITS_headers, "AMSTART" );
-   return ( $am[0] );
-}
-
 
 =item B<to_DEC_SCALE>
 
@@ -174,20 +153,6 @@ sub from_DEC_SCALE {
 
 # Need to find way to allow for new and old headers with differing units.
    return ( "PIXELSIZ", $scale );
-}
-
-=item B<to_NUMBER_OF_EXPOSURES>
-
-Number of exposures is read from NEXP but this appears in both
-the .HEADER and .I1.
-
-=cut
-
-sub to_NUMBER_OF_EXPOSURES {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @n = $self->via_subheader( $FITS_headers, "NEXP" );
-   return ($n[-1]);
 }
 
 =item B<to_POLARIMETRY>

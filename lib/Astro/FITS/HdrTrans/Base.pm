@@ -250,16 +250,29 @@ second is a reference to a hash with unit mappings (both from and to
 methods are created). The methods are placed into the package given
 by the class supplied to the method.
 
+  Astro::FITS::HdrTrans::UKIRT->_generate_lookup_methods( \%const, \%unit, \%null);
+
 Additionally, an optional third argument can be used to indicate
 methods that should be null translations. This is a reference to an array
 of generic keywords and should be used in the rare cases when a base
 class implementation should be nullified. This will result in undefined
 values in the generic hash but no value in the generic to FITS mapping.
 
+A fourth optional argument can specify those unit mappings that should
+use the final entry in a subheader (if a subheader is present). Mainly
+associated with END events such as AIRMASS_END or ELEVATION_END.
+
+  Astro::FITS::HdrTrans::UKIRT->_generate_lookup_methods( \%const, \%unit,
+                                                          \%null, \%endobs);
+
 These methods will have the standard interface of
 
   $generic = $class->_to_GENERIC_NAME( \%fits );
   %fits = $class->_from_GENERIC_NAME( \%generic );
+
+Generic unit map translations use the via_subheader() method in scalar
+context and so will retrieve the first sub header value if the keyword
+is not present in the primary header.
 
 =cut
 
@@ -268,6 +281,7 @@ sub _generate_lookup_methods {
   my $const = shift;
   my $unit  = shift;
   my $null  = shift;
+  my $endobs = shift;
 
  # Have to go into a different package
   my $p = "{\n package $class;\n";
@@ -284,7 +298,7 @@ sub _generate_lookup_methods {
 
     # First generate the code to generate Generic headers
     my $subname = "to_$key";
-    my $sub = qq/ $p sub $subname { \$_[1]->{\"$fhdr\"}; } $ep /;
+    my $sub = qq/ $p sub $subname { scalar \$_[0]->via_subheader(\$_[1],\"$fhdr\"); } $ep /;
     eval "$sub";
     #print "Sub: $sub\n";
 
@@ -305,7 +319,7 @@ sub _generate_lookup_methods {
     eval "$sub";
   }
 
-  # finally the null mappings
+  # the null mappings
   if (defined $null) {
     for my $key (@$null) {
       # to generic
@@ -317,6 +331,34 @@ sub _generate_lookup_methods {
       $subname = "from_$key";
       $sub = qq/ $p sub $subname { return (); } $ep /;
       eval "$sub";
+    }
+  }
+
+  # the mappings that are unit mappings but from the end of a subheader
+  # group (eg ELEVATION_END)
+  if (defined $endobs) {
+    for my $key (keys %$endobs) {
+
+      # Get the original FITS header name
+      my $fhdr = $endobs->{$key};
+
+      # print "Processing $key and $ohdr and $fhdr\n";
+
+      # First generate the code to generate Generic headers
+      my $subname = "to_$key";
+      my $sub = qq/ $p sub $subname {
+	  my \@allresults = \$_[0]->via_subheader(\$_[1],\"$fhdr\");
+          return \$allresults[-1];
+        } $ep /;
+      eval "$sub";
+      #print "Sub: $sub\n";
+
+      # Now the from
+      $subname = "from_$key";
+      $sub = qq/ $p sub $subname { (\"$fhdr\", \$_[1]->{\"$key\"}); } $ep/;
+      eval "$sub";
+      #print "Sub: $sub\n";
+
     }
   }
 
