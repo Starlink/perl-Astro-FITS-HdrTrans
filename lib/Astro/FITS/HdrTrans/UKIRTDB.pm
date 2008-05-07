@@ -371,19 +371,16 @@ sub to_UTSTART {
 
   if( exists( $FITS_headers->{'DATE_OBS'} ) ) {
     my $dateobs = $FITS_headers->{'DATE_OBS'};
-    $dateobs =~ s/Z//g;
-    $dateobs =~ s/\.\d*$//;
-
-    $return = Time::Piece->strptime( $dateobs, "%Y-%m-%dT%T" );
-
+    $return = $self->_parse_iso_date( $dateobs );
   } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
           exists($FITS_headers->{'RUTSTART'}) && defined( $FITS_headers->{'RUTSTART'} ) ) {
-    # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
-    my $t = Time::Piece->strptime($FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p");
+    # Use the default UTDATE translation but insert "-" for ISO parsing
+    my $ut = $self->to_UTDATE($FITS_headers);
+    $ut = join("-", substr($ut,0,4), substr($ut,4,2), substr($ut,6,2));
     my $hour = int($FITS_headers->{'RUTSTART'});
     my $minute = int( ( $FITS_headers->{'RUTSTART'} - $hour ) * 60 );
     my $second = int( ( ( ( $FITS_headers->{'RUTSTART'} - $hour ) * 60) - $minute ) * 60 );
-    $return = Time::Piece->strptime( $t->ymd . "T$hour:$minute:$second", "%Y-%m-%dT%T" );
+    $return = $self->_parse_iso_date( $ut . "T$hour:$minute:$second" );
   }
 
   return $return;
@@ -427,18 +424,16 @@ sub to_UTEND {
 
   if( exists( $FITS_headers->{'DATE_END'} ) ) {
     my $dateend = $FITS_headers->{'DATE_END'};
-    $dateend =~ s/Z//g;
-    $dateend =~ s/\.\d*$//;
-    $return = Time::Piece->strptime( $dateend, "%Y-%m-%dT%T" );
-
+    $return = $self->_parse_iso_date( $dateend );
   } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
           exists($FITS_headers->{'RUTEND'}) && defined( $FITS_headers->{'RUTEND'} ) ) {
-    # The UT_DATE is returned in the form "mmm dd yyyy hh:mm(am|pm)"
-    my $t = Time::Piece->strptime($FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p");
+    # Use the default UTDATE translation but insert "-" for ISO parsing
+    my $ut = $self->to_UTDATE($FITS_headers);
+    $ut = join("-", substr($ut,0,4), substr($ut,4,2), substr($ut,6,2));
     my $hour = int($FITS_headers->{'RUTEND'});
     my $minute = int( ( $FITS_headers->{'RUTEND'} - $hour ) * 60 );
     my $second = int( ( ( ( $FITS_headers->{'RUTEND'} - $hour ) * 60) - $minute ) * 60 );
-    $return = Time::Piece->strptime( $t->ymd . "T$hour:$minute:$second", "%Y-%m-%dT%T" );
+    $return = $self->_parse_iso_date( $ut . "T$hour:$minute:$second" );
   }
 
   return $return;

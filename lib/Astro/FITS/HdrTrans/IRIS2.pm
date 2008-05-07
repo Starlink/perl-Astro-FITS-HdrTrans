@@ -409,7 +409,7 @@ sub to_UTEND {
     my $utdate = $FITS_headers->{UTDATE};
     $utdate =~ s/:/-/g;
     $return = $utdate . "T" . $FITS_headers->{UTEND};
-    $return = Time::Piece->strptime( $return, '%Y-%m-%dT%T' );
+    $return = $self->_parse_iso_date( $return );
   }
   return $return;
 }
@@ -450,7 +450,7 @@ sub to_UTSTART {
     my $utdate = $FITS_headers->{UTDATE};
     $utdate =~ s/:/-/g;
     $return = $utdate . "T" . $FITS_headers->{UTSTART} . "";
-    $return = Time::Piece->strptime( $return, '%Y-%m-%dT%T' );
+    $return = $self->_parse_iso_date( $return );
   }
   return $return;
 }
