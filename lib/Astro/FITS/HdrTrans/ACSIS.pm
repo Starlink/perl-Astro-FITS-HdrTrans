@@ -350,6 +350,59 @@ sub to_OBSERVATION_MODE {
   return $return;
 }
 
+=item B<to_OBSERVATION_TYPE>
+
+Returns the type of observation that was done. If the OBS_TYPE header
+matches /science/, the SAM_MODE header is used: if SAM_MODE matches
+/raster/, then return 'raster'. If SAM_MODE matches /grid/, then
+return 'grid'. If SAM_MODE matches /jiggle/, then return 'jiggle'.
+
+If the OBS_TYPE header matches /focus/, then return 'focus'. If the
+OBS_TYPE header matches /pointing/, then return 'pointing'.
+
+If none of the above options hold, then return undef.
+
+=cut
+
+sub to_OBSERVATION_TYPE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $return;
+
+  if( defined( $FITS_headers->{'OBS_TYPE'} ) ) {
+    my $obs_type = lc( $FITS_headers->{'OBS_TYPE'} );
+
+    if( $obs_type =~ /science/ ) {
+
+      if( defined( $FITS_headers->{'SAM_MODE'} ) ) {
+
+        my $sam_mode = $FITS_headers->{'SAM_MODE'};
+
+        if( $sam_mode =~ /raster|scan/ ) {
+          $return = "raster";
+        } elsif( $sam_mode =~ /grid/ ) {
+          $return = "grid";
+        } elsif( $sam_mode =~ /jiggle/ ) {
+          $return = "jiggle";
+        } else {
+          croak "Unexpected sample mode: '$sam_mode'";
+        }
+      }
+    } elsif( $obs_type =~ /focus/ ) {
+      $return = "focus";
+    } elsif( $obs_type =~ /pointing/ ) {
+      $return = "pointing";
+    } elsif( $obs_type =~ /skydip/) {
+      $return = "skydip";
+    } else {
+      croak "Unexpected OBS_TYPE of '$obs_type'\n";
+    }
+  }
+
+  return $return;
+}
+
 =item B<to_RA_BASE>
 
 Uses the elevation, azimuth, telescope name, and observation start
@@ -522,59 +575,6 @@ sub to_VELOCITY {
   }
 
   return $velocity;
-}
-
-=item B<to_OBSERVATION_TYPE>
-
-Returns the type of observation that was done. If the OBS_TYPE header
-matches /science/, the SAM_MODE header is used: if SAM_MODE matches
-/raster/, then return 'raster'. If SAM_MODE matches /grid/, then
-return 'grid'. If SAM_MODE matches /jiggle/, then return 'jiggle'.
-
-If the OBS_TYPE header matches /focus/, then return 'focus'. If the
-OBS_TYPE header matches /pointing/, then return 'pointing'.
-
-If none of the above options hold, then return undef.
-
-=cut
-
-sub to_OBSERVATION_TYPE {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $return;
-
-  if( defined( $FITS_headers->{'OBS_TYPE'} ) ) {
-    my $obs_type = lc( $FITS_headers->{'OBS_TYPE'} );
-
-    if( $obs_type =~ /science/ ) {
-
-      if( defined( $FITS_headers->{'SAM_MODE'} ) ) {
-
-        my $sam_mode = $FITS_headers->{'SAM_MODE'};
-
-        if( $sam_mode =~ /raster|scan/ ) {
-          $return = "raster";
-        } elsif( $sam_mode =~ /grid/ ) {
-          $return = "grid";
-        } elsif( $sam_mode =~ /jiggle/ ) {
-          $return = "jiggle";
-        } else {
-          croak "Unexpected sample mode: '$sam_mode'";
-        }
-      }
-    } elsif( $obs_type =~ /focus/ ) {
-      $return = "focus";
-    } elsif( $obs_type =~ /pointing/ ) {
-      $return = "pointing";
-    } elsif( $obs_type =~ /skydip/) {
-      $return = "skydip";
-    } else {
-      croak "Unexpected OBS_TYPE of '$obs_type'\n";
-    }
-  }
-
-  return $return;
 }
 
 =back
