@@ -513,7 +513,7 @@ sub to_OBSERVATION_TYPE {
 
         my $sam_mode = $FITS_headers->{'SAM_MODE'};
 
-        if( $sam_mode =~ /raster/ ) {
+        if( $sam_mode =~ /raster/ || $sam_mode =~ /scan/ ) {
           $return = "raster";
         } elsif( $sam_mode =~ /grid/ ) {
           $return = "grid";
