@@ -343,7 +343,7 @@ sub to_OBSERVATION_MODE {
 
     # handle OBS_TYPE missing
     my $obs_type = $FITS_headers->{'OBS_TYPE'};
-    $obs_type = "science" unless defined $obs_type;
+    $obs_type = "science" unless $obs_type;
     $obs_type =~ s/\s//g;
 
     $return = ( ( $obs_type =~ /science/i )
@@ -376,7 +376,7 @@ sub to_OBSERVATION_TYPE {
 
   # Sometimes we lack OBS_TYPE. In that case we have to assume SCIENCE
   # even though the headers are broken. (eg 20080509#18 RxWD)
-  $ot = "science" unless defined $ot;
+  $ot = "science" unless $ot;
 
   if( $ot ) {
     my $obs_type = lc( $FITS_headers->{'OBS_TYPE'} );
