@@ -298,6 +298,7 @@ sub to_OBSERVATION_MODE {
       exists( $FITS_headers->{'OBS_TYPE'} ) ) {
     my $sam_mode = $FITS_headers->{'SAM_MODE'};
     $sam_mode =~ s/\s//g;
+    $sam_mode = "raster" if $sam_mode eq "scan";
     my $sw_mode = $FITS_headers->{'SW_MODE'};
     $sw_mode =~ s/\s//g;
     my $obs_type = $FITS_headers->{'OBS_TYPE'};
@@ -513,18 +514,24 @@ sub to_OBSERVATION_TYPE {
 
         my $sam_mode = $FITS_headers->{'SAM_MODE'};
 
-        if( $sam_mode =~ /raster/ || $sam_mode =~ /scan/ ) {
+        if( $sam_mode =~ /raster|scan/ ) {
           $return = "raster";
         } elsif( $sam_mode =~ /grid/ ) {
           $return = "grid";
         } elsif( $sam_mode =~ /jiggle/ ) {
           $return = "jiggle";
+        } else {
+          croak "Unexpected sample mode: '$sam_mode'";
         }
       }
     } elsif( $obs_type =~ /focus/ ) {
       $return = "focus";
     } elsif( $obs_type =~ /pointing/ ) {
       $return = "pointing";
+    } elsif( $obs_type =~ /skydip/) {
+      $return = "skydip";
+    } else {
+      croak "Unexpected OBS_TYPE of '$obs_type'\n";
     }
   }
 
