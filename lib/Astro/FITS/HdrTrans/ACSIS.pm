@@ -379,7 +379,7 @@ sub to_OBSERVATION_TYPE {
   $ot = "science" unless $ot;
 
   if( $ot ) {
-    my $obs_type = lc( $FITS_headers->{'OBS_TYPE'} );
+    my $obs_type = lc( $ot );
 
     if( $obs_type =~ /science/ ) {
 
