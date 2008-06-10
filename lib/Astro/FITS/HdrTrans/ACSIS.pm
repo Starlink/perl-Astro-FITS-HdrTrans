@@ -340,7 +340,10 @@ sub to_OBSERVATION_MODE {
     $sam_mode = "raster" if $sam_mode eq "scan";
     my $sw_mode = $FITS_headers->{'SW_MODE'};
     $sw_mode =~ s/\s//g;
+
+    # handle OBS_TYPE missing
     my $obs_type = $FITS_headers->{'OBS_TYPE'};
+    $obs_type = "science" unless defined $obs_type;
     $obs_type =~ s/\s//g;
 
     $return = ( ( $obs_type =~ /science/i )
@@ -369,8 +372,13 @@ sub to_OBSERVATION_TYPE {
   my $FITS_headers = shift;
 
   my $return;
+  my $ot = $FITS_headers->{OBS_TYPE};
 
-  if( defined( $FITS_headers->{'OBS_TYPE'} ) ) {
+  # Sometimes we lack OBS_TYPE. In that case we have to assume SCIENCE
+  # even though the headers are broken. (eg 20080509#18 RxWD)
+  $ot = "science" unless defined $ot;
+
+  if( $ot ) {
     my $obs_type = lc( $FITS_headers->{'OBS_TYPE'} );
 
     if( $obs_type =~ /science/ ) {
