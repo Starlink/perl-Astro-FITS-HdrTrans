@@ -72,7 +72,6 @@ my %UNIT_MAP = (
     CHOP_COORDINATE_SYSTEM => 'CHOP_CRD',
     CHOP_FREQUENCY     => 'CHOP_FRQ',
 		CHOP_THROW         => 'CHOP_THR',
-		DR_RECIPE          => 'RECIPE',
     ELEVATION_START    => 'ELSTART',
     ELEVATION_END      => 'ELEND',
     FILENAME           => 'FILE_ID',
@@ -164,6 +163,46 @@ reference to a generic hash and return a translated hash (sometimes
 these are many-to-many)
 
 =over 4
+
+=item B<to_DR_RECIPE>
+
+Usually simply copies the "RECIPE" header. If the observation type
+is skydip and the RECIPE header is "REDUCE_SCIENCE" we actually use
+REDUCE_SKYDIP.
+
+=cut
+
+sub to_DR_RECIPE {
+    my $class = shift;
+    my $FITS_headers = shift;
+    my $dr = $FITS_headers->{RECIPE};
+    if ($class->to_UTDATE($FITS_headers) < 20080615) {
+        my $obstype = $class->to_OBSERVATION_TYPE( $FITS_headers );
+        if ($obstype eq 'skydip' && $dr eq 'REDUCE_SCIENCE') {
+            $dr = "REDUCE_SKYDIP";
+        }
+    }
+    return $dr;
+}
+
+=item B<from_DR_RECIPE>
+
+Returns DR_RECIPE unless we have a skydip.
+
+=cut
+
+sub from_DR_RECIPE {
+    my $class = shift;
+    my $generic_headers = shift;
+    my $dr = $generic_headers->{DR_RECIPE};
+    my $ut = $generic_headers->{UTDATE};
+    if (defined $ut && $ut < 20080615) {
+        if (defined $dr && $dr eq 'REDUCE_SKYDIP') {
+            $dr = 'REDUCE_SCIENCE';
+        }
+    }
+    return ("RECIPE" => $dr);
+}
 
 =item B<to_UTSTART>
 
