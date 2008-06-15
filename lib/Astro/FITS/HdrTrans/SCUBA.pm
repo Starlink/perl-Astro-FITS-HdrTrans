@@ -346,7 +346,11 @@ sub to_UTDATE {
   } elsif( exists( $FITS_headers->{'DATE'} ) &&
            defined( $FITS_headers->{'DATE'} ) ) {
     my $utdate = $FITS_headers->{'DATE'};
-    $return = Time::Piece->strptime( $utdate, "%Y-%m-%dT%T" );
+    $return = $self->_parse_iso_date( $utdate );
+  } elsif( exists( $FITS_headers->{'DATE-OBS'} ) &&
+           defined( $FITS_headers->{'DATE-OBS'} ) ) {
+    my $utdate = $FITS_headers->{'DATE-OBS'};
+    $return = $self->_parse_iso_date( $utdate );
   }
   if (defined $return) {
       $return = sprintf('%04d%02d%02d',$return->year,
@@ -390,18 +394,23 @@ sub to_UTSTART {
   if( exists( $FITS_headers->{'UTDATE'} ) &&
       defined( $FITS_headers->{'UTDATE'} ) ) {
 
-    my $ut = $FITS_headers->{'UTDATE'} . ":" . $FITS_headers->{'UTSTART'};
+    # To convert to ISO replace colons with dashes
+    my $utdate = $FITS_headers->{UTDATE};
+    $utdate =~ s/:/\-/g;
 
-    # Strip off fractional seconds.
-    $ut =~ s/\.\d+$//;
+    my $ut = $utdate . "T" . $FITS_headers->{'UTSTART'};
 
-    $return = Time::Piece->strptime( $ut, "%Y:%m:%d:%T" );
+    $return = $self->_parse_iso_date( $ut );
+
+  } elsif (exists $FITS_headers->{"DATE-OBS"}) { 
+    # reduced data
+    $return = $self->_parse_iso_date( $FITS_headers->{"DATE-OBS"} );
 
   } elsif( exists( $FITS_headers->{'DATE'} ) &&
            defined( $FITS_headers->{'DATE'} ) &&
-           $FITS_headers->{'DATE'} =~ /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/ ) {
+           $FITS_headers->{'DATE'} =~ /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d/ ) {
 
-    $return = Time::Piece->strptime( $FITS_headers->{'DATE'}, "%Y-%m-%dT%T" );
+    $return = $self->_parse_iso_date( $FITS_headers->{"DATE"} );
 
   }
 
@@ -444,12 +453,13 @@ sub to_UTEND {
   if( exists( $FITS_headers->{'UTDATE'} ) &&
       defined( $FITS_headers->{'UTDATE'} ) ) {
 
-    my $ut = $FITS_headers->{'UTDATE'} . ":" . $FITS_headers->{'UTEND'};
+    # need to replace colons with -
+    my $utdate = $FITS_headers->{"UTDATE"};
+    $utdate =~ s/:/\-/g;
 
-    # Strip off fractional seconds.
-    $ut =~ s/\.\d+$//;
+    my $ut = $utdate . "T" . $FITS_headers->{'UTEND'};
 
-    $return = Time::Piece->strptime( $ut, "%Y:%m:%d:%T" );
+    $return = $self->_parse_iso_date( $ut );
 
   }
   return $return;
