@@ -50,7 +50,7 @@ $DEBUG   = 0;
 
 my @REF_CLASS_LIST = qw/ ACSIS IRCAM CGS4 UIST UFTI JCMT_GSD
   JCMT_GSD_DB MICHELLE SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 SOFI ISAAC 
-  NACO INGRID GMOS SPEX NIRI ClassicCam /;
+  NACO INGRID GMOS SPEX NIRI ClassicCam CURVE /;
 
 # This is the actual list that is currently supported. It should always
 # default to the reference list
