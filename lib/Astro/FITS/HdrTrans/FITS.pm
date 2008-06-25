@@ -142,8 +142,7 @@ sub to_ROTATION {
 
 =item B<to_UTDATE>
 
-Converts the DATE-OBS keyword into a C<Time::Piece> object corresponding
-to the date of observation (without the time).
+Converts the DATE-OBS keyword into a number of form YYYYMMDD.
 
 There is no corresponding C<from_UTDATE> method since there is
 no corresponding FITS keyword.
