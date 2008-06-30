@@ -176,7 +176,7 @@ sub to_DR_RECIPE {
     my $class = shift;
     my $FITS_headers = shift;
     my $dr = $FITS_headers->{RECIPE};
-    if ($class->to_UTDATE($FITS_headers) < 20080615) {
+    if ($class->to_UTDATE($FITS_headers) < 20080701) {
         my $obstype = $class->to_OBSERVATION_TYPE( $FITS_headers );
         if ($obstype eq 'skydip' && $dr eq 'REDUCE_SCIENCE') {
             $dr = "REDUCE_SKYDIP";
