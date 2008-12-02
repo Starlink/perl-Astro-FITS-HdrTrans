@@ -82,7 +82,6 @@ my %UNIT_MAP = (
     NUMBER_OF_CYCLES   => 'NUM_CYC',
 		OBJECT             => 'OBJECT',
 		OBSERVATION_NUMBER => 'OBSNUM',
-		POLARIMETER        => 'POL_CONN',
 		PROJECT            => 'PROJECT',
 		SEEING             => 'SEEINGST',
 		STANDARD           => 'STANDARD',
@@ -166,22 +165,39 @@ these are many-to-many)
 
 =item B<to_DR_RECIPE>
 
-Usually simply copies the "RECIPE" header. If the observation type
-is skydip and the RECIPE header is "REDUCE_SCIENCE" we actually use
-REDUCE_SKYDIP.
+Usually simply copies the "RECIPE" header. If the observation type is
+skydip and the RECIPE header is "REDUCE_SCIENCE" we actually use
+REDUCE_SKYDIP. If a skydip is not being done and the STANDARD header
+is true, then the recipe is set to REDUCE_STANDARD. If the INBEAM
+header is "POL", the recipe name has "_POL" appended.
 
 =cut
 
 sub to_DR_RECIPE {
   my $class = shift;
   my $FITS_headers = shift;
+
   my $dr = $FITS_headers->{RECIPE};
-  if ($class->to_UTDATE($FITS_headers) < 20080701) {
-    my $obstype = $class->to_OBSERVATION_TYPE( $FITS_headers );
+  my $inbeam = lc( $FITS_headers->{INBEAM} );
+
+  my $obstype = lc( $class->to_OBSERVATION_TYPE( $FITS_headers ) );
+  my $standard = $class->to_STANDARD( $FITS_headers );
+  my $utdate = $class->to_UTDATE( $FITS_headers );
+
+  if ($utdate < 20080701) {
     if ($obstype eq 'skydip' && $dr eq 'REDUCE_SCIENCE') {
       $dr = "REDUCE_SKYDIP";
     }
   }
+
+  if( $standard && $obstype eq 'science') {
+    $dr = "REDUCE_STANDARD";
+  }
+
+  if( $utdate > 20081115 && $inbeam =~ /pol/ ) {
+    $dr .= "_POL";
+  }
+
   return $dr;
 }
 
@@ -202,6 +218,46 @@ sub from_DR_RECIPE {
     }
   }
   return ("RECIPE" => $dr);
+}
+
+=item B<to_POLARIMETER>
+
+If the polarimeter is in the beam, as denoted by the INBEAM header
+containing "POL", then this returns true. Otherwise, return false.
+
+=cut
+
+sub to_POLARIMETER {
+  my $class = shift;
+  my $FITS_headers = shift;
+
+  my $inbeam = $FITS_headers->{INBEAM};
+  my $utdate = $class->to_UTDATE( $FITS_headers );
+
+  if( $utdate > 20081115 && $inbeam =~ /pol/i ) {
+    return 1;
+  }
+  return 0;
+}
+
+=item B<from_POLARIMETER>
+
+If the POLARIMETER header is true, then return "POL" for the INBEAM
+header. Otherwise, return undef.
+
+=cut
+
+sub from_POLARIMETER {
+  my $class = shift;
+  my $generic_headers = shift;
+
+  my $pol = $generic_headers->{POLARIMETER};
+
+  if( $pol ) {
+    return ( "INBEAM" => "POL" );
+  }
+
+  return ( "INBEAM" => undef );
 }
 
 =item B<to_UTSTART>
