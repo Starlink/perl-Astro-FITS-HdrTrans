@@ -190,7 +190,8 @@ sub to_DR_RECIPE {
     }
   }
 
-  if( $standard && $obstype eq 'science') {
+  if( $standard &&
+      $obstype =~ /science|raster|scan|grid|chop/ ) {
     $dr = "REDUCE_STANDARD";
   }
 
