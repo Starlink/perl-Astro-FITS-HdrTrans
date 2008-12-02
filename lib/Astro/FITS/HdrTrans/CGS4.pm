@@ -220,6 +220,48 @@ sub from_RA_TELESCOPE_OFFSET {
   return %return;
 }
 
+=item B<to_DR_RECIPE>
+
+The DR_RECIPE header keyword changed from DRRECIPE to RECIPE on
+20081115.
+
+=cut
+
+sub to_DR_RECIPE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $recipe = $FITS_headers->{DRRECIPE};
+
+  my $utdate = $self->to_UTDATE( $FITS_headers )
+
+  if( $utdate > 20081115 ) {
+    $recipe = $FITS_headers->{RECIPE};
+  }
+  return $recipe;
+}
+
+=item B<from_DR_RECIPE>
+
+The DR_RECIPE header keyword changed from DRRECIPE to RECIPE on
+20081115.
+
+=cut
+
+sub from_DR_RECIPE {
+  my $self = shift;
+  my $generic_headers = shift;
+
+  my $recipe = $generic_headers->{DR_RECIPE};
+  my $utdate = $generic_headers->{UTDATE};
+
+  if( $utdate > 20081115 ) {
+    return ( "RECIPE" => $recipe );
+  } else {
+    return ( "DRRECIPE" => $recipe );
+  }
+}
+
 =item B<to_SAMPLING>
 
 Converts FITS header values in C<DETINCR> and C<DETNINCR> to a single
