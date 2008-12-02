@@ -178,9 +178,9 @@ sub to_DR_RECIPE {
   my $FITS_headers = shift;
 
   my $dr = $FITS_headers->{RECIPE};
-  my $inbeam = lc( $FITS_headers->{INBEAM} );
 
   my $obstype = lc( $class->to_OBSERVATION_TYPE( $FITS_headers ) );
+  my $pol = $class->to_POLARIMETER( $FITS_headers );
   my $standard = $class->to_STANDARD( $FITS_headers );
   my $utdate = $class->to_UTDATE( $FITS_headers );
 
@@ -194,7 +194,7 @@ sub to_DR_RECIPE {
     $dr = "REDUCE_STANDARD";
   }
 
-  if( $utdate > 20081115 && $inbeam =~ /pol/ ) {
+  if( $utdate > 20081115 && $pol ) {
     $dr .= "_POL";
   }
 
@@ -234,7 +234,9 @@ sub to_POLARIMETER {
   my $inbeam = $FITS_headers->{INBEAM};
   my $utdate = $class->to_UTDATE( $FITS_headers );
 
-  if( $utdate > 20081115 && $inbeam =~ /pol/i ) {
+  if( $utdate > 20081115 &&
+      defined( $inbeam ) &&
+      $inbeam =~ /pol/i ) {
     return 1;
   }
   return 0;
