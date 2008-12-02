@@ -233,7 +233,7 @@ sub to_DR_RECIPE {
 
   my $recipe = $FITS_headers->{DRRECIPE};
 
-  my $utdate = $self->to_UTDATE( $FITS_headers )
+  my $utdate = $self->to_UTDATE( $FITS_headers );
 
   if( $utdate > 20081115 ) {
     $recipe = $FITS_headers->{RECIPE};
