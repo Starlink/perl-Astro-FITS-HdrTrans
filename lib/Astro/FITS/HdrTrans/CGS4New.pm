@@ -1,22 +1,22 @@
 # -*-perl-*-
 
-package Astro::FITS::HdrTrans::UIST;
+package Astro::FITS::HdrTrans::CGS4New;
 
 =head1 NAME
 
-Astro::FITS::HdrTrans::UIST - UKIRT UIST translations
+Astro::FITS::HdrTrans::CGS4New - UKIRT CGS4 translations for "new"
+style CGS4 headers.
 
 =head1 SYNOPSIS
 
-  use Astro::FITS::HdrTrans::UIST;
+  use Astro::FITS::HdrTrans::CGS4New;
 
-  %gen = Astro::FITS::HdrTrans::UIST->translate_from_FITS( %hdr );
+  %gen = Astro::FITS::HdrTrans::CGS4New->translate_from_FITS( %hdr );
 
 =head1 DESCRIPTION
 
 This class provides a generic set of translations that are specific to
-the UIST camera and spectrometer of the United Kingdom Infrared
-Telescope.
+the CGS4 spectrometer of the United Kingdom Infrared Telescope.
 
 =cut
 
@@ -32,12 +32,25 @@ use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d", q$Revision: 15060 $ =~ /(\d+)/);
 
-my %UNIT_MAP = ( DEC_SCALE => "CDELT3",
+my %UNIT_MAP = ( DEC_BASE => "CRVAL3",
+                 DEC_SCALE => "CDELT3",
+                 GRATING_DISPERSION => "GDISP",
+                 GRATING_NAME => "GRATING"
+                 GRATING_ORDER => "GORDER",
+                 GRATING_WAVELENGTH => "GLAMBDA",
+                 RA_BASE => "CRVAL2",
                  RA_SCALE =>  "CDELT2",
-
+                 SLIT_ANGLE => "SANGLE",
+                 SLIT_NAME => "SLIT",
+                 SLIT_WIDTH => "SWIDTH",
+                 X_BASE => "CRVAL2",
+                 X_REFERENCE_PIXEL => "CRPIX2",
+                 Y_BASE => "CRVAL3",
+                 Y_REFERENCE_PIXEL => "CRPIX3",
+               );
 
 # Create the translation methods
-__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
+__PACKAGE__->_generate_lookup_methods( \%UNIT_MAP );
 
 =head1 METHODS
 
@@ -51,7 +64,7 @@ Returns true if the supplied headers can be handled by this class.
 
 This method returns tru if the INSTRUME header exists and is equal to
 'CGS4', and if the DHSVER header exists and is equal to 'UKDHS 2008
-Dec 1'.
+Dec. 1'.
 
 =cut
 
@@ -62,9 +75,19 @@ sub can_translate {
   if( exists( $headers->{INSTRUME} ) &&
       uc( $headers->{INSTRUME} ) eq 'CGS4' &&
       exists( $headers->{DHSVER} ) &&
-      uc( $headers->{DHSVER} ) eq 'UKDHS 2008 DEC 1' ) {
+      uc( $headers->{DHSVER} ) eq 'UKDHS 2008 DEC. 1' ) {
     return 1;
   }
+
+  # Handle the reverse case as well. This module can translate CGS4
+  # headers newer than 20081115.
+  if( exists $headers->{INSTRUMENT} &&
+      uc( $headers->{INSTRUMENT} ) eq 'CGS4' &&
+      exists $headers->{UTDATE} &&
+      $headers->{UTDATE} >= 20081115 ) {
+    return 1;
+  }
+
   return 0;
 }
 
@@ -76,13 +99,12 @@ sub can_translate {
 
 =item B<to_ROTATION>
 
-ROTATION comprises the rotation matrix with respect to flipped axes,
-i.e. x corresponds to declination and Y to right ascension.  For other
-UKIRT instruments this was not the case, the rotation being defined
-in CROTA2.  Here the effective rotation is that evaluated from the
-PC matrix with a 90-degree counter-clockwise rotation for the rotated
-axes. If there is a PC3_2 header, we assume that we're in spectroscopy
-mode and use that instead.
+This determines the angle, in decimal degrees, of the rotation of the
+sky component of the WCS. It uses the standard transformation matrix
+PCi_j as defined in the FITS WCS Standard. In the absence of a PCi_j
+matrix, it looks for the CROTA2 keyword.
+
+For CGS4 the PCi_j matrix is obtained from i=[2,3] and j=[2,3].
 
 =cut
 
@@ -90,22 +112,20 @@ sub to_ROTATION {
   my $self = shift;
   my $FITS_headers = shift;
   my $rotation;
-  if ( exists( $FITS_headers->{PC1_1} ) && exists( $FITS_headers->{PC2_1}) ) {
-    my $pc11;
-    my $pc21;
-    if ( exists ($FITS_headers->{PC3_2} ) && exists( $FITS_headers->{PC2_2} ) ) {
 
-      # We're in spectroscopy mode.
-      $pc11 = $FITS_headers->{PC3_2};
-      $pc21 = $FITS_headers->{PC2_2};
-    } else {
+  my $rtod = 45 / atan2( 1, 1 );
 
-      # We're in imaging mode.
-      $pc11 = $FITS_headers->{PC1_1};
-      $pc21 = $FITS_headers->{PC2_1};
-    }
-    my $rad = 57.2957795131;
-    $rotation = $rad * atan2( -$pc21 / $rad, $pc11 / $rad ) + 90.0;
+  if( defined( $FITS_headers->{PC2_2} ) || defined( $FITS_headers->{PC2_3} ) ||
+      defined( $FITS_headers->{PC3_2} ) || defined( $FITS_headers->{PC3_3} ) ) {
+    my $pc22 = defined( $FITS_headers->{PC2_2} ) ? $FITS_headers->{PC2_2} : 1.0;
+    my $pc32 = defined( $FITS_headers->{PC3_2} ) ? $FITS_headers->{PC3_2} : 0.0;
+    my $pc23 = defined( $FITS_headers->{PC2_3} ) ? $FITS_headers->{PC2_3} : 0.0;
+    my $pc33 = defined( $FITS_headers->{PC3_3} ) ? $FITS_headers->{PC3_3} : 1.0;
+
+    # Average the estimates of the rotation converting from radians to
+    # degrees (rtod) as the matrix may not represent a pure rotation.
+    $rotation = $rtod * 0.5 * ( atan2( -$pc32 / $rtod, $pc22 / $rtod ) +
+                                atan2(  $pc23 / $rtod, $pc33 / $rtod ) );
 
   } elsif ( exists $FITS_headers->{CROTA2} ) {
     $rotation =  $FITS_headers->{CROTA2} + 90.0;
@@ -115,86 +135,11 @@ sub to_ROTATION {
   return $rotation;
 }
 
-
-=item B<to_X_REFERENCE_PIXEL>
-
-Use the nominal reference pixel if correctly supplied, failing that
-take the average of the bounds, and if these headers are also absent,
-use a default which assumes the full array.
-
-=cut
-
-sub to_X_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $xref;
-   if ( exists $FITS_headers->{CRPIX1} ) {
-      $xref = $FITS_headers->{CRPIX1};
-   } elsif ( exists $FITS_headers->{RDOUT_X1} &&
-             exists $FITS_headers->{RDOUT_X2} ) {
-      my $xl = $FITS_headers->{RDOUT_X1};
-      my $xu = $FITS_headers->{RDOUT_X2};
-      $xref = $self->nint( ( $xl + $xu ) / 2 );
-   } else {
-      $xref = 480;
-   }
-   return $xref;
-}
-
-=item B<from_X_REFERENCE_PIXEL>
-
-Always returns the value as CRPIX1.
-
-=cut
-
-sub from_X_REFERENCE_PIXEL {
-   my $self = shift;
-   my $generic_headers = shift;
-   return ( "CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"} );
-}
-
-=item B<to_Y_REFERENCE_PIXEL>
-
-Use the nominal reference pixel if correctly supplied, failing that
-take the average of the bounds, and if these headers are also absent,
-use a default which assumes the full array.
-
-=cut
-
-sub to_Y_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $yref;
-   if ( exists $FITS_headers->{CRPIX2} ) {
-      $yref = $FITS_headers->{CRPIX2};
-   }  elsif ( exists $FITS_headers->{RDOUT_Y1} && 
-              exists $FITS_headers->{RDOUT_Y2} ) {
-      my $yl = $FITS_headers->{RDOUT_Y1};
-      my $yu = $FITS_headers->{RDOUT_Y2};
-      $yref = $self->nint( ( $yl + $yu ) / 2 );
-   } else {
-      $yref = 480;
-   }
-   return $yref;
-}
-
-=item B<from_Y_REFERENCE_PIXEL>
-
-Always returns the value as CRPIX2.
-
-=cut
-
-sub from_Y_REFERENCE_PIXEL {
-   my $self = shift;
-   my $generic_headers = shift;
-   return ( "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"} );
-}
-
 =back
 
 =head1 REVISION
 
- $Id: UIST.pm 15060 2008-03-15 05:18:41Z mjc $
+ $Id: $
 
 =head1 SEE ALSO
 
