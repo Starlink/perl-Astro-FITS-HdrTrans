@@ -74,8 +74,8 @@ Returns true if the supplied headers can be handled by this class.
   $cando = $class->can_translate( \%hdrs );
 
 This method returns true if the INSTRUME header exists and is equal to
-'CGS4', and if the IDATE header exists and matches the regular
-expression '\d{8}'.
+'CGS4', and if the IDATE header exists, matches the regular
+expression '\d{8}', and is less than 20081115.
 
 =cut
 
@@ -86,6 +86,7 @@ sub can_translate {
   if( exists $headers->{IDATE} &&
       exists $headers->{INSTRUME} &&
       $headers->{IDATE} =~ /\d{8}/ &&
+      $headers->{IDATE} < 20081115 &&
       uc( $headers->{INSTRUME} ) eq 'CGS4' ) {
     return 1;
   }
