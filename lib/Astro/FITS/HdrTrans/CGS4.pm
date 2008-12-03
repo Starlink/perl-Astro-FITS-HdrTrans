@@ -66,21 +66,29 @@ __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
 =over 4
 
-=item B<this_instrument>
+=item B<can_translate>
 
-The name of the instrument required to match (case insensitively)
-against the INSTRUME/INSTRUMENT keyword to allow this class to
-translate the specified headers. Called by the default
-C<can_translate> method.
+Returns true if the supplied headers can be handled by this class.
 
-  $inst = $class->this_instrument();
+  $cando = $class->can_translate( \%hdrs );
 
-Returns "CGS4".
+This method returns true if the INSTRUME header exists and is equal to
+'CGS4', and if the IDATE header exists and matches the regular
+expression '\d{8}'.
 
 =cut
 
-sub this_instrument {
-  return "CGS4";
+sub can_translate {
+  my $self = shift;
+  my $headers = shift;
+
+  if( exists $headers->{IDATE} &&
+      exists $headers->{INSTRUME} &&
+      $headers->{IDATE} =~ /\d{8}/ &&
+      uc( $headers->{INSTRUME} ) eq 'CGS4' ) {
+    return 1;
+  }
+  return 0;
 }
 
 =back
@@ -218,48 +226,6 @@ sub from_RA_TELESCOPE_OFFSET {
     }
   }
   return %return;
-}
-
-=item B<to_DR_RECIPE>
-
-The DR_RECIPE header keyword changed from DRRECIPE to RECIPE on
-20081115.
-
-=cut
-
-sub to_DR_RECIPE {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $recipe = $FITS_headers->{DRRECIPE};
-
-  my $utdate = $self->to_UTDATE( $FITS_headers );
-
-  if( $utdate > 20081115 ) {
-    $recipe = $FITS_headers->{RECIPE};
-  }
-  return $recipe;
-}
-
-=item B<from_DR_RECIPE>
-
-The DR_RECIPE header keyword changed from DRRECIPE to RECIPE on
-20081115.
-
-=cut
-
-sub from_DR_RECIPE {
-  my $self = shift;
-  my $generic_headers = shift;
-
-  my $recipe = $generic_headers->{DR_RECIPE};
-  my $utdate = $generic_headers->{UTDATE};
-
-  if( $utdate > 20081115 ) {
-    return ( "RECIPE" => $recipe );
-  } else {
-    return ( "DRRECIPE" => $recipe );
-  }
 }
 
 =item B<to_SAMPLING>
