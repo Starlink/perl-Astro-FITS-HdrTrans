@@ -35,7 +35,7 @@ $VERSION = sprintf("%d", q$Revision: 15060 $ =~ /(\d+)/);
 my %UNIT_MAP = ( DEC_BASE => "CRVAL3",
                  DEC_SCALE => "CDELT3",
                  GRATING_DISPERSION => "GDISP",
-                 GRATING_NAME => "GRATING"
+                 GRATING_NAME => "GRATING",
                  GRATING_ORDER => "GORDER",
                  GRATING_WAVELENGTH => "GLAMBDA",
                  RA_BASE => "CRVAL2",
