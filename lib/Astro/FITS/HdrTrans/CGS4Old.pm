@@ -1,16 +1,17 @@
 # -*-perl-*-
 
-package Astro::FITS::HdrTrans::CGS4;
+package Astro::FITS::HdrTrans::CGS4Old;
 
 =head1 NAME
 
-Astro::FITS::HdrTrans::CGS4 - UKIRT CGS4 translations
+Astro::FITS::HdrTrans::CGS4 - UKIRT CGS4 translations for "old" style
+CGS4 headers.
 
 =head1 SYNOPSIS
 
-  use Astro::FITS::HdrTrans::CGS4;
+  use Astro::FITS::HdrTrans::CGS4Old;
 
-  %gen = Astro::FITS::HdrTrans::CGS4->translate_from_FITS( %hdr );
+  %gen = Astro::FITS::HdrTrans::CGS4Old->translate_from_FITS( %hdr );
 
 =head1 DESCRIPTION
 
@@ -88,6 +89,16 @@ sub can_translate {
       uc( $headers->{INSTRUME} ) eq 'CGS4' ) {
     return 1;
   }
+
+  # Need to handle the reverse case as well. This module can translate
+  # CGS4 headers older than 20081115.
+  if( exists $headers->{INSTRUMENT} &&
+      uc( $headers->{INSTRUMENT} ) eq 'CGS4' &&
+      exists $headers->{UTDATE} &&
+      $headers->{UTDATE} < 20081115 ) {
+    return 1;
+  }
+
   return 0;
 }
 

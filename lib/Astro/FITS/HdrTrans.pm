@@ -48,9 +48,9 @@ $DEBUG   = 0;
 # here. This is because some perl modules provide a base set of
 # translations shared by multiple instruments.
 
-my @REF_CLASS_LIST = qw/ ACSIS IRCAM CGS4 UIST UFTI JCMT_GSD
-  JCMT_GSD_DB MICHELLE SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 SOFI ISAAC 
-  NACO INGRID GMOS SPEX NIRI ClassicCam CURVE /;
+my @REF_CLASS_LIST = qw/ ACSIS IRCAM CGS4New CGS4Old UIST UFTI
+JCMT_GSD JCMT_GSD_DB MICHELLE SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 SOFI
+ISAAC NACO INGRID GMOS SPEX NIRI ClassicCam CURVE /;
 
 # This is the actual list that is currently supported. It should always
 # default to the reference list
