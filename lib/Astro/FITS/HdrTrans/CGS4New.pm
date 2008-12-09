@@ -32,6 +32,9 @@ use vars qw/ $VERSION /;
 
 $VERSION = sprintf("%d", q$Revision: 15060 $ =~ /(\d+)/);
 
+my %CONST_MAP = ( OBSERVATION_MODE => 'spectroscopy',
+                );
+
 my %UNIT_MAP = ( DEC_BASE => "CRVAL3",
                  DEC_SCALE => "CDELT3",
                  GRATING_DISPERSION => "GDISP",
@@ -50,7 +53,7 @@ my %UNIT_MAP = ( DEC_BASE => "CRVAL3",
                );
 
 # Create the translation methods
-__PACKAGE__->_generate_lookup_methods( \%UNIT_MAP );
+__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
 =head1 METHODS
 
@@ -133,6 +136,26 @@ sub to_ROTATION {
     $rotation = 90.0;
   }
   return $rotation;
+}
+
+=item B<to_UTDATE>
+
+Sets the YYYYMMDD-style UTDATE generic header based on the DATE-OBS
+header.
+
+=cut
+
+sub to_UTDATE {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $utdate;
+
+  my $dateobs = $FITS_headers->{'DATE-OBS'};
+  $dateobs =~ /^(\d{4}-\d\d-\d\d)/;
+  $utdate = $1;
+  $utdate =~ s/-//g;
+
+  return $utdate;
 }
 
 =back
