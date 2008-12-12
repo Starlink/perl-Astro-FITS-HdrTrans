@@ -84,7 +84,9 @@ sub can_translate {
   my $headers = shift;
 
   if( exists $headers->{IDATE} &&
+      defined $headers->{IDATE} &&
       exists $headers->{INSTRUME} &&
+      defined $headers->{INSTRUME} &&
       ! exists $headers->{RAJ2000} &&
       $headers->{IDATE} =~ /\d{8}/ &&
       $headers->{IDATE} < 20081115 &&
