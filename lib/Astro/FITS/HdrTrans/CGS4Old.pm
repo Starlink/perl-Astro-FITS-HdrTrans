@@ -85,6 +85,7 @@ sub can_translate {
 
   if( exists $headers->{IDATE} &&
       exists $headers->{INSTRUME} &&
+      ! exists $headers->{RAJ2000} &&
       $headers->{IDATE} =~ /\d{8}/ &&
       $headers->{IDATE} < 20081115 &&
       uc( $headers->{INSTRUME} ) eq 'CGS4' ) {
