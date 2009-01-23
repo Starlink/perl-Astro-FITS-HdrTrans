@@ -5,7 +5,8 @@ ChangeLog
 lib/Astro/FITS/HdrTrans.pm
 lib/Astro/FITS/HdrTrans/ACSIS.pm
 lib/Astro/FITS/HdrTrans/Base.pm
-lib/Astro/FITS/HdrTrans/CGS4.pm
+lib/Astro/FITS/HdrTrans/CGS4New.pm
+lib/Astro/FITS/HdrTrans/CGS4Old.pm
 lib/Astro/FITS/HdrTrans/ClassicCam.pm
 lib/Astro/FITS/HdrTrans/ESO.pm
 lib/Astro/FITS/HdrTrans/FITS.pm
@@ -51,5 +52,7 @@ t/data/uist_ifu.hdr
 t/data/uist_im.hdr
 t/data/uist_sp.hdr
 t/data/wfcam.hdr
+t/data/a20070425_00012_02_bl.sdf
+translatehdr
 
 META.yml                                 Module meta-data (added by MakeMaker)
