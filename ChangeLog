@@ -1,4 +1,11 @@
-2006-07-21  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
+2009-01-23  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
+
+  * Increase version to 1.01.
+
+	* CGS4 has been split into CGS4Old and CGS4New to accomodate for new
+	DHS.
+
+2006-07-21 Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
 
 	* Add lib/Astro/FITS/HdrTrans/JAC.pm module to act as base class
 	for JAC instruments.
