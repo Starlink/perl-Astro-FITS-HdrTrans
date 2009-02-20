@@ -32,7 +32,7 @@ use Astro::FITS::HdrTrans::FITS;
 
 use vars qw/ $VERSION /;
 
-$VERSION = sprintf("%d", q$Revision: 14385 $ =~ /(\d+)/);
+$VERSION = "1.02";
 
 # in each class we have three sets of data.
 #   - constant mappings

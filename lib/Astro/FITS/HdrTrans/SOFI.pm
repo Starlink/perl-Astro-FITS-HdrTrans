@@ -29,7 +29,7 @@ use base qw/ Astro::FITS::HdrTrans::ESO /;
 
 use vars qw/ $VERSION /;
 
-$VERSION = sprintf("%d", q$Revision: 14879 $ =~ /(\d+)/);
+$VERSION = "1.02";
 
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant

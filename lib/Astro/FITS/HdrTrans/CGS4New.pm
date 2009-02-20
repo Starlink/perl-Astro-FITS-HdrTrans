@@ -30,7 +30,7 @@ use base qw/ Astro::FITS::HdrTrans::UIST /;
 
 use vars qw/ $VERSION /;
 
-$VERSION = sprintf("%d", q$Revision: 15060 $ =~ /(\d+)/);
+$VERSION = "1.02";
 
 my %CONST_MAP = ( OBSERVATION_MODE => 'spectroscopy',
                 );

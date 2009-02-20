@@ -33,7 +33,7 @@ use Math::Trig qw/ deg2rad /;
 use vars qw/ $VERSION /;
 use Astro::FITS::HdrTrans (); # for the generic header list
 
-$VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
+$VERSION = "1.02";
 
 =head1 PUBLIC METHODS
 

@@ -33,7 +33,7 @@ use base qw/ Astro::FITS::HdrTrans::JAC /;
 use vars qw/ $VERSION /;
 
 # Note that we use %02 not %03 because of historical reasons
-$VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
+$VERSION = "1.02";
 
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant

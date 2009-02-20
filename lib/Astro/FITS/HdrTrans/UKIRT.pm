@@ -28,7 +28,7 @@ use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 use vars qw/ $VERSION /;
 
-$VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
+$VERSION = "1.02";
 
 # In each class we have three sets of data.
 #   - constant mappings

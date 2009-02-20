@@ -38,7 +38,7 @@ use constant CLIGHT => 2.99792458e5;
 
 use vars qw/ $VERSION /;
 
-$VERSION = sprintf("%d", q$Revision$ =~ /(\d+)/);
+$VERSION = "1.02";
 
 our $COORDS;
 
