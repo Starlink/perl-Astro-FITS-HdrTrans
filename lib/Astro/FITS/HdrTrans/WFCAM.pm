@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::WFCAM;
 
 =head1 NAME
@@ -38,7 +36,7 @@ $VERSION = "1.02";
 # For a constant mapping, there is no FITS header, just a generic
 # header that is constant.
 my %CONST_MAP = (
-                  POLARIMETRY => 0,
+                 POLARIMETRY => 0,
                 );
 
 # NULL mappings used to override base class implementations
@@ -48,16 +46,16 @@ my @NULL_MAP = qw/ DETECTOR_INDEX WAVEPLATE_ANGLE /;
 # to the output with only a keyword name change.
 
 my %UNIT_MAP = (
-                 # WFCAM specific
-                 CAMERA_NUMBER        => "CAMNUM",
-                 DETECTOR_READ_TYPE   => "READMODE",
-                 NUMBER_OF_COADDS     => "NEXP",
-                 NUMBER_OF_JITTER_POSITIONS    => "NJITTER",
-                 NUMBER_OF_MICROSTEP_POSITIONS => "NUSTEP",
-                 TILE_NUMBER          => "TILENUM",
+                # WFCAM specific
+                CAMERA_NUMBER        => "CAMNUM",
+                DETECTOR_READ_TYPE   => "READMODE",
+                NUMBER_OF_COADDS     => "NEXP",
+                NUMBER_OF_JITTER_POSITIONS    => "NJITTER",
+                NUMBER_OF_MICROSTEP_POSITIONS => "NUSTEP",
+                TILE_NUMBER          => "TILENUM",
 
-                 # CGS4 + MICHELLE + WFCAM
-                 CONFIGURATION_INDEX  => 'CNFINDEX',
+                # CGS4 + MICHELLE + WFCAM
+                CONFIGURATION_INDEX  => 'CNFINDEX',
                );
 
 
@@ -82,7 +80,7 @@ Returns "WFCAM".
 =cut
 
 sub this_instrument {
-   return "WFCAM";
+  return "WFCAM";
 }
 
 =back
@@ -107,26 +105,26 @@ between 2006-10-23 and 2006-12-20 when the default was "counts/sec").
 =cut
 
 sub to_DATA_UNITS {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $data_units = 'counts/exp';
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $data_units = 'counts/exp';
 
-   if ( defined( $FITS_headers->{BUNIT} ) ) {
-      $data_units = $FITS_headers->{BUNIT};
-   } else {
-      my $date = $self->to_UTDATE( $FITS_headers );
+  if ( defined( $FITS_headers->{BUNIT} ) ) {
+    $data_units = $FITS_headers->{BUNIT};
+  } else {
+    my $date = $self->to_UTDATE( $FITS_headers );
 
-      if ( $date > 20061023 && $date < 20061220 ) {
+    if ( $date > 20061023 && $date < 20061220 ) {
 
-         my $read_type = $self->to_DETECTOR_READ_TYPE( $FITS_headers );
-         if ( substr( $read_type, 0, 2 ) eq 'ND' ) {
+      my $read_type = $self->to_DETECTOR_READ_TYPE( $FITS_headers );
+      if ( substr( $read_type, 0, 2 ) eq 'ND' ) {
 
-            $data_units = 'counts/sec';
-         }
+        $data_units = 'counts/sec';
       }
-   }
+    }
+  }
 
-   return $data_units;
+  return $data_units;
 
 }
 
@@ -140,26 +138,26 @@ instead.
 =cut
 
 sub to_DEC_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
+  my $self = shift;
+  my $FITS_headers = shift;
 
-   my $scale;
-   my $camnum = $self->to_CAMERA_NUMBER( $FITS_headers );
-   if ( defined( $camnum ) ) {
-      if ( defined( $FITS_headers->{CD2_1} ) &&
-           defined( $FITS_headers->{CD1_2} ) &&
-           defined( $FITS_headers->{CD2_2} ) ) {
+  my $scale;
+  my $camnum = $self->to_CAMERA_NUMBER( $FITS_headers );
+  if ( defined( $camnum ) ) {
+    if ( defined( $FITS_headers->{CD2_1} ) &&
+         defined( $FITS_headers->{CD1_2} ) &&
+         defined( $FITS_headers->{CD2_2} ) ) {
 
-         if ( $camnum == 1 ) {
-            $scale = $FITS_headers->{CD2_1} * 3600;
-         } elsif ( $camnum == 3 ) {
-            $scale = $FITS_headers->{CD2_1} * 3600;
-         } elsif ( $camnum == 2 || $camnum == 4 ) {
-            $scale = $FITS_headers->{CD2_2} * 3600;
-         }
+      if ( $camnum == 1 ) {
+        $scale = $FITS_headers->{CD2_1} * 3600;
+      } elsif ( $camnum == 3 ) {
+        $scale = $FITS_headers->{CD2_1} * 3600;
+      } elsif ( $camnum == 2 || $camnum == 4 ) {
+        $scale = $FITS_headers->{CD2_2} * 3600;
       }
-   }
-   return $scale;
+    }
+  }
+  return $scale;
 }
 
 =item B<from_DEC_SCALE>
@@ -171,25 +169,25 @@ C<CD2_2> header.  The returned units are degrees per pixel.
 =cut
 
 sub from_DEC_SCALE {
-   my $self = shift;
-   my $generic_headers = shift;
+  my $self = shift;
+  my $generic_headers = shift;
 
-   my %return_hash;
+  my %return_hash;
 
-   my $dec_scale = $generic_headers->{'DEC_SCALE'};
-   my $camnum = $generic_headers->{'CAMERA_NUMBER'};
+  my $dec_scale = $generic_headers->{'DEC_SCALE'};
+  my $camnum = $generic_headers->{'CAMERA_NUMBER'};
 
-   if ( defined( $dec_scale ) &&
-        defined( $camnum ) ) {
+  if ( defined( $dec_scale ) &&
+       defined( $camnum ) ) {
 
-      if ( $camnum == 1 || $camnum == 3 ) {
-         $return_hash{'CD2_1'} = $dec_scale / 3600;
-      } elsif( $camnum == 2 || $camnum == 4 ) {
-         $return_hash{'CD2_2'} = $dec_scale / 3600;
-      }
-   }
+    if ( $camnum == 1 || $camnum == 3 ) {
+      $return_hash{'CD2_1'} = $dec_scale / 3600;
+    } elsif ( $camnum == 2 || $camnum == 4 ) {
+      $return_hash{'CD2_2'} = $dec_scale / 3600;
+    }
+  }
 
-   return %return_hash;
+  return %return_hash;
 }
 
 =item B<to_GAIN>
@@ -201,22 +199,22 @@ The GAIN FITS header is not used.
 =cut
 
 sub to_GAIN {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $gain;
-   if ( defined( $FITS_headers->{CAMNUM} ) ) {
-      my $camnum = $FITS_headers->{CAMNUM};
-      if ( $camnum == 1 || $camnum == 2 || $camnum == 3 ) {
-         $gain = 4.6;
-      } elsif ( $camnum == 4 ) {
-         $gain = 5.6;
-      } else {
-         $gain = 1.0;
-      }
-   } else {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $gain;
+  if ( defined( $FITS_headers->{CAMNUM} ) ) {
+    my $camnum = $FITS_headers->{CAMNUM};
+    if ( $camnum == 1 || $camnum == 2 || $camnum == 3 ) {
+      $gain = 4.6;
+    } elsif ( $camnum == 4 ) {
+      $gain = 5.6;
+    } else {
       $gain = 1.0;
-   }
-   return $gain;
+    }
+  } else {
+    $gain = 1.0;
+  }
+  return $gain;
 }
 
 =item B<from_GAIN>
@@ -227,7 +225,7 @@ always incorrect.
 =cut
 
 sub from_GAIN {
-   return ();
+  return ();
 }
 
 =item B<to_NUMBER_OF_OFFSETS>
@@ -237,12 +235,12 @@ Return the number of offsets (jitters and micro steps).
 =cut
 
 sub to_NUMBER_OF_OFFSETS {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $njitter = ( defined( $FITS_headers->{NJITTER} ) ? $FITS_headers->{NJITTER} : 1 );
-   my $nustep = ( defined( $FITS_headers->{NUSTEP} ) ? $FITS_headers->{NUSTEP} : 1 );
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $njitter = ( defined( $FITS_headers->{NJITTER} ) ? $FITS_headers->{NJITTER} : 1 );
+  my $nustep = ( defined( $FITS_headers->{NUSTEP} ) ? $FITS_headers->{NUSTEP} : 1 );
 
-   return $njitter * $nustep + 1;
+  return $njitter * $nustep + 1;
 
 }
 
@@ -253,9 +251,9 @@ Returns the C<RABASE> header converted to degrees.
 =cut
 
 sub to_RA_BASE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   return ($FITS_headers->{RABASE} * 15.0);
+  my $self = shift;
+  my $FITS_headers = shift;
+  return ($FITS_headers->{RABASE} * 15.0);
 }
 
 =item B<to_RA_SCALE>
@@ -268,23 +266,23 @@ instead.
 =cut
 
 sub to_RA_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
+  my $self = shift;
+  my $FITS_headers = shift;
 
-   my $scale;
-   my $camnum = $self->to_CAMERA_NUMBER( $FITS_headers );
-   if ( defined( $camnum ) ) {
-      if ( defined( $FITS_headers->{CD1_1} ) &&
-           defined( $FITS_headers->{CD1_2} ) ) {
+  my $scale;
+  my $camnum = $self->to_CAMERA_NUMBER( $FITS_headers );
+  if ( defined( $camnum ) ) {
+    if ( defined( $FITS_headers->{CD1_1} ) &&
+         defined( $FITS_headers->{CD1_2} ) ) {
 
-         if ( $camnum == 1 || $camnum == 3 ) {
-            $scale = $FITS_headers->{CD1_2} * 3600;
-         } elsif ( $camnum == 2 || $camnum == 4 ) {
-            $scale = $FITS_headers->{CD1_1} * 3600;
-         }
+      if ( $camnum == 1 || $camnum == 3 ) {
+        $scale = $FITS_headers->{CD1_2} * 3600;
+      } elsif ( $camnum == 2 || $camnum == 4 ) {
+        $scale = $FITS_headers->{CD1_1} * 3600;
       }
-   }
-   return $scale;
+    }
+  }
+  return $scale;
 }
 
 =item B<from_RA_SCALE>
@@ -296,25 +294,25 @@ C<CD1_1> keyword.  Returned units are degrees per pixel.
 =cut
 
 sub from_RA_SCALE {
-   my $self = shift;
-   my $generic_headers = shift;
+  my $self = shift;
+  my $generic_headers = shift;
 
-   my %return_hash;
+  my %return_hash;
 
-   my $ra_scale = $generic_headers->{'RA_SCALE'};
-   my $camnum = $generic_headers->{'CAMERA_NUMBER'};
+  my $ra_scale = $generic_headers->{'RA_SCALE'};
+  my $camnum = $generic_headers->{'CAMERA_NUMBER'};
 
-   if ( defined( $ra_scale ) &&
-        defined( $camnum ) ) {
+  if ( defined( $ra_scale ) &&
+       defined( $camnum ) ) {
 
-      if ( $camnum == 1 || $camnum == 3 ) {
-         $return_hash{'CD1_2'} = $ra_scale / 3600;
-      } elsif ( $camnum == 2 || $camnum == 4 ) {
-         $return_hash{'CD1_1'} = $ra_scale / 3600;
-      }
-   }
+    if ( $camnum == 1 || $camnum == 3 ) {
+      $return_hash{'CD1_2'} = $ra_scale / 3600;
+    } elsif ( $camnum == 2 || $camnum == 4 ) {
+      $return_hash{'CD1_1'} = $ra_scale / 3600;
+    }
+  }
 
-   return %return_hash;
+  return %return_hash;
 }
 
 =item B<to_ROTATION>
@@ -324,20 +322,20 @@ Determines the rotation of the array in world co-ordinates.
 =cut
 
 sub to_ROTATION {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $cd11 = $FITS_headers->{CD1_1};
-   my $cd12 = $FITS_headers->{CD1_2};
-   my $cd21 = $FITS_headers->{CD2_1};
-   my $cd22 = $FITS_headers->{CD2_2};
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $cd11 = $FITS_headers->{CD1_1};
+  my $cd12 = $FITS_headers->{CD1_2};
+  my $cd21 = $FITS_headers->{CD2_1};
+  my $cd22 = $FITS_headers->{CD2_2};
 
-   my $rad = 45 / atan2( 1, 1 );
+  my $rad = 45 / atan2( 1, 1 );
 
-   my $rho_a = $rad * atan2( -$cd12 / $rad, $cd22 / $rad );
-   my $rho_b = $rad * atan2(  $cd21 / $rad, $cd11 / $rad );
-   my $rotation = -0.5 * ( $rho_a + $rho_b );
+  my $rho_a = $rad * atan2( -$cd12 / $rad, $cd22 / $rad );
+  my $rho_b = $rad * atan2(  $cd21 / $rad, $cd11 / $rad );
+  my $rotation = -0.5 * ( $rho_a + $rho_b );
 
-   return $rotation;
+  return $rotation;
 }
 
 =back

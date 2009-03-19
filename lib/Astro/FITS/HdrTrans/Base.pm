@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::Base;
 
 =head1 NAME
@@ -31,7 +29,7 @@ use Carp;
 use Math::Trig qw/ deg2rad /;
 
 use vars qw/ $VERSION /;
-use Astro::FITS::HdrTrans (); # for the generic header list
+use Astro::FITS::HdrTrans ();   # for the generic header list
 
 $VERSION = "1.02";
 
@@ -75,14 +73,14 @@ sub translate_from_FITS {
   my %opts = @_;
 
   my $prefix = '';
-  if( exists( $opts{prefix} ) &&
-      defined( $opts{prefix} ) ) {
+  if ( exists( $opts{prefix} ) &&
+       defined( $opts{prefix} ) ) {
     $prefix = $opts{prefix};
   }
 
   my $frameset;
-  if( exists( $opts{frameset} ) &&
-      defined( $opts{frameset} ) ) {
+  if ( exists( $opts{frameset} ) &&
+       defined( $opts{frameset} ) ) {
     $frameset = $opts{frameset};
   }
 
@@ -182,8 +180,8 @@ sub can_translate {
   # For consistency in subsequent algorithm convert
   # a string to a pattern match object
   if (not ref($ref)) { 
-      $ref = quotemeta($ref);
-      $ref = qr/^$ref$/i;
+    $ref = quotemeta($ref);
+    $ref = qr/^$ref$/i;
   }
 
   # check against the FITS and Generic versions.
@@ -283,9 +281,9 @@ sub _generate_lookup_methods {
   my $null  = shift;
   my $endobs = shift;
 
- # Have to go into a different package
+  # Have to go into a different package
   my $p = "{\n package $class;\n";
-  my $ep = "\n}"; # close the scope
+  my $ep = "\n}";               # close the scope
 
   # Loop over the keys to the unit mapping hash
   # The keys are the GENERIC name
@@ -374,14 +372,14 @@ value. 0.5 is rounded up.
 =cut
 
 sub nint {
-    my $class = shift;
-    my $value = shift;
+  my $class = shift;
+  my $value = shift;
 
-    if ($value >= 0) {
-        return (int($value + 0.5));
-    } else {
-        return (int($value - 0.5));
-    }
+  if ($value >= 0) {
+    return (int($value + 0.5));
+  } else {
+    return (int($value - 0.5));
+  }
 }
 
 =item B<_parse_iso_date>
@@ -394,18 +392,18 @@ object (Time::Piece).
 =cut
 
 sub _parse_iso_date {
-    my $self = shift;
-    my $datestr = shift;
-    my $return;
-    if (defined $datestr) {
-        # Not part of standard but we can deal with it
-        $datestr =~ s/Z//g;
-        # Time::Piece can not do fractional seconds. Should switch to DateTime
-        $datestr =~ s/\.\d+$//;
-        # parse
-        $return = Time::Piece->strptime( $datestr, "%Y-%m-%dT%T" );
-    }
-    return $return;
+  my $self = shift;
+  my $datestr = shift;
+  my $return;
+  if (defined $datestr) {
+    # Not part of standard but we can deal with it
+    $datestr =~ s/Z//g;
+    # Time::Piece can not do fractional seconds. Should switch to DateTime
+    $datestr =~ s/\.\d+$//;
+    # parse
+    $return = Time::Piece->strptime( $datestr, "%Y-%m-%dT%T" );
+  }
+  return $return;
 }
 
 =item B<_add_seconds>
@@ -418,10 +416,10 @@ and return a new object.
 =cut
 
 sub _add_seconds {
-    my $self = shift;
-    my $base = shift;
-    my $delta = shift;
-    return ($base + Time::Seconds->new( $delta ) );
+  my $self = shift;
+  my $base = shift;
+  my $delta = shift;
+  return ($base + Time::Seconds->new( $delta ) );
 }
 
 =item B<_utdate_to_object>
@@ -433,14 +431,14 @@ Converts a UT date in YYYYMMDD format to a date object at midnight.
 =cut
 
 sub _utdate_to_object {
-    my $self = shift;
-    my $utdate = shift;
-    my $year = substr($utdate, 0, 4);
-    my $month= substr($utdate, 4, 2);
-    my $day  = substr($utdate, 6, 2);
-    my $basedate = $self->_parse_iso_date( $year."-".$month ."-".$day.
-                                           "T00:00:00");
-    return $basedate;
+  my $self = shift;
+  my $utdate = shift;
+  my $year = substr($utdate, 0, 4);
+  my $month= substr($utdate, 4, 2);
+  my $day  = substr($utdate, 6, 2);
+  my $basedate = $self->_parse_iso_date( $year."-".$month ."-".$day.
+                                         "T00:00:00");
+  return $basedate;
 }
 
 =item B<cosdeg>
@@ -450,9 +448,9 @@ Return the cosine of the angle. The angle must be in degrees.
 =cut
 
 sub cosdeg {
-    my $self = shift;
-    my $deg = shift;
-    cos( deg2rad($deg) );
+  my $self = shift;
+  my $deg = shift;
+  cos( deg2rad($deg) );
 }
 
 =item B<sindeg>
@@ -462,9 +460,9 @@ Return the sine of the angle. The angle must be in degrees.
 =cut
 
 sub sindeg {
-    my $self = shift;
-    my $deg = shift;
-    sin( deg2rad($deg) );
+  my $self = shift;
+  my $deg = shift;
+  sin( deg2rad($deg) );
 }
 
 =item B<via_subheader>
@@ -491,7 +489,7 @@ sub via_subheader {
   if (exists $FITS_headers->{$keyword}
       && defined $FITS_headers->{$keyword}) {
 
-    if( ref( $FITS_headers->{$keyword} ) eq 'ARRAY' ) {
+    if ( ref( $FITS_headers->{$keyword} ) eq 'ARRAY' ) {
       @values = @{$FITS_headers->{$keyword}};
     } else {
       push (@values,$FITS_headers->{$keyword});
@@ -546,7 +544,7 @@ sub import {
     # In that case we do not want to loop over from_ and to_
     my @directions = qw/ from_ to_ /;
     if ($key =~ /^from_/ || $key =~ /^to_/) {
-      @directions = ( '' ); # empty prefix
+      @directions = ( '' );     # empty prefix
     }
 
     for my $dir (@directions) {
@@ -555,7 +553,7 @@ sub import {
       no strict 'refs';
 
       if (!defined *{"$class\::$method"}) {
-	croak "Method $method is not available for export from class $class";
+        croak "Method $method is not available for export from class $class";
       }
 
       # assign it

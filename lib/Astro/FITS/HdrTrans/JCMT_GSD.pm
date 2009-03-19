@@ -1,7 +1,4 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::JCMT_GSD;
-
 
 =head1 NAME
 
@@ -32,11 +29,11 @@ $VERSION = "1.02";
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-		 INST_DHS         => 'HET_GSD',
-		 COORDINATE_UNITS => 'decimal',
-		 EQUINOX          => 'current',
-		 TELESCOPE        => 'JCMT',
-		);
+                 INST_DHS         => 'HET_GSD',
+                 COORDINATE_UNITS => 'decimal',
+                 EQUINOX          => 'current',
+                 TELESCOPE        => 'JCMT',
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = ();
@@ -46,50 +43,50 @@ my @NULL_MAP = ();
 
 my %UNIT_MAP = (
                 AMBIENT_TEMPERATURE => "C5AT",
-		APERTURE => "C7AP",
-		AZIMUTH_START => "C4AZ",
-		BACKEND => "C1BKE",
-		BACKEND_SECTIONS => "C3NRS",
-		CHOP_FREQUENCY => "C4FRQ",
-		CHOP_THROW => "C4THROW",
-		COORDINATE_SYSTEM => "C4CSC",
-		COORDINATE_TYPE => "C4LSC",
-		CYCLE_LENGTH => "C3CL",
-		#        DEC_BASE => "",
-		ELEVATION_START => "C4EL",
-		#        FILENAME => "GSDFILE",
-		FILTER => "C7FIL",
-		FREQUENCY_RESOLUTION => "C12FR",
-		FRONTEND => "C1RCV",
-		HUMIDITY => "C5RH",
-		NUMBER_OF_CYCLES => "C3NCI",
-		NUMBER_OF_SUBSCANS => "C3NIS",
-		OBJECT => "C1SNA1",
-		OBSERVATION_MODE => "C6ST",
-		OBSERVATION_NUMBER => "C1SNO",
-		PROJECT => "C1PID",
-		RA_BASE => "C4RADATE",
-		RECEIVER_TEMPERATURE => "C12RT",
-		ROTATION => "CELL_V2Y",
-		REST_FREQUENCY => "C12RF",
-		SEEING => "C7SEEING",
-		SWITCH_MODE => "C6MODE",
-		SYSTEM_TEMPERATURE => "C12SST",
-		TAU => "C7TAU225",
-		USER_AZ_CORRECTION => "UAZ",
-		USER_EL_CORRECTION => "UEL",
-		VELOCITY => "C7VR",
-		VELOCITY_REFERENCE_FRAME => "C12VREF",
-		VELOCITY_TYPE => "C12VDEF",
-		X_BASE => "C4RX",
-		Y_BASE => "C4RY",
-		X_DIM => "C6XNP",
-		Y_DIM => "C6YNP",
-		X_REQUESTED => "C4SX",
-		Y_REQUESTED => "C4SY",
-		X_SCALE => "C6DX",
-		Y_SCALE => "C6DY",
-	       );
+                APERTURE => "C7AP",
+                AZIMUTH_START => "C4AZ",
+                BACKEND => "C1BKE",
+                BACKEND_SECTIONS => "C3NRS",
+                CHOP_FREQUENCY => "C4FRQ",
+                CHOP_THROW => "C4THROW",
+                COORDINATE_SYSTEM => "C4CSC",
+                COORDINATE_TYPE => "C4LSC",
+                CYCLE_LENGTH => "C3CL",
+                #        DEC_BASE => "",
+                ELEVATION_START => "C4EL",
+                #        FILENAME => "GSDFILE",
+                FILTER => "C7FIL",
+                FREQUENCY_RESOLUTION => "C12FR",
+                FRONTEND => "C1RCV",
+                HUMIDITY => "C5RH",
+                NUMBER_OF_CYCLES => "C3NCI",
+                NUMBER_OF_SUBSCANS => "C3NIS",
+                OBJECT => "C1SNA1",
+                OBSERVATION_MODE => "C6ST",
+                OBSERVATION_NUMBER => "C1SNO",
+                PROJECT => "C1PID",
+                RA_BASE => "C4RADATE",
+                RECEIVER_TEMPERATURE => "C12RT",
+                ROTATION => "CELL_V2Y",
+                REST_FREQUENCY => "C12RF",
+                SEEING => "C7SEEING",
+                SWITCH_MODE => "C6MODE",
+                SYSTEM_TEMPERATURE => "C12SST",
+                TAU => "C7TAU225",
+                USER_AZ_CORRECTION => "UAZ",
+                USER_EL_CORRECTION => "UEL",
+                VELOCITY => "C7VR",
+                VELOCITY_REFERENCE_FRAME => "C12VREF",
+                VELOCITY_TYPE => "C12VDEF",
+                X_BASE => "C4RX",
+                Y_BASE => "C4RY",
+                X_DIM => "C6XNP",
+                Y_DIM => "C6YNP",
+                X_REQUESTED => "C4SX",
+                Y_REQUESTED => "C4SY",
+                X_SCALE => "C6DX",
+                Y_SCALE => "C6DY",
+               );
 
 # Create the translation methods
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
@@ -113,10 +110,10 @@ sub can_translate {
   my $self = shift;
   my $headers = shift;
 
-  if( exists( $headers->{'C1RCV'} ) &&
-      defined( $headers->{'C1RCV'} ) &&
-      ( $headers->{'C1RCV'} =~ /^rx(a|b|w)/i ||
-        $headers->{'C1RCV'} =~ /^fts/i ) ) {
+  if ( exists( $headers->{'C1RCV'} ) &&
+       defined( $headers->{'C1RCV'} ) &&
+       ( $headers->{'C1RCV'} =~ /^rx(a|b|w)/i ||
+         $headers->{'C1RCV'} =~ /^fts/i ) ) {
     return 1;
   } else {
     return 0;
@@ -148,11 +145,11 @@ sub to_INSTRUMENT {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'C1RCV'} ) ) {
+  if ( exists( $FITS_headers->{'C1RCV'} ) ) {
     $return = $FITS_headers->{'C1RCV'};
-    if( $return =~ /^rxa3/i ) {
+    if ( $return =~ /^rxa3/i ) {
       $return = "RXA3";
-    } elsif( $return =~ /^rxb/i ) {
+    } elsif ( $return =~ /^rxb/i ) {
       $return = "RXB3";
     }
   }
@@ -169,17 +166,17 @@ Calculate a unique Observation ID.
 # Would be completely generic if BACKEND was not used in preference to instrument.
 
 sub to_OBSERVATION_ID {
-    my $self = shift;
-    my $FITS_headers = shift;
-    my $backend = lc( $self->to_BACKEND( $FITS_headers ) );
-    my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
-    my $dateobs = $self->to_UTSTART( $FITS_headers );
-    my $datetime = $dateobs->datetime;
-    $datetime =~ s/-//g;
-    $datetime =~ s/://g;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $backend = lc( $self->to_BACKEND( $FITS_headers ) );
+  my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
+  my $dateobs = $self->to_UTSTART( $FITS_headers );
+  my $datetime = $dateobs->datetime;
+  $datetime =~ s/-//g;
+  $datetime =~ s/://g;
 
-    my $obsid = join('_', $backend, $obsnum, $datetime);
-    return $obsid;
+  my $obsid = join('_', $backend, $obsnum, $datetime);
+  return $obsid;
 }
 
 =item B<to_UTDATE>
@@ -193,7 +190,7 @@ sub to_UTDATE {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'C3DAT'} ) ) {
+  if ( exists( $FITS_headers->{'C3DAT'} ) ) {
     $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d{1,2})/;
     my $day = (length($3) == 2) ? $3 : $3 . "0";
     my $ut = "$1-$2-$day";
@@ -209,18 +206,18 @@ Translates YYYYMMDD integer to C3DAT header.
 =cut
 
 sub from_UTDATE {
-    my $self = shift;
-    my $generic_headers = shift;
-    my %return_hash;
-    if (exists $generic_headers->{UTDATE}) {
-        my $date = $generic_headers->{UTDATE};
-        return () unless defined $date;
-        $return_hash{UTDATE} = sprintf("%04d.%02d%02d",
-                                       substr($date,0,4),
-                                       substr($date,4,2),
-                                       substr($date,6,2));
-    }
-    return %return_hash;
+  my $self = shift;
+  my $generic_headers = shift;
+  my %return_hash;
+  if (exists $generic_headers->{UTDATE}) {
+    my $date = $generic_headers->{UTDATE};
+    return () unless defined $date;
+    $return_hash{UTDATE} = sprintf("%04d.%02d%02d",
+                                   substr($date,0,4),
+                                   substr($date,4,2),
+                                   substr($date,6,2));
+  }
+  return %return_hash;
 }
 
 =item B<to_UTSTART>
@@ -258,15 +255,15 @@ sub to_UTEND {
   my $self = shift;
   my $FITS_headers = shift;
   my ($t, $expt);
-  if( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
-      exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
+  if ( exists( $FITS_headers->{'C3DAT'} ) && defined( $FITS_headers->{'C3DAT'} ) &&
+       exists( $FITS_headers->{'C3UT'} ) && defined( $FITS_headers->{'C3UT'} ) ) {
     my $hour = int( $FITS_headers->{'C3UT'} );
     my $minute = int ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 );
     my $second = int ( ( ( ( $FITS_headers->{'C3UT'} - $hour ) * 60 ) - $minute ) * 60 );
     $FITS_headers->{'C3DAT'} =~ /(\d{4})\.(\d\d)(\d{1,2})/;
     my $day = (length($3) == 2) ? $3 : $3 . "0";
     $t = Time::Piece->strptime(sprintf("%4u-%02u-%02uT%02u:%02u:%02u", $1, $2, $day, $hour, $minute, $second ),
-                              "%Y-%m-%dT%T");
+                               "%Y-%m-%dT%T");
   }
 
   $expt = $self->to_EXPOSURE_TIME( $FITS_headers );
@@ -296,13 +293,13 @@ sub to_BANDWIDTH_MODE {
 
   my $return;
 
-  if( exists( $FITS_headers->{'C3NRS'} ) && defined( $FITS_headers->{'C3NRS'} ) &&
-      exists( $FITS_headers->{'C3NFOC'} ) && defined( $FITS_headers->{'C3NFOC'} ) &&
-      exists( $FITS_headers->{'C3NCH'} ) && defined( $FITS_headers->{'C3NCH'} ) ) {
+  if ( exists( $FITS_headers->{'C3NRS'} ) && defined( $FITS_headers->{'C3NRS'} ) &&
+       exists( $FITS_headers->{'C3NFOC'} ) && defined( $FITS_headers->{'C3NFOC'} ) &&
+       exists( $FITS_headers->{'C3NCH'} ) && defined( $FITS_headers->{'C3NCH'} ) ) {
 
     my $bandwidth = 125 * $FITS_headers->{'C3NRS'} / $FITS_headers->{'C3NFOC'};
 
-    if( $bandwidth >= 1000 ) {
+    if ( $bandwidth >= 1000 ) {
       $bandwidth /= 1000;
       $return = sprintf( "%dGHzx%d", $bandwidth, $FITS_headers->{'C3NCH'} );
     } else {
@@ -323,15 +320,15 @@ sub to_EXPOSURE_TIME {
   my $FITS_headers = shift;
   my $expt = 0;
 
-  if( exists( $FITS_headers->{'C6ST'} ) && defined( $FITS_headers->{'C6ST'} ) ) {
+  if ( exists( $FITS_headers->{'C6ST'} ) && defined( $FITS_headers->{'C6ST'} ) ) {
 
     my $c6st = uc( $FITS_headers->{'C6ST'} );
 
-    if( $c6st eq 'RASTER' ) {
+    if ( $c6st eq 'RASTER' ) {
 
-      if( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
-          exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) &&
-          exists( $FITS_headers->{'C3NPP'} ) && defined( $FITS_headers->{'C3NPP'} ) ) {
+      if ( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
+           exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) &&
+           exists( $FITS_headers->{'C3NPP'} ) && defined( $FITS_headers->{'C3NPP'} ) ) {
 
         my $c3nsampl = $FITS_headers->{'C3NSAMPL'};
         my $c3cl = $FITS_headers->{'C3CL'};
@@ -340,43 +337,43 @@ sub to_EXPOSURE_TIME {
         # raster.
         $expt = 15 + $c3nsampl * $c3cl * ( 1 + 1 / sqrt( $c3npp ) ) * 1.4;
       }
-    } elsif( $c6st eq 'PATTERN' or $c6st eq 'GRID' ) {
+    } elsif ( $c6st eq 'PATTERN' or $c6st eq 'GRID' ) {
 
       my $c6mode = '';
 
-      if( exists( $FITS_headers->{'C6MODE'} ) && defined( $FITS_headers->{'C6MODE'} ) ) {
+      if ( exists( $FITS_headers->{'C6MODE'} ) && defined( $FITS_headers->{'C6MODE'} ) ) {
         $c6mode = $FITS_headers->{'C6MODE'};
       } else {
         $c6mode = 'BEAMSWITCH';
       }
 
-      if( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
-          exists( $FITS_headers->{'C3NCYCLE'} ) && defined( $FITS_headers->{'C3NCYCLE'} ) &&
-          exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) ) {
+      if ( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
+           exists( $FITS_headers->{'C3NCYCLE'} ) && defined( $FITS_headers->{'C3NCYCLE'} ) &&
+           exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) ) {
 
         my $c3nsampl = $FITS_headers->{'C3NSAMPL'};
         my $c3ncycle = $FITS_headers->{'C3NCYCLE'};
         my $c3cl = $FITS_headers->{'C3CL'};
 
-        if( $c6mode eq 'POSITION_SWITCH' ) {
+        if ( $c6mode eq 'POSITION_SWITCH' ) {
 
           # position switch pattern/grid.
           $expt = 6 + $c3nsampl * $c3ncycle * $c3cl * 1.35;
 
-        } elsif( $c6mode eq 'BEAMSWITCH' ) {
+        } elsif ( $c6mode eq 'BEAMSWITCH' ) {
 
           # beam switch pattern/grid.
           $expt = 6 + $c3nsampl * $c3ncycle * $c3cl * 1.35;
 
-        } elsif( $c6mode eq 'CHOPPING' ) {
-          if( exists( $FITS_headers->{'C1RCV'} ) && defined( $FITS_headers->{'C1RCV'} ) ) {
+        } elsif ( $c6mode eq 'CHOPPING' ) {
+          if ( exists( $FITS_headers->{'C1RCV'} ) && defined( $FITS_headers->{'C1RCV'} ) ) {
             my $c1rcv = uc( $FITS_headers->{'C1RCV'} );
-            if( $c1rcv eq 'RXA3I' ) {
+            if ( $c1rcv eq 'RXA3I' ) {
 
               # fast frequency switch pattern/grid, receiver A.
               $expt = 15 + $c3nsampl * $c3ncycle * $c3cl * 1.20;
 
-            } elsif( $c1rcv eq 'RXB' ) {
+            } elsif ( $c1rcv eq 'RXB' ) {
 
               # slow frequency switch pattern/grid, receiver B.
               $expt = 18 + $c3nsampl * $c3ncycle * $c3cl * 1.60;
@@ -388,39 +385,39 @@ sub to_EXPOSURE_TIME {
     } else {
 
       my $c6mode;
-      if( exists( $FITS_headers->{'C6MODE'} ) && defined( $FITS_headers->{'C6MODE'} ) ) {
+      if ( exists( $FITS_headers->{'C6MODE'} ) && defined( $FITS_headers->{'C6MODE'} ) ) {
         $c6mode = $FITS_headers->{'C6MODE'};
       } else {
         $c6mode = 'BEAMSWITCH';
       }
 
-      if( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
-          exists( $FITS_headers->{'C3NCYCLE'} ) && defined( $FITS_headers->{'C3NCYCLE'} ) &&
-          exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) ) {
+      if ( exists( $FITS_headers->{'C3NSAMPL'} ) && defined( $FITS_headers->{'C3NSAMPL'} ) &&
+           exists( $FITS_headers->{'C3NCYCLE'} ) && defined( $FITS_headers->{'C3NCYCLE'} ) &&
+           exists( $FITS_headers->{'C3CL'} ) && defined( $FITS_headers->{'C3CL'} ) ) {
 
         my $c3nsampl = $FITS_headers->{'C3NSAMPL'};
         my $c3ncycle = $FITS_headers->{'C3NCYCLE'};
         my $c3cl = $FITS_headers->{'C3CL'};
 
-        if( $c6mode eq 'POSITION_SWITCH' ) {
+        if ( $c6mode eq 'POSITION_SWITCH' ) {
 
           # position switch sample.
           $expt = 4.8 + $c3nsampl * $c3ncycle * $c3cl * 1.10;
 
-        } elsif( $c6mode eq 'BEAMSWITCH' ) {
+        } elsif ( $c6mode eq 'BEAMSWITCH' ) {
 
           # beam switch sample.
           $expt = 4.8 + $c3nsampl * $c3ncycle * $c3cl * 1.25;
 
-        } elsif( $c6mode eq 'CHOPPING' ) {
-          if( exists( $FITS_headers->{'C1RCV'} ) && defined( $FITS_headers->{'C1RCV'} ) ) {
+        } elsif ( $c6mode eq 'CHOPPING' ) {
+          if ( exists( $FITS_headers->{'C1RCV'} ) && defined( $FITS_headers->{'C1RCV'} ) ) {
             my $c1rcv = uc( $FITS_headers->{'C1RCV'} );
-            if( $c1rcv eq 'RXA3I' ) {
+            if ( $c1rcv eq 'RXA3I' ) {
 
               # fast frequency switch sample, receiver A.
               $expt = 3 + $c3nsampl * $c3ncycle * $c3cl * 1.10;
 
-            } elsif( $c1rcv eq 'RXB' ) {
+            } elsif ( $c1rcv eq 'RXB' ) {
 
               # slow frequency switch sample, receiver B.
               $expt = 3 + $c3nsampl * $c3ncycle * $c3cl * 1.40;
@@ -444,8 +441,8 @@ sub to_SYSTEM_VELOCITY {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if( exists( $FITS_headers->{'C12VREF'} ) && defined( $FITS_headers->{'C12VREF'} ) &&
-      exists( $FITS_headers->{'C12VDEF'} ) && defined( $FITS_headers->{'C12VDEF'} ) ) {
+  if ( exists( $FITS_headers->{'C12VREF'} ) && defined( $FITS_headers->{'C12VREF'} ) &&
+       exists( $FITS_headers->{'C12VDEF'} ) && defined( $FITS_headers->{'C12VDEF'} ) ) {
     $return = substr( $FITS_headers->{'C12VDEF'}, 0, 3 ) . substr( $FITS_headers->{'C12VREF'}, 0, 3 );
   }
   return $return;

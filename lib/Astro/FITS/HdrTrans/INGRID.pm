@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::INGRID;
 
 =head1 NAME
@@ -34,9 +32,9 @@ $VERSION = "1.02";
 # For a constant mapping, there is no FITS header, just a generic
 # header that is constant.
 my %CONST_MAP = (
-                  POLARIMETRY         => 0,
-                  OBSERVATION_MODE    => 'imaging',
-                  WAVEPLATE_ANGLE     => 0,
+                 POLARIMETRY         => 0,
+                 OBSERVATION_MODE    => 'imaging',
+                 WAVEPLATE_ANGLE     => 0,
                 );
 
 # NULL mappings used to override base-class implementations.
@@ -46,14 +44,14 @@ my @NULL_MAP = qw/ /;
 # to the output with only a keyword name change.
 
 my %UNIT_MAP = (
-                 AIRMASS_END          => "AIRMASS",
-                 AIRMASS_START        => "AIRMASS",
-                 EXPOSURE_TIME        => "EXPTIME",
-                 FILTER               => "INGF1NAM",
-                 INSTRUMENT           => "DETECTOR",
-                 NUMBER_OF_EXPOSURES  => "COAVERAG",
-                 NUMBER_OF_READS      => "NUMREADS",
-                 OBSERVATION_NUMBER   => "RUN"
+                AIRMASS_END          => "AIRMASS",
+                AIRMASS_START        => "AIRMASS",
+                EXPOSURE_TIME        => "EXPTIME",
+                FILTER               => "INGF1NAM",
+                INSTRUMENT           => "DETECTOR",
+                NUMBER_OF_EXPOSURES  => "COAVERAG",
+                NUMBER_OF_READS      => "NUMREADS",
+                OBSERVATION_NUMBER   => "RUN"
                );
 
 
@@ -78,7 +76,7 @@ Returns "INGRID".
 =cut
 
 sub this_instrument {
-   return qr/^INGRID/;
+  return qr/^INGRID/;
 }
 
 =back
@@ -95,14 +93,14 @@ degrees using the C<CAT-DEC> keyword, defaulting to 0.0.
 =cut
 
 sub to_DEC_BASE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $dec = 0.0;
-   my $sexa = $FITS_headers->{"CAT-DEC"};
-   if ( defined( $sexa ) ) {
-      $dec = $self->dms_to_degrees( $sexa );
-   }
-   return $dec;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $dec = 0.0;
+  my $sexa = $FITS_headers->{"CAT-DEC"};
+  if ( defined( $sexa ) ) {
+    $dec = $self->dms_to_degrees( $sexa );
+  }
+  return $dec;
 }
 
 =item B<to_DEC_SCALE>
@@ -114,18 +112,18 @@ returns a default value of 0.2387 arcsec/pixel, assuming north is up.
 =cut
 
 sub to_DEC_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $decscale = 0.2387;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $decscale = 0.2387;
 
-# Assumes either x-y scales the same or the y corresponds to
-# declination.
-   my $ccdypixe = $self->via_subheader( $FITS_headers, "CCDYPIXE" );
-   my $ingpscal = $self->via_subheader( $FITS_headers, "INGPSCAL" );
-   if ( defined $ccdypixe && defined $ingpscal ) {
-      $decscale = $ccdypixe * 1000.0 * $ingpscal;
-   }
-   return $decscale;
+  # Assumes either x-y scales the same or the y corresponds to
+  # declination.
+  my $ccdypixe = $self->via_subheader( $FITS_headers, "CCDYPIXE" );
+  my $ingpscal = $self->via_subheader( $FITS_headers, "INGPSCAL" );
+  if ( defined $ccdypixe && defined $ingpscal ) {
+    $decscale = $ccdypixe * 1000.0 * $ingpscal;
+  }
+  return $decscale;
 }
 
 =item B<to_DEC_TELESCOPE_OFFSET>
@@ -137,22 +135,22 @@ does not exist, it returns a default of 0.0.
 =cut
 
 sub to_DEC_TELESCOPE_OFFSET {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $decoffset = 0.0;
-   if ( exists $FITS_headers->{"CAT-DEC"} && exists $FITS_headers->{DEC} ) {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $decoffset = 0.0;
+  if ( exists $FITS_headers->{"CAT-DEC"} && exists $FITS_headers->{DEC} ) {
 
-# Obtain the reference and telescope declinations positions measured in degrees.
-      my $refdec = $self->dms_to_degrees( $FITS_headers->{"CAT-DEC"} );
-      my $dec = $self->dms_to_degrees( $FITS_headers->{DEC} );
+    # Obtain the reference and telescope declinations positions measured in degrees.
+    my $refdec = $self->dms_to_degrees( $FITS_headers->{"CAT-DEC"} );
+    my $dec = $self->dms_to_degrees( $FITS_headers->{DEC} );
 
-# Find the offsets between the positions in arcseconds on the sky.
-      $decoffset = 3600.0 * ( $dec - $refdec );
-   }
+    # Find the offsets between the positions in arcseconds on the sky.
+    $decoffset = 3600.0 * ( $dec - $refdec );
+  }
 
-# The sense is reversed compared with UKIRT, as these measure the
-# place son the sky, not the motion of the telescope.
-   return -1.0 * $decoffset
+  # The sense is reversed compared with UKIRT, as these measure the
+  # place son the sky, not the motion of the telescope.
+  return -1.0 * $decoffset
 }
 
 =item B<to_DETECTOR_READ_TYPE>
@@ -165,18 +163,18 @@ This is guesswork at present.
 =cut
 
 sub to_DETECTOR_READ_TYPE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $read_type;
-   my $readout_mode = $FITS_headers->{READMODE};
-   my $nreads = $FITS_headers->{NUMREADS};
-   if ( $readout_mode =~ /^mndr/i ||
-        ( $readout_mode =~ /^cds/i && $nreads == 1 ) ) {
-      $read_type = "STARE";
-   } elsif ( $readout_mode =~ /^cds/i ) {
-      $read_type = "NDSTARE";
-   }
-   return $read_type;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $read_type;
+  my $readout_mode = $FITS_headers->{READMODE};
+  my $nreads = $FITS_headers->{NUMREADS};
+  if ( $readout_mode =~ /^mndr/i ||
+       ( $readout_mode =~ /^cds/i && $nreads == 1 ) ) {
+    $read_type = "STARE";
+  } elsif ( $readout_mode =~ /^cds/i ) {
+    $read_type = "NDSTARE";
+  }
+  return $read_type;
 }
 
 =item B<to_DR_RECIPE>
@@ -191,21 +189,21 @@ values of the C<OBJECT> and C<OBSTYPE> keywords.  The default is
 # No clue what the recipe is apart for a dark and assume a dither
 # pattern means JITTER_SELF_FLAT.
 sub to_DR_RECIPE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $recipe = "QUICK_LOOK";
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $recipe = "QUICK_LOOK";
 
-# Look for a dither pattern.  These begin D-<n>/<m>: where
-# <m> represents the number of jitter positions in the group
-# and <n> is the number within the group.
-   my $object = $FITS_headers->{OBJECT};
-   if ( $object =~ /D-\d+\/\d+/ ) {
-      $recipe = "JITTER_SELF_FLAT";
-   } elsif ( $FITS_headers->{OBSTYPE} =~ /DARK/i ) {
-      $recipe = "REDUCE_DARK";
-   }
+  # Look for a dither pattern.  These begin D-<n>/<m>: where
+  # <m> represents the number of jitter positions in the group
+  # and <n> is the number within the group.
+  my $object = $FITS_headers->{OBJECT};
+  if ( $object =~ /D-\d+\/\d+/ ) {
+    $recipe = "JITTER_SELF_FLAT";
+  } elsif ( $FITS_headers->{OBSTYPE} =~ /DARK/i ) {
+    $recipe = "REDUCE_DARK";
+  }
 
-   return $recipe;
+  return $recipe;
 }
 
 =item B<to_EQUINOX>
@@ -216,14 +214,14 @@ keyword, if it exists, defaulting to 2000.0 otherwise.
 =cut
 
 sub to_EQUINOX {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $equinox = 2000.0;
-   if ( exists $FITS_headers->{"CAT-EQUI"} ) {
-      $equinox = $FITS_headers->{"CAT-EQUI"};
-      $equinox =~ s/[BJ]//;
-   }
-   return $equinox;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $equinox = 2000.0;
+  if ( exists $FITS_headers->{"CAT-EQUI"} ) {
+    $equinox = $FITS_headers->{"CAT-EQUI"};
+    $equinox =~ s/[BJ]//;
+  }
+  return $equinox;
 }
 
 =item B<to_GAIN>
@@ -234,12 +232,12 @@ the C<GAIN> keyword, with a default of 4.1.
 =cut
 
 sub to_GAIN {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $gain = 4.1;
-   my $subval = $self->via_subheader( $FITS_headers, "GAIN" );
-   $gain = $subval if defined $subval;
-   return $gain;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $gain = 4.1;
+  my $subval = $self->via_subheader( $FITS_headers, "GAIN" );
+  $gain = $subval if defined $subval;
+  return $gain;
 }
 
 =item B<to_NUMBER_OF_OFFSETS>
@@ -251,22 +249,22 @@ The value is derived from the C<OBJECT> keyword, with a default of 6.
 =cut
 
 sub to_NUMBER_OF_OFFSETS {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $noffsets = 5;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $noffsets = 5;
 
-# Look for a dither pattern.  These begin D-<n>/<m>: where
-# <m> represents the number of jitter positions in the group
-# and <n> is the number within the group.
-   my $object = $FITS_headers->{OBJECT};
-   if ( $object =~ /D-\d+\/\d+/ ) {
+  # Look for a dither pattern.  These begin D-<n>/<m>: where
+  # <m> represents the number of jitter positions in the group
+  # and <n> is the number within the group.
+  my $object = $FITS_headers->{OBJECT};
+  if ( $object =~ /D-\d+\/\d+/ ) {
 
-# Extract the string between the solidus and the colon.  Add one
-# to match the UKIRT convention.
-      $noffsets = substr( $object, index( $object, "/" ) + 1 );
-      $noffsets = substr( $noffsets, 0, index( $noffsets, ":" ) );
-   }
-   return $noffsets + 1;
+    # Extract the string between the solidus and the colon.  Add one
+    # to match the UKIRT convention.
+    $noffsets = substr( $object, index( $object, "/" ) + 1 );
+    $noffsets = substr( $noffsets, 0, index( $noffsets, ":" ) );
+  }
+  return $noffsets + 1;
 }
 
 =item B<to_OBJECT>
@@ -276,18 +274,18 @@ Reeturns the object name.  It is extracted from the C<OBJECT> keyword.
 =cut
 
 sub to_OBJECT {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $object = $FITS_headers->{OBJECT};
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $object = $FITS_headers->{OBJECT};
 
-# Look for a dither pattern.  These begin D-<n>/<m>: where
-# <m> represents the number of jitter positions in the group
-# and <n> is the number within the group.  We want to extract
-# the actual object name.
-   if ( $object =~ /D-\d+\/\d+/ ) {
-      $object = substr( $object, index( $object, ":" ) + 2 );
-   }
-   return $object;
+  # Look for a dither pattern.  These begin D-<n>/<m>: where
+  # <m> represents the number of jitter positions in the group
+  # and <n> is the number within the group.  We want to extract
+  # the actual object name.
+  if ( $object =~ /D-\d+\/\d+/ ) {
+    $object = substr( $object, index( $object, ":" ) + 2 );
+  }
+  return $object;
 }
 
 =item B<to_OBSERVATION_TYPE>
@@ -298,13 +296,13 @@ Determines the observation type from the C<OBSTYPE> keyword provided it is
 =cut
 
 sub to_OBSERVATION_TYPE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $obstype = uc( $FITS_headers->{OBSTYPE} );
-   if ( $obstype eq "TARGET" ) {
-      $obstype = "OBJECT";
-   }
-   return $obstype;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $obstype = uc( $FITS_headers->{OBSTYPE} );
+  if ( $obstype eq "TARGET" ) {
+    $obstype = "OBJECT";
+  }
+  return $obstype;
 }
 
 =item B<to_RA_BASE>
@@ -315,14 +313,14 @@ using the C<CAT-RA> keyword, defaulting to 0.0.
 =cut
 
 sub to_RA_BASE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $ra = 0.0;
-   my $sexa = $FITS_headers->{"CAT-RA"};
-   if ( defined( $sexa ) ) {
-      $ra = $self->hms_to_degrees( $sexa );
-   }
-   return $ra;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $ra = 0.0;
+  my $sexa = $FITS_headers->{"CAT-RA"};
+  if ( defined( $sexa ) ) {
+    $ra = $self->hms_to_degrees( $sexa );
+  }
+  return $ra;
 }
 
 =item B<to_RA_SCALE>
@@ -335,18 +333,18 @@ the left.
 =cut
 
 sub to_RA_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $rascale = -0.2387;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $rascale = -0.2387;
 
-# Assumes either x-y scales the same or the x corresponds to right
-# ascension, and right ascension decrements with increasing x. 
-   my $ccdxpixe = $self->via_subheader( $FITS_headers, "CCDXPIXE" );
-   my $ingpscal = $self->via_subheader( $FITS_headers, "INGPSCAL" );
-   if ( defined $ccdxpixe && defined $ingpscal ) {
-      $rascale = $ccdxpixe * -1000.0 * $ingpscal;
-   }
-   return $rascale;
+  # Assumes either x-y scales the same or the x corresponds to right
+  # ascension, and right ascension decrements with increasing x.
+  my $ccdxpixe = $self->via_subheader( $FITS_headers, "CCDXPIXE" );
+  my $ingpscal = $self->via_subheader( $FITS_headers, "INGPSCAL" );
+  if ( defined $ccdxpixe && defined $ingpscal ) {
+    $rascale = $ccdxpixe * -1000.0 * $ingpscal;
+  }
+  return $rascale;
 }
 
 =item B<to_RA_TELESCOPE_OFFSET>
@@ -358,25 +356,25 @@ of these keywords does not exist, it returns a default of 0.0.
 =cut
 
 sub to_RA_TELESCOPE_OFFSET {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $raoffset = 0.0;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $raoffset = 0.0;
 
-   if ( exists $FITS_headers->{"CAT-DEC"} &&
-        exists $FITS_headers->{"CAT-RA"} && exists $FITS_headers->{RA} ) {
+  if ( exists $FITS_headers->{"CAT-DEC"} &&
+       exists $FITS_headers->{"CAT-RA"} && exists $FITS_headers->{RA} ) {
 
-# Obtain the reference and telescope sky positions measured in degrees.
-      my $refra = $self->hms_to_degrees( $FITS_headers->{"CAT-RA"} );
-      my $ra = $self->hms_to_degrees( $FITS_headers->{RA} );
-      my $refdec = $self->dms_to_degrees( $FITS_headers->{"CAT-DEC"} );
+    # Obtain the reference and telescope sky positions measured in degrees.
+    my $refra = $self->hms_to_degrees( $FITS_headers->{"CAT-RA"} );
+    my $ra = $self->hms_to_degrees( $FITS_headers->{RA} );
+    my $refdec = $self->dms_to_degrees( $FITS_headers->{"CAT-DEC"} );
 
-# Find the offset between the positions in arcseconds on the sky.
-      $raoffset = 3600.0 * ( $ra - $refra ) * $self->cosdeg( $refdec );
-   }
+    # Find the offset between the positions in arcseconds on the sky.
+    $raoffset = 3600.0 * ( $ra - $refra ) * $self->cosdeg( $refdec );
+  }
 
-# The sense is reversed compared with UKIRT, as these measure the
-# place son the sky, not the motion of the telescope.
-   return -1.0 * $raoffset;
+  # The sense is reversed compared with UKIRT, as these measure the
+  # place son the sky, not the motion of the telescope.
+  return -1.0 * $raoffset;
 }
 
 =item B<to_ROTATION>
@@ -387,9 +385,9 @@ from north via east.
 =cut
 
 sub to_ROTATION {
-   my $self = shift;
-   my $FITS_headers = shift;
-   return $self->rotation( $FITS_headers );
+  my $self = shift;
+  my $FITS_headers = shift;
+  return $self->rotation( $FITS_headers );
 }
 
 =item B<to_SPEED_GAIN>
@@ -402,16 +400,16 @@ selection depending on the value of the C<CCDSPEED> keyword.
 # Fixed values for the gain depend on the camera (SW or LW), and for LW
 # the readout mode.
 sub to_SPEED_GAIN {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $spd_gain;
-   my $speed = $FITS_headers->{CCDSPEED};
-   if ( $speed =~ /SLOW/ ) {
-      $spd_gain = "Normal";
-   } else {
-      $spd_gain = "HiGain";
-   }
-   return $spd_gain;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $spd_gain;
+  my $speed = $FITS_headers->{CCDSPEED};
+  if ( $speed =~ /SLOW/ ) {
+    $spd_gain = "Normal";
+  } else {
+    $spd_gain = "HiGain";
+  }
+  return $spd_gain;
 }
 
 =item B<to_STANDARD>
@@ -422,14 +420,14 @@ deemed to be a standard when the C<OBSTYPE> keyword is "STANDARD".
 =cut
 
 sub to_STANDARD {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $standard = 0;
-   my $type = $FITS_headers->{OBSTYPE};
-   if ( uc( $type ) eq "STANDARD" ) {
-      $standard = 1;
-   }
-   return $standard;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $standard = 0;
+  my $type = $FITS_headers->{OBSTYPE};
+  if ( uc( $type ) eq "STANDARD" ) {
+    $standard = 1;
+  }
+  return $standard;
 }
 
 =item B<to_UTDATE>
@@ -440,9 +438,9 @@ format in C<DATE-OBS>.
 =cut
 
 sub to_UTDATE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   return $self->get_UT_date( $FITS_headers );
+  my $self = shift;
+  my $FITS_headers = shift;
+  return $self->get_UT_date( $FITS_headers );
 }
 
 =item B<to_UTEND>
@@ -452,12 +450,12 @@ Returns the UT time of the end of the observation as a C<Time::Piece> object.
 =cut
 
 sub to_UTEND {
-   my $self = shift;
-   my $FITS_headers = shift;
+  my $self = shift;
+  my $FITS_headers = shift;
 
-# This is the approximate end UT.
-   my $start = $self->to_UTSTART( $FITS_headers );
-   return $self->_add_seconds( $start, $FITS_headers->{EXPTIME} );
+  # This is the approximate end UT.
+  my $start = $self->to_UTSTART( $FITS_headers );
+  return $self->_add_seconds( $start, $FITS_headers->{EXPTIME} );
 }
 
 =item B<to_UTSTART>
@@ -471,20 +469,20 @@ object.
 =cut
 
 sub to_UTSTART {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $return;
-   if ( exists $FITS_headers->{'DATE-OBS'} ) {
-       my $iso;
-       if ( $FITS_headers->{'DATE-OBS'} =~ /T/ ) {
-           # standard format
-           $iso = $FITS_headers->{'DATE-OBS'};
-       } elsif ( exists $FITS_headers->{UTSTART} ) {           
-           $iso = $FITS_headers->{'DATE-OBS'}. "T" . $FITS_headers->{UTSTART};
-       }
-       $return = $self->_parse_iso_date( $iso ) if $iso;
-   }
-   return $return;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+  if ( exists $FITS_headers->{'DATE-OBS'} ) {
+    my $iso;
+    if ( $FITS_headers->{'DATE-OBS'} =~ /T/ ) {
+      # standard format
+      $iso = $FITS_headers->{'DATE-OBS'};
+    } elsif ( exists $FITS_headers->{UTSTART} ) {
+      $iso = $FITS_headers->{'DATE-OBS'}. "T" . $FITS_headers->{UTSTART};
+    }
+    $return = $self->_parse_iso_date( $iso ) if $iso;
+  }
+  return $return;
 }
 
 =item B<to_X_LOWER_BOUND>
@@ -495,10 +493,10 @@ as a pixel index.
 =cut
 
 sub to_X_LOWER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @bounds = $self->getbounds( $FITS_headers );
-   return $bounds[ 0 ];
+  my $self = shift;
+  my $FITS_headers = shift;
+  my @bounds = $self->getbounds( $FITS_headers );
+  return $bounds[ 0 ];
 }
 
 =item B<to_X_REFERENCE_PIXEL>
@@ -511,16 +509,16 @@ absent, it uses a default which assumes the full array.
 =cut
 
 sub to_X_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $xref;
-   my @bounds = $self->getbounds( $FITS_headers );
-   if ( $bounds[ 0 ] > 1 || $bounds[ 1 ] < 1024 ) {
-      $xref = nint( ( $bounds[ 0 ] + $bounds[ 1 ] ) / 2 );
-   } else {
-      $xref = 512;
-   }
-   return $xref;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $xref;
+  my @bounds = $self->getbounds( $FITS_headers );
+  if ( $bounds[ 0 ] > 1 || $bounds[ 1 ] < 1024 ) {
+    $xref = nint( ( $bounds[ 0 ] + $bounds[ 1 ] ) / 2 );
+  } else {
+    $xref = 512;
+  }
+  return $xref;
 }
 
 =item B<to_X_UPPER_BOUND>
@@ -531,10 +529,10 @@ as a pixel index.
 =cut
 
 sub to_X_UPPER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @bounds = $self->getbounds( $FITS_headers );
-   return $bounds[ 1 ];
+  my $self = shift;
+  my $FITS_headers = shift;
+  my @bounds = $self->getbounds( $FITS_headers );
+  return $bounds[ 1 ];
 }
 
 =item B<to_Y_LOWER_BOUND>
@@ -545,10 +543,10 @@ as a pixel index.
 =cut
 
 sub to_Y_LOWER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @bounds = $self->getbounds( $FITS_headers );
-   return $bounds[ 2 ];
+  my $self = shift;
+  my $FITS_headers = shift;
+  my @bounds = $self->getbounds( $FITS_headers );
+  return $bounds[ 2 ];
 }
 
 =item B<to_Y_REFERENCE_PIXEL>
@@ -561,16 +559,16 @@ absent, it uses a default which assumes the full array.
 =cut
 
 sub to_Y_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $yref;
-   my @bounds = $self->getbounds( $FITS_headers );
-   if ( $bounds[ 2 ] > 1 || $bounds[ 3 ] < 1024 ) {
-      $yref = nint( ( $bounds[ 2 ] + $bounds[ 3 ] ) / 2 );
-   } else {
-      $yref = 512;
-   }
-   return $yref;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $yref;
+  my @bounds = $self->getbounds( $FITS_headers );
+  if ( $bounds[ 2 ] > 1 || $bounds[ 3 ] < 1024 ) {
+    $yref = nint( ( $bounds[ 2 ] + $bounds[ 3 ] ) / 2 );
+  } else {
+    $yref = 512;
+  }
+  return $yref;
 }
 
 =item B<to_Y_UPPER_BOUND>
@@ -581,10 +579,10 @@ as a pixel index.
 =cut
 
 sub to_Y_UPPER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @bounds = $self->getbounds( $FITS_headers );
-   return $bounds[ 3 ];
+  my $self = shift;
+  my $FITS_headers = shift;
+  my @bounds = $self->getbounds( $FITS_headers );
+  return $bounds[ 3 ];
 }
 
 =back
@@ -606,31 +604,31 @@ The argument is the sexagesimal-format angle.
 =cut
 
 sub dms_to_degrees {
-   my $self = shift;
-   my $sexa = shift;
-   my $dms;
-   if ( defined( $sexa ) ) {
-      my @pos = split( /:/, $sexa );
-      $dms = $pos[ 0 ] + $pos[ 1 ] / 60.0 + $pos [ 2 ] / 3600.;
-   }
-   return $dms;
+  my $self = shift;
+  my $sexa = shift;
+  my $dms;
+  if ( defined( $sexa ) ) {
+    my @pos = split( /:/, $sexa );
+    $dms = $pos[ 0 ] + $pos[ 1 ] / 60.0 + $pos [ 2 ] / 3600.;
+  }
+  return $dms;
 }
 
 # Obtain the detector bounds from a section in [xl:xu,yl:yu] syntax.
 # If the RTDATSEC header is absent, use a default which corresponds
 # to the full array.
 sub getbounds{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my @bounds = ( 1, 1024, 1, 1024 );
-   if ( exists $FITS_headers->{RTDATSEC} ) {
-      my $section = $FITS_headers->{RTDATSEC};
-      $section =~ s/\[//;
-      $section =~ s/\]//;
-      $section =~ s/,/:/g;
-      @bounds = split( /:/, $section );
-   }
-   return @bounds;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my @bounds = ( 1, 1024, 1, 1024 );
+  if ( exists $FITS_headers->{RTDATSEC} ) {
+    my $section = $FITS_headers->{RTDATSEC};
+    $section =~ s/\[//;
+    $section =~ s/\]//;
+    $section =~ s/,/:/g;
+    @bounds = split( /:/, $section );
+  }
+  return @bounds;
 }
 
 =item B<get_UT_date>
@@ -641,14 +639,14 @@ ddMmmyy C<DATE-OBS> keyword.
 =cut
 
 sub get_UT_date {
-   my $self = shift;
-   my $FITS_headers = shift;
+  my $self = shift;
+  my $FITS_headers = shift;
 
-# This is UT start and time.
-   my $dateobs = $FITS_headers->{"DATE-OBS"};
+  # This is UT start and time.
+  my $dateobs = $FITS_headers->{"DATE-OBS"};
 
-# Extract out the data in yyyymmdd format.
-   return substr( $dateobs, 0, 4 ) . substr( $dateobs, 5, 2 ) . substr( $dateobs, 8, 2 )
+  # Extract out the data in yyyymmdd format.
+  return substr( $dateobs, 0, 4 ) . substr( $dateobs, 5, 2 ) . substr( $dateobs, 8, 2 )
 }
 
 =item B<hms_to_degrees>
@@ -660,14 +658,14 @@ format angle.
 =cut
 
 sub hms_to_degrees {
-   my $self = shift;
-   my $sexa = shift;
-   my $hms;
-   if ( defined( $sexa ) ) {
-      my @pos = split( /:/, $sexa );
-      $hms = 15.0 * ( $pos[ 0 ] + $pos[ 1 ] / 60.0 + $pos [ 2 ] / 3600. );
-   }
-   return $hms;
+  my $self = shift;
+  my $sexa = shift;
+  my $hms;
+  if ( defined( $sexa ) ) {
+    my @pos = split( /:/, $sexa );
+    $hms = 15.0 * ( $pos[ 0 ] + $pos[ 1 ] / 60.0 + $pos [ 2 ] / 3600. );
+  }
+  return $hms;
 }
 
 =item B<rotation>
@@ -678,14 +676,14 @@ default of 0.0.
 =cut
 
 sub rotation{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $rotangle = 0.0;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $rotangle = 0.0;
 
-   if ( exists $FITS_headers->{ROTSKYPA} ) {
-      $rotangle = $FITS_headers->{ROTSKYPA};
-   }
-   return $rotangle;
+  if ( exists $FITS_headers->{ROTSKYPA} ) {
+    $rotangle = $FITS_headers->{ROTSKYPA};
+  }
+  return $rotangle;
 }
 
 =back

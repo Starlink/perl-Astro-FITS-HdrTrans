@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::UFTI;
 
 =head1 NAME
@@ -44,11 +42,11 @@ my @NULL_MAP = qw/ DETECTOR_INDEX /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-                 # CGS4 + IRCAM
-                 DETECTOR_READ_TYPE   => "MODE",
+                # CGS4 + IRCAM
+                DETECTOR_READ_TYPE   => "MODE",
 
-                 # MICHELLE + IRCAM compatible
-                 SPEED_GAIN           => "SPD_GAIN",
+                # MICHELLE + IRCAM compatible
+                SPEED_GAIN           => "SPD_GAIN",
                );
 
 
@@ -104,43 +102,43 @@ to 'DEC--TAN' indicating that the WCS follows the AIPS convention.
 =cut
 
 sub to_DEC_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
+  my $self = shift;
+  my $FITS_headers = shift;
 
-# Default from 20011115.
-   my $scale = 0.09085;
+  # Default from 20011115.
+  my $scale = 0.09085;
 
-# Note in the raw data these are in arcseconds, not degrees.
-   if ( defined( $FITS_headers->{CDELT2} ) ) {
-      $scale = $FITS_headers->{CDELT2};
+  # Note in the raw data these are in arcseconds, not degrees.
+  if ( defined( $FITS_headers->{CDELT2} ) ) {
+    $scale = $FITS_headers->{CDELT2};
 
-# Allow for missing values using measured scales.
-   } else {
-      my $date = $self->to_UTDATE( $FITS_headers );
-      if ( defined( $date ) ) {
-         if ( $date < 19990701 ) {
-            $scale = 0.09075;
-         } elsif ( $date < 20010401 ) {
-            $scale = 0.09088;
-         } elsif ( $date < 20011115 ) {
-            $scale = 0.09060;
-         }
+    # Allow for missing values using measured scales.
+  } else {
+    my $date = $self->to_UTDATE( $FITS_headers );
+    if ( defined( $date ) ) {
+      if ( $date < 19990701 ) {
+        $scale = 0.09075;
+      } elsif ( $date < 20010401 ) {
+        $scale = 0.09088;
+      } elsif ( $date < 20011115 ) {
+        $scale = 0.09060;
       }
-   }
+    }
+  }
 
-# Allow for D notation, which is not recognised by Perl, so that
-# supplied strings are valid numbers.
-    $scale =~ s/D/E/;
+  # Allow for D notation, which is not recognised by Perl, so that
+  # supplied strings are valid numbers.
+  $scale =~ s/D/E/;
 
-# The CDELTn headers are either part of a WCS in expressed in the
-# AIPS-convention, or the values we require.  Angles for the former
-# are measured in degrees.  The sign of the scale may be negative.
-   if ( defined $FITS_headers->{CTYPE2} &&  
-        $FITS_headers->{CTYPE2} eq "DEC--TAN" &&
-        abs( $scale ) < 1.0E-3 ) {
-      $scale *= 3600.0;
-   }
-    return $scale;
+  # The CDELTn headers are either part of a WCS in expressed in the
+  # AIPS-convention, or the values we require.  Angles for the former
+  # are measured in degrees.  The sign of the scale may be negative.
+  if ( defined $FITS_headers->{CTYPE2} &&
+       $FITS_headers->{CTYPE2} eq "DEC--TAN" &&
+       abs( $scale ) < 1.0E-3 ) {
+    $scale *= 3600.0;
+  }
+  return $scale;
 }
 
 =item B<to_FILE_FORMAT>
@@ -152,11 +150,13 @@ presence of the DHSVER header.
 =cut
 
 sub to_FILE_FORMAT {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $format = "HDS";
-   if ( ! exists( $FITS_headers->{DHSVER} ) ) { $format = "FITS"; }
-   return $format;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $format = "HDS";
+  if ( ! exists( $FITS_headers->{DHSVER} ) ) {
+    $format = "FITS";
+  }
+  return $format;
 }
 
 =item B<to_POLARIMETRY>
@@ -166,14 +166,14 @@ Checks the filter name.
 =cut
 
 sub to_POLARIMETRY {
-   my $self = shift;
-   my $FITS_headers = shift;
-   if ( exists( $FITS_headers->{FILTER} ) &&
-      $FITS_headers->{FILTER} =~ /pol/i ) {
-      return 1;
-   } else {
-      return 0;
-   }
+  my $self = shift;
+  my $FITS_headers = shift;
+  if ( exists( $FITS_headers->{FILTER} ) &&
+       $FITS_headers->{FILTER} =~ /pol/i ) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 =item B<to_RA_BASE>
@@ -193,21 +193,21 @@ formats.
 =cut
 
 sub to_RA_BASE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $return;
-   if ( exists($FITS_headers->{RABASE} ) ) {
-      my $date = $self->to_UTDATE( $FITS_headers );
-      my $format = $self->to_FILE_FORMAT( $FITS_headers );
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+  if ( exists($FITS_headers->{RABASE} ) ) {
+    my $date = $self->to_UTDATE( $FITS_headers );
+    my $format = $self->to_FILE_FORMAT( $FITS_headers );
       
-      if ( defined( $format ) && $format eq "HDS" && 
-           defined( $date ) && $date > 20000507 && $date < 20000720 ) {
-         $return = $FITS_headers->{RABASE};
-      } else {
-         $return = $FITS_headers->{RABASE} * 15;
-      }
-   }
-   return $return;
+    if ( defined( $format ) && $format eq "HDS" &&
+         defined( $date ) && $date > 20000507 && $date < 20000720 ) {
+      $return = $FITS_headers->{RABASE};
+    } else {
+      $return = $FITS_headers->{RABASE} * 15;
+    }
+  }
+  return $return;
 }
 
 =item B<from_RA_BASE>
@@ -227,21 +227,21 @@ units during the problem period.
 =cut
 
 sub from_RA_BASE {
-   my $self = shift;
-   my $generic_headers = shift;
-   my %return_hash;
-   if ( defined( $generic_headers->{RA_BASE} ) ) {
-      my $date = $self->to_UTDATE( $generic_headers );
+  my $self = shift;
+  my $generic_headers = shift;
+  my %return_hash;
+  if ( defined( $generic_headers->{RA_BASE} ) ) {
+    my $date = $self->to_UTDATE( $generic_headers );
 
-      if ( defined( $generic_headers->{FILE_FORMAT} ) && 
-           $generic_headers->{FILE_FORMAT} eq "HDS" &&
-           defined( $date ) && $date > 20000507 && $date < 20000720 ) {
-         $return_hash{'RABASE'} = $generic_headers->{RA_BASE};
-      } else {
-         $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
-      }
-   }
-   return %return_hash;
+    if ( defined( $generic_headers->{FILE_FORMAT} ) && 
+         $generic_headers->{FILE_FORMAT} eq "HDS" &&
+         defined( $date ) && $date > 20000507 && $date < 20000720 ) {
+      $return_hash{'RABASE'} = $generic_headers->{RA_BASE};
+    } else {
+      $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
+    }
+  }
+  return %return_hash;
 }
 
 =item B<to_RA_SCALE>
@@ -261,49 +261,51 @@ to 'RA---TAN' indicating that the WCS follows the AIPS convention.
 =cut
 
 sub to_RA_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
+  my $self = shift;
+  my $FITS_headers = shift;
 
-# Default from 20011115.
-   my $scale = -0.09085;
+  # Default from 20011115.
+  my $scale = -0.09085;
 
-# Note in the raw data these are in arcseconds, not degrees.
-   if ( defined( $FITS_headers->{CDELT1} ) ) {
-      $scale = $FITS_headers->{CDELT1};
+  # Note in the raw data these are in arcseconds, not degrees.
+  if ( defined( $FITS_headers->{CDELT1} ) ) {
+    $scale = $FITS_headers->{CDELT1};
 
-# Allow for missing values using measured scales.
-   } else {
-      my $date = $self->to_UTDATE( $FITS_headers );
-      if ( defined( $date ) ) {
-         if ( $date < 19990701 ) {
-            $scale = -0.09075;
-         } elsif ( $date < 20010401 ) {
-            $scale = -0.09088;
-         } elsif ( $date < 20011115 ) {
-            $scale = -0.09060;
-         }
+    # Allow for missing values using measured scales.
+  } else {
+    my $date = $self->to_UTDATE( $FITS_headers );
+    if ( defined( $date ) ) {
+      if ( $date < 19990701 ) {
+        $scale = -0.09075;
+      } elsif ( $date < 20010401 ) {
+        $scale = -0.09088;
+      } elsif ( $date < 20011115 ) {
+        $scale = -0.09060;
       }
-   }
+    }
+  }
 
-# Allow for D notation, which is not recognised by Perl, so that
-# supplied strings are valid numbers.
-    $scale =~ s/D/E/;
+  # Allow for D notation, which is not recognised by Perl, so that
+  # supplied strings are valid numbers.
+  $scale =~ s/D/E/;
 
-# Correct the RA scale.  The RA scale originates from the erroneous
-# positive CDELT1.  Reverse the sign to give the correct increment 
-# per pixel.
-   if ( $scale > 0.0 ) { $scale *= -1.0; }
+  # Correct the RA scale.  The RA scale originates from the erroneous
+  # positive CDELT1.  Reverse the sign to give the correct increment
+  # per pixel.
+  if ( $scale > 0.0 ) {
+    $scale *= -1.0;
+  }
 
-# The CDELTn headers are either part of a WCS in expressed in the
-# AIPS-convention, or the values we require.  Angles for the former
-# are measured in degrees.  The sign of the scale may be negative.
-   if ( defined $FITS_headers->{CTYPE1} &&  
-        $FITS_headers->{CTYPE1} eq "RA---TAN" &&
-        abs( $scale ) < 1.0E-3 ) {
-      $scale *= 3600.0;
-   }
+  # The CDELTn headers are either part of a WCS in expressed in the
+  # AIPS-convention, or the values we require.  Angles for the former
+  # are measured in degrees.  The sign of the scale may be negative.
+  if ( defined $FITS_headers->{CTYPE1} &&
+       $FITS_headers->{CTYPE1} eq "RA---TAN" &&
+       abs( $scale ) < 1.0E-3 ) {
+    $scale *= 3600.0;
+  }
 
-   return $scale;
+  return $scale;
 }
 
 =item B<from_RA_SCALE>
@@ -319,13 +321,13 @@ generic and back to FITS to retain the original value.
 =cut
 
 sub from_RA_SCALE {
-   my $self = shift;
-   my $generic_headers = shift;
-   my %return_hash;
-   if ( defined( $generic_headers->{RA_SCALE} ) ) {
-      $return_hash{'CDELT1'} = -1.0 * $generic_headers->{RA_SCALE};
-   }
-   return %return_hash;
+  my $self = shift;
+  my $generic_headers = shift;
+  my %return_hash;
+  if ( defined( $generic_headers->{RA_SCALE} ) ) {
+    $return_hash{'CDELT1'} = -1.0 * $generic_headers->{RA_SCALE};
+  }
+  return %return_hash;
 }
 
 =item B<to_UTDATE>
@@ -337,24 +339,24 @@ header item and the formatting of the DATE keyword is not an integer.
 =cut
 
 sub to_UTDATE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $return;
-   if ( exists( $FITS_headers->{DATE} ) ) {
-      my $utdate = $FITS_headers->{DATE};
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+  if ( exists( $FITS_headers->{DATE} ) ) {
+    my $utdate = $FITS_headers->{DATE};
 
-# This is a kludge to work with old data which has multiple values of
-# the DATE keyword with the last value being blank (these were early
-# UFTI data).  Return the first value, since the last value can be
-# blank.
-      if ( ref( $utdate ) eq 'ARRAY' ) {
-         $utdate = $utdate->[0];
-      }
-      $return = Time::Piece->strptime( $utdate, "%Y-%m-%d" );
-      $return = $return->strftime( '%Y%m%d' );
-   }
+    # This is a kludge to work with old data which has multiple values of
+    # the DATE keyword with the last value being blank (these were early
+    # UFTI data).  Return the first value, since the last value can be
+    # blank.
+    if ( ref( $utdate ) eq 'ARRAY' ) {
+      $utdate = $utdate->[0];
+    }
+    $return = Time::Piece->strptime( $utdate, "%Y-%m-%d" );
+    $return = $return->strftime( '%Y%m%d' );
+  }
 
-   return $return;
+  return $return;
 }
 
 =item B<from_UTDATE>
@@ -366,17 +368,17 @@ C<DATE> rather than C<UTDATE> header item.
 =cut
 
 sub from_UTDATE {
-   my $self = shift;
-   my $generic_headers = shift;
-   my %return_hash;
-   if ( exists( $generic_headers->{UTDATE} ) ) {
-      my $date = $generic_headers->{UTDATE};
-      $date = Time::Piece->strptime( $date,'%Y%m%d' );
-      return () unless defined $date;
-      $return_hash{DATE} = sprintf( "%04d-%02d-%02d", 
-                                    $date->year, $date->mon, $date->mday );
-   }
-   return %return_hash;
+  my $self = shift;
+  my $generic_headers = shift;
+  my %return_hash;
+  if ( exists( $generic_headers->{UTDATE} ) ) {
+    my $date = $generic_headers->{UTDATE};
+    $date = Time::Piece->strptime( $date,'%Y%m%d' );
+    return () unless defined $date;
+    $return_hash{DATE} = sprintf( "%04d-%02d-%02d",
+                                  $date->year, $date->mon, $date->mday );
+  }
+  return %return_hash;
 }
 
 =item B<to_UTEND>
@@ -387,19 +389,21 @@ Allows for blank C<DATE-END> string present in early UFTI data.
 =cut
 
 sub to_UTEND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $dateend = ( exists $FITS_headers->{"DATE-END"} ?
-                   $FITS_headers->{"DATE-END"} : undef );
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $dateend = ( exists $FITS_headers->{"DATE-END"} ?
+                  $FITS_headers->{"DATE-END"} : undef );
 
-# Some early data had blank DATE-OBS strings.
-   if ( defined( $dateend ) && $dateend !~ /\d/ ) { $dateend = undef; }
+  # Some early data had blank DATE-OBS strings.
+  if ( defined( $dateend ) && $dateend !~ /\d/ ) {
+    $dateend = undef;
+  }
 
-   my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTEND" );
-   my $utend = $rutend[-1];
-   return $self->_parse_date_info( $dateend,
-                                   $self->to_UTDATE( $FITS_headers ),
-                                   $utend );
+  my @rutend = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTEND" );
+  my $utend = $rutend[-1];
+  return $self->_parse_date_info( $dateend,
+                                  $self->to_UTDATE( $FITS_headers ),
+                                  $utend );
 }
 
 =item B<to_UTSTART>
@@ -410,19 +414,21 @@ Allows for blank C<DATE-OBS> string present in early UFTI data.
 =cut
 
 sub to_UTSTART {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $dateobs = ( exists $FITS_headers->{"DATE-OBS"} ?
-                   $FITS_headers->{"DATE-OBS"} : undef );
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $dateobs = ( exists $FITS_headers->{"DATE-OBS"} ?
+                  $FITS_headers->{"DATE-OBS"} : undef );
 
-# Some early data had blank DATE-OBS strings.
-   if ( defined( $dateobs ) && $dateobs !~ /\d/ ) { $dateobs = undef; }
+  # Some early data had blank DATE-OBS strings.
+  if ( defined( $dateobs ) && $dateobs !~ /\d/ ) {
+    $dateobs = undef;
+  }
 
-   my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTSTART" );
-   my $utstart = $rutstart[0];
-   return $self->_parse_date_info( $dateobs,
-                                   $self->to_UTDATE( $FITS_headers ),
-                                   $utstart );
+  my @rutstart = sort {$a<=>$b} $self->via_subheader( $FITS_headers, "UTSTART" );
+  my $utstart = $rutstart[0];
+  return $self->_parse_date_info( $dateobs,
+                                  $self->to_UTDATE( $FITS_headers ),
+                                  $utstart );
 }
 
 
@@ -435,37 +441,37 @@ polarimetry using a Wollaston prism.
 =cut
 
 sub to_X_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $xref;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $xref;
 
-# Use the average of the bounds to define the centre and dimension.
-   if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
-      my $xl = $FITS_headers->{RDOUT_X1};
-      my $xu = $FITS_headers->{RDOUT_X2};
-      my $xdim = $xu - $xl + 1;
-      my $xmid = $self->nint( ( $xl + $xu ) / 2 );
+  # Use the average of the bounds to define the centre and dimension.
+  if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
+    my $xl = $FITS_headers->{RDOUT_X1};
+    my $xu = $FITS_headers->{RDOUT_X2};
+    my $xdim = $xu - $xl + 1;
+    my $xmid = $self->nint( ( $xl + $xu ) / 2 );
 
-# UFTI is at the centre for a sub-array along an axis but offset slightly
-# for a sub-array to avoid the joins between the four sub-array sections
-# of the frame.  Ideally these should come through the headers...
-      if ( $xdim == 1024 ) {
-         $xref = $xmid + 20;
-      } else {
-         $xref = $xmid;
-      }
+    # UFTI is at the centre for a sub-array along an axis but offset slightly
+    # for a sub-array to avoid the joins between the four sub-array sections
+    # of the frame.  Ideally these should come through the headers...
+    if ( $xdim == 1024 ) {
+      $xref = $xmid + 20;
+    } else {
+      $xref = $xmid;
+    }
 
-# Correct for IRPOL beam splitting with a 6" E offset.
-      if ( $FITS_headers->{FILTER} =~ m/pol/ ) {
-         $xref -= 65.5;
-      }
+    # Correct for IRPOL beam splitting with a 6" E offset.
+    if ( $FITS_headers->{FILTER} =~ m/pol/ ) {
+      $xref -= 65.5;
+    }
 
-# Use a default which assumes the full array (slightly offset from the
-# centre).
-   } else {
-      $xref = 533;
-   }
-   return $xref;
+    # Use a default which assumes the full array (slightly offset from the
+    # centre).
+  } else {
+    $xref = 533;
+  }
+  return $xref;
 }
 
 =item B<from_X_REFERENCE_PIXEL>
@@ -475,7 +481,7 @@ Always returns CRPIX1 of "0.5".
 =cut
 
 sub from_X_REFERENCE_PIXEL {
-   return ( "CRPIX1" => 0.5 );
+  return ( "CRPIX1" => 0.5 );
 }
 
 =item B<to_Y_REFERENCE_PIXEL>
@@ -487,37 +493,37 @@ polarimetry using a Wollaston prism.
 =cut
 
 sub to_Y_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $yref;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $yref;
 
-# Use the average of the bounds to define the centre and dimension.
-   if ( exists $FITS_headers->{RDOUT_Y1} && exists $FITS_headers->{RDOUT_Y2} ) {
-      my $yl = $FITS_headers->{RDOUT_Y1};
-      my $yu = $FITS_headers->{RDOUT_Y2};
-      my $ydim = $yu - $yl + 1;
-      my $ymid = $self->nint( ( $yl + $yu ) / 2 );
+  # Use the average of the bounds to define the centre and dimension.
+  if ( exists $FITS_headers->{RDOUT_Y1} && exists $FITS_headers->{RDOUT_Y2} ) {
+    my $yl = $FITS_headers->{RDOUT_Y1};
+    my $yu = $FITS_headers->{RDOUT_Y2};
+    my $ydim = $yu - $yl + 1;
+    my $ymid = $self->nint( ( $yl + $yu ) / 2 );
 
-# UFTI is at the centre for a sub-array along an axis but offset slightly
-# for a sub-array to avoid the joins between the four sub-array sections
-# of the frame.  Ideally these should come through the headers...
-      if ( $ydim == 1024 ) {
-         $yref = $ymid - 25;
-      } else {
-         $yref = $ymid;
-      }
+    # UFTI is at the centre for a sub-array along an axis but offset slightly
+    # for a sub-array to avoid the joins between the four sub-array sections
+    # of the frame.  Ideally these should come through the headers...
+    if ( $ydim == 1024 ) {
+      $yref = $ymid - 25;
+    } else {
+      $yref = $ymid;
+    }
 
-# Correct for IRPOL beam splitting with a " N offset.
-      if ( $FITS_headers->{FILTER} =~ m/pol/ ) {
-         $yref += 253;
-      }
+    # Correct for IRPOL beam splitting with a " N offset.
+    if ( $FITS_headers->{FILTER} =~ m/pol/ ) {
+      $yref += 253;
+    }
 
-# Use a default which assumes the full array (slightly offset from the
-# centre).
-   } else {
-      $yref = 488;
-   }
-   return $yref;
+    # Use a default which assumes the full array (slightly offset from the
+    # centre).
+  } else {
+    $yref = 488;
+  }
+  return $yref;
 }
 
 =item B<from_X_REFERENCE_PIXEL>
@@ -527,7 +533,7 @@ Always returns CRPIX2 of "0.5".
 =cut
 
 sub from_Y_REFERENCE_PIXEL {
-   return ( "CRPIX2" => 0.5 );
+  return ( "CRPIX2" => 0.5 );
 }
 
 

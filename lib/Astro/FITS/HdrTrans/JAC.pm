@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::JAC;
 
 =head1 NAME
@@ -49,9 +47,9 @@ my %CONST_MAP = (
 # to the output with only a keyword name change.
 
 my %UNIT_MAP = (
-    MSBID              => 'MSBID',
-    MSB_TRANSACTION_ID => 'MSBTID',
-    );
+                MSBID              => 'MSBID',
+                MSB_TRANSACTION_ID => 'MSBTID',
+               );
 
 # Create the translation methods.
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
@@ -79,30 +77,30 @@ JSA/ANA/001 (http://docs.jach.hawaii.edu/JCMT/JSA/ANA/001/jsa_ana_001.pdf).
 =cut
 
 sub to_OBSERVATION_ID {
-   my $self = shift;
-   my $FITS_headers = shift;
+  my $self = shift;
+  my $FITS_headers = shift;
 
-   my $return;
-   if ( exists( $FITS_headers->{'OBSID'} ) &&
-        defined( $FITS_headers->{'OBSID'} ) ) {
-      $return = $FITS_headers->{'OBSID'};
-   } else {
+  my $return;
+  if ( exists( $FITS_headers->{'OBSID'} ) &&
+       defined( $FITS_headers->{'OBSID'} ) ) {
+    $return = $FITS_headers->{'OBSID'};
+  } else {
 
-      my $instrume = lc( $self->to_INSTRUMENT( $FITS_headers ) );
-      my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
-      my $dateobs = $self->to_UTSTART( $FITS_headers );
+    my $instrume = lc( $self->to_INSTRUMENT( $FITS_headers ) );
+    my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
+    my $dateobs = $self->to_UTSTART( $FITS_headers );
 
-      my $datetime;
-      if ( defined $dateobs ) {
-         $datetime = $dateobs->datetime;
-         $datetime =~ s/-//g;
-         $datetime =~ s/://g;
+    my $datetime;
+    if ( defined $dateobs ) {
+      $datetime = $dateobs->datetime;
+      $datetime =~ s/-//g;
+      $datetime =~ s/://g;
 
-         $return = join '_', $instrume, $obsnum, $datetime;
-      }
-   }
+      $return = join '_', $instrume, $obsnum, $datetime;
+    }
+  }
 
-   return $return;
+  return $return;
 
 }
 

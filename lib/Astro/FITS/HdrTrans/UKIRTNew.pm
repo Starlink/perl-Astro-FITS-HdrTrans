@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::UKIRTNew;
 
 =head1 NAME
@@ -40,12 +38,12 @@ my %CONST_MAP = (
 # Unit mapping implies that the value propogates directly
 # to the output with only a keyword name change.
 my %UNIT_MAP = (
-                 DEC_TELESCOPE_OFFSET => "TDECOFF",
-                 DR_RECIPE            => "RECIPE",
-                 EXPOSURE_TIME        => "EXP_TIME",
-                 GAIN                 => "GAIN",
-                 RA_TELESCOPE_OFFSET  => "TRAOFF",
-                 UTDATE               => "UTDATE",
+                DEC_TELESCOPE_OFFSET => "TDECOFF",
+                DR_RECIPE            => "RECIPE",
+                EXPOSURE_TIME        => "EXP_TIME",
+                GAIN                 => "GAIN",
+                RA_TELESCOPE_OFFSET  => "TRAOFF",
+                UTDATE               => "UTDATE",
                );
 
 # Create the translation methods.
@@ -69,17 +67,17 @@ Sets the instrument data-handling-system header.
 =cut
 
 sub to_INST_DHS {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $return;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
 
-   if ( exists( $FITS_headers->{DHSVER} ) ) {
-      $FITS_headers->{DHSVER} =~ /^(\w+)/;
-      my $dhs = uc( $1 );
-      $return = $FITS_headers->{INSTRUME} . "_$dhs";
-   }
+  if ( exists( $FITS_headers->{DHSVER} ) ) {
+    $FITS_headers->{DHSVER} =~ /^(\w+)/;
+    my $dhs = uc( $1 );
+    $return = $FITS_headers->{INSTRUME} . "_$dhs";
+  }
 
-   return $return;
+  return $return;
 }
 
 =item B<to_UTSTART>
@@ -108,22 +106,22 @@ YYYY-MM-DDThh:mm:ss.
 =cut
 
 sub from_UTSTART {
-   my $self = shift;
-   my $generic_headers = shift;
+  my $self = shift;
+  my $generic_headers = shift;
 
-# Use the FITS standard parser.
-   my %return_hash = Astro::FITS::HdrTrans::FITS->from_UTSTART( $generic_headers );
+  # Use the FITS standard parser.
+  my %return_hash = Astro::FITS::HdrTrans::FITS->from_UTSTART( $generic_headers );
 
-   if ( exists $return_hash{'DATE-OBS'} ) {
+  if ( exists $return_hash{'DATE-OBS'} ) {
 
-# Prior to April 2005 the UKIRT FITS headers had a trailing Z.
-# This is part of the ISO8601 standard but not part of the FITS 
-# standard (which always assumes UTC), although it was in the 
-# draft FITS agreement.
-      $return_hash{'DATE-OBS'} .= "Z"
+    # Prior to April 2005 the UKIRT FITS headers had a trailing Z.
+    # This is part of the ISO8601 standard but not part of the FITS
+    # standard (which always assumes UTC), although it was in the
+    # draft FITS agreement.
+    $return_hash{'DATE-OBS'} .= "Z"
       if $generic_headers->{UTSTART}->epoch < 1112662116;
-   }
-   return %return_hash;
+  }
+  return %return_hash;
 }
 
 =item B<to_UTEND>
@@ -153,22 +151,22 @@ YYYY-MM-DDThh:mm:ss.
 =cut
 
 sub from_UTEND {
-   my $self = shift;
-   my $generic_headers = shift;
+  my $self = shift;
+  my $generic_headers = shift;
 
-# Use the FITS standard parser.
-   my %return_hash = Astro::FITS::HdrTrans::FITS->from_UTEND( $generic_headers);
+  # Use the FITS standard parser.
+  my %return_hash = Astro::FITS::HdrTrans::FITS->from_UTEND( $generic_headers);
 
-   if ( exists $return_hash{'DATE-END'} ) {
+  if ( exists $return_hash{'DATE-END'} ) {
 
-# Prior to April 2005 the UKIRT FITS headers had a trailing Z.
-# This is part of the ISO8601 standard but not part of the FITS 
-# standard (which always assumes UTC), although it was in the 
-# draft FITS agreement.
-      $return_hash{'DATE-END'} .= "Z"
+    # Prior to April 2005 the UKIRT FITS headers had a trailing Z.
+    # This is part of the ISO8601 standard but not part of the FITS
+    # standard (which always assumes UTC), although it was in the
+    # draft FITS agreement.
+    $return_hash{'DATE-END'} .= "Z"
       if $generic_headers->{UTEND}->epoch < 1112662116;
-   }
-   return %return_hash;
+  }
+  return %return_hash;
 }
 
 =back

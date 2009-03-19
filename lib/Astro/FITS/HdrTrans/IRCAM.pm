@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::IRCAM;
 
 =head1 NAME
@@ -47,19 +45,19 @@ my %CONST_MAP = (
 # at comments.
 
 my %UNIT_MAP = (
-		 AIRMASS_START        => 'AMSTART',
-                 # IRCAM Specific
-                 OBSERVATION_NUMBER   => 'RUN', # cf. OBSNUM
-                 DEC_TELESCOPE_OFFSET => 'DECOFF',
-                 DETECTOR_BIAS        => 'DET_BIAS',
-                 RA_TELESCOPE_OFFSET  => 'RAOFF',
+                AIRMASS_START        => 'AMSTART',
+                # IRCAM Specific
+                OBSERVATION_NUMBER   => 'RUN', # cf. OBSNUM
+                DEC_TELESCOPE_OFFSET => 'DECOFF',
+                DETECTOR_BIAS        => 'DET_BIAS',
+                RA_TELESCOPE_OFFSET  => 'RAOFF',
                );
 
 # END observation unit maps
 my %ENDOBS_MAP = (
-		  AIRMASS_END         => 'AMEND',
-		  NUMBER_OF_EXPOSURES => 'NEXP', # need it from the last subheader
-		  );
+                  AIRMASS_END         => 'AMEND',
+                  NUMBER_OF_EXPOSURES => 'NEXP', # need it from the last subheader
+                 );
 
 # Create the translation methods
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, undef, \%ENDOBS_MAP );
@@ -84,7 +82,7 @@ Returns a pattern match for /^IRCAM\d?/".
 =cut
 
 sub this_instrument {
-   return qr/^IRCAM\d?/i;
+  return qr/^IRCAM\d?/i;
 }
 
 =back
@@ -103,39 +101,41 @@ arcseconds for older data.  The value will always be positive.
 =cut
 
 sub to_DEC_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $scale;
-   my $pixelsiz = $FITS_headers->{PIXELSIZ};
-   my $ctype2 = $FITS_headers->{CTYPE2};
-   my $cdelt2 = $FITS_headers->{CDELT2};
-   my $utdate = $self->to_UTDATE( $FITS_headers );
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $scale;
+  my $pixelsiz = $FITS_headers->{PIXELSIZ};
+  my $ctype2 = $FITS_headers->{CTYPE2};
+  my $cdelt2 = $FITS_headers->{CDELT2};
+  my $utdate = $self->to_UTDATE( $FITS_headers );
 
-# The CDELTn headers may be part of a WCS in expressed in the AIPS-convention 
-# measured in degrees (but protect against cases where it may have been in 
-# arcsec). 
-    if ( defined( $cdelt2 ) && defined( $ctype2 ) && $ctype2 eq "DEC--TAN" ) { 
-      $scale = $cdelt2;
-      if ( abs( $scale ) < 1.0E-3 ) { $scale *= 3600.0; }
-   } else {
-      $scale = $pixelsiz;
-   }
+  # The CDELTn headers may be part of a WCS in expressed in the AIPS-convention
+  # measured in degrees (but protect against cases where it may have been in
+  # arcsec).
+  if ( defined( $cdelt2 ) && defined( $ctype2 ) && $ctype2 eq "DEC--TAN" ) {
+    $scale = $cdelt2;
+    if ( abs( $scale ) < 1.0E-3 ) {
+      $scale *= 3600.0;
+    }
+  } else {
+    $scale = $pixelsiz;
+  }
 
-# Use the default scales.  The first IRCAM scale did vary with time,
-# but the information is no longer on the UKIRT web site.
-   if ( ! defined( $scale ) ) {
-      if ( $utdate > 19990901 ) {
-         $scale = 0.08144;
-      } else {
-         $scale = 0.286;
-      }
-   }
+  # Use the default scales.  The first IRCAM scale did vary with time,
+  # but the information is no longer on the UKIRT web site.
+  if ( ! defined( $scale ) ) {
+    if ( $utdate > 19990901 ) {
+      $scale = 0.08144;
+    } else {
+      $scale = 0.286;
+    }
+  }
 
-# Headers may be in scientific notation, but with a 'D' instead of
-# an 'E'.  Translate to an 'E' so Perl doesn't fall over.
-   $scale =~ s/D/E/;
+  # Headers may be in scientific notation, but with a 'D' instead of
+  # an 'E'.  Translate to an 'E' so Perl doesn't fall over.
+  $scale =~ s/D/E/;
 
-   return abs( $scale );
+  return abs( $scale );
 }
 
 =item B<from_DEC_SCALE>
@@ -147,12 +147,12 @@ always be positive.
 =cut
 
 sub from_DEC_SCALE {
-   my $self = shift;
-   my $generic_headers = shift;
-   my $scale = abs( $generic_headers->{DEC_SCALE} );
+  my $self = shift;
+  my $generic_headers = shift;
+  my $scale = abs( $generic_headers->{DEC_SCALE} );
 
-# Need to find way to allow for new and old headers with differing units.
-   return ( "PIXELSIZ", $scale );
+  # Need to find way to allow for new and old headers with differing units.
+  return ( "PIXELSIZ", $scale );
 }
 
 =item B<to_POLARIMETRY>
@@ -162,14 +162,14 @@ Checks the filter name.
 =cut
 
 sub to_POLARIMETRY {
-   my $self = shift;
-   my $FITS_headers = shift;
-   if ( exists( $FITS_headers->{FILTER} ) &&
-      $FITS_headers->{FILTER} =~ /pol/i ) {
-      return 1;
-   } else {
-      return 0;
-   }
+  my $self = shift;
+  my $FITS_headers = shift;
+  if ( exists( $FITS_headers->{FILTER} ) &&
+       $FITS_headers->{FILTER} =~ /pol/i ) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 =item B<to_RA_SCALE>
@@ -182,42 +182,46 @@ arcseconds for older data.  The value will always be negative.
 =cut
 
 sub to_RA_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $scale;
-   my $pixelsiz = $FITS_headers->{PIXELSIZ};
-   my $ctype1 = $FITS_headers->{CTYPE1};
-   my $cdelt1 = $FITS_headers->{CDELT1};
-   my $utdate = $self->to_UTDATE( $FITS_headers );
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $scale;
+  my $pixelsiz = $FITS_headers->{PIXELSIZ};
+  my $ctype1 = $FITS_headers->{CTYPE1};
+  my $cdelt1 = $FITS_headers->{CDELT1};
+  my $utdate = $self->to_UTDATE( $FITS_headers );
 
-# The CDELTn headers may be part of a WCS in expressed in the AIPS-convention 
-# measured in degrees (but protect against cases where it may have been in 
-# arcsec).  
-    if ( defined( $cdelt1 ) && defined( $ctype1 ) && $ctype1 eq "RA---TAN" ) { 
-      $scale = $cdelt1;
-      if ( abs( $scale ) < 1.0E-3 ) { $scale *= 3600.0; }
-   } else {
-      $scale = $pixelsiz;
-   }
+  # The CDELTn headers may be part of a WCS in expressed in the AIPS-convention
+  # measured in degrees (but protect against cases where it may have been in
+  # arcsec).
+  if ( defined( $cdelt1 ) && defined( $ctype1 ) && $ctype1 eq "RA---TAN" ) {
+    $scale = $cdelt1;
+    if ( abs( $scale ) < 1.0E-3 ) {
+      $scale *= 3600.0;
+    }
+  } else {
+    $scale = $pixelsiz;
+  }
 
-# Use the default scales.  The first IRCAM scale did vary with time,
-# but the information is no longer on the UKIRT web site.
-   if ( ! defined( $scale ) ) {
-      if ( $utdate > 19990901 ) {
-         $scale = -0.08144;
-      } else {
-         $scale = -0.286;
-      }
-   }
+  # Use the default scales.  The first IRCAM scale did vary with time,
+  # but the information is no longer on the UKIRT web site.
+  if ( ! defined( $scale ) ) {
+    if ( $utdate > 19990901 ) {
+      $scale = -0.08144;
+    } else {
+      $scale = -0.286;
+    }
+  }
 
-# Headers may be in scientific notation, but with a 'D' instead of
-# an 'E'.  Translate to an 'E' so Perl doesn't fall over.
-   $scale =~ s/D/E/;
+  # Headers may be in scientific notation, but with a 'D' instead of
+  # an 'E'.  Translate to an 'E' so Perl doesn't fall over.
+  $scale =~ s/D/E/;
 
-# Correct erroneous positive RA scale in some headers.
-   if ( $scale > 0.0 ) { $scale *= -1.0 }
+  # Correct erroneous positive RA scale in some headers.
+  if ( $scale > 0.0 ) {
+    $scale *= -1.0;
+  }
 
-   return $scale;
+  return $scale;
 }
 
 =item B<from_RA_SCALE>
@@ -229,12 +233,12 @@ always be negative.
 =cut
 
 sub from_RA_SCALE {
-   my $self = shift;
-   my $generic_headers = shift;
-   my $scale = abs( $generic_headers->{RA_SCALE} );
+  my $self = shift;
+  my $generic_headers = shift;
+  my $scale = abs( $generic_headers->{RA_SCALE} );
 
-# Need to find way to allow for new and old headers with differing units.
-   return ( "PIXELSIZ", $scale );
+  # Need to find way to allow for new and old headers with differing units.
+  return ( "PIXELSIZ", $scale );
 }
 
 
@@ -248,21 +252,21 @@ then the SPEED_GAIN is Standard.  Otherwise, it is Deepwell.
 =cut
 
 sub to_SPEED_GAIN {
-   my $self = shift;
-   my $FITS_headers = shift;
+  my $self = shift;
+  my $FITS_headers = shift;
 
-   my $return;
-   if ( defined( $FITS_headers->{SPD_GAIN} ) ) {
-      $return = $FITS_headers->{SPD_GAIN};
-   } else {
-      my $detector_bias = $self->to_DETECTOR_BIAS( $FITS_headers );
-      if ( $detector_bias > 0.61 && $detector_bias < 0.63 ) {
-         $return = "Standard";
-      } else {
-         $return = "Deepwell";
-      }
-   }
-   return $return;
+  my $return;
+  if ( defined( $FITS_headers->{SPD_GAIN} ) ) {
+    $return = $FITS_headers->{SPD_GAIN};
+  } else {
+    my $detector_bias = $self->to_DETECTOR_BIAS( $FITS_headers );
+    if ( $detector_bias > 0.61 && $detector_bias < 0.63 ) {
+      $return = "Standard";
+    } else {
+      $return = "Deepwell";
+    }
+  }
+  return $return;
 }
 
 =item B<from_SPEED_GAIN>
@@ -275,9 +279,9 @@ November 22.
 =cut
 
 sub from_SPEED_GAIN {
-   my $self = shift;
-   my $generic_headers = shift;
-   return( "SPD_GAIN", $generic_headers->{"SPEED_GAIN"} )
+  my $self = shift;
+  my $generic_headers = shift;
+  return( "SPD_GAIN", $generic_headers->{"SPEED_GAIN"} )
 }
 
 =item B<from_TELESCOPE>
@@ -292,7 +296,7 @@ sub from_TELESCOPE {
   my $self = shift;
   my $generic_headers = shift;
   my $utdate = $generic_headers->{'UTDATE'};
-  if( $utdate < 20000607 ) {
+  if ( $utdate < 20000607 ) {
     return( "TELESCOP", "UKIRT, Mauna Kea, HI" );
   } else {
     return( "TELESCOP", "UKIRT,Mauna_Kea,HI" );
@@ -307,21 +311,21 @@ Note that offsets for polarimetry are undefined.
 =cut
 
 sub to_X_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $xref;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $xref;
 
-# Use the average of the bounds to define the centre.
-   if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
-       my $xl = $FITS_headers->{RDOUT_X1};
-       my $xu = $FITS_headers->{RDOUT_X2};
-       $xref = $self->nint( ( $xl + $xu ) / 2 );
+  # Use the average of the bounds to define the centre.
+  if ( exists $FITS_headers->{RDOUT_X1} && exists $FITS_headers->{RDOUT_X2} ) {
+    my $xl = $FITS_headers->{RDOUT_X1};
+    my $xu = $FITS_headers->{RDOUT_X2};
+    $xref = $self->nint( ( $xl + $xu ) / 2 );
 
-# Use a default of the centre of the full array.
-   } else {
-      $xref = 129;
-   }
-   return $xref;
+    # Use a default of the centre of the full array.
+  } else {
+    $xref = 129;
+  }
+  return $xref;
 }
 
 =item B<from_X_REFERENCE_PIXEL>
@@ -331,9 +335,9 @@ Returns CRPIX1.
 =cut
 
 sub from_X_REFERENCE_PIXEL {
-   my $self = shift;
-   my $generic_headers = shift;
-   return ( "CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"} );
+  my $self = shift;
+  my $generic_headers = shift;
+  return ( "CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"} );
 }
 
 =item B<to_Y_REFERENCE_PIXEL>
@@ -344,21 +348,21 @@ Note that offsets for polarimetry are undefined.
 =cut
 
 sub to_Y_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $yref;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $yref;
 
-# Use the average of the bounds to define the centre.
-   if ( exists $FITS_headers->{RDOUT_Y1} && exists $FITS_headers->{RDOUT_Y2} ) {
-      my $yl = $FITS_headers->{RDOUT_Y1};
-      my $yu = $FITS_headers->{RDOUT_Y2};
-      $yref = $self->nint( ( $yl + $yu ) / 2 );
+  # Use the average of the bounds to define the centre.
+  if ( exists $FITS_headers->{RDOUT_Y1} && exists $FITS_headers->{RDOUT_Y2} ) {
+    my $yl = $FITS_headers->{RDOUT_Y1};
+    my $yu = $FITS_headers->{RDOUT_Y2};
+    $yref = $self->nint( ( $yl + $yu ) / 2 );
 
-# Use a default of the centre of the full array.
-   } else {
-      $yref = 129;
-   }
-   return $yref;
+    # Use a default of the centre of the full array.
+  } else {
+    $yref = 129;
+  }
+  return $yref;
 }
 
 =item B<from_X_REFERENCE_PIXEL>
@@ -368,9 +372,9 @@ Returns CRPIX2.
 =cut
 
 sub from_Y_REFERENCE_PIXEL {
-   my $self = shift;
-   my $generic_headers = shift;
-   return ( "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"} );
+  my $self = shift;
+  my $generic_headers = shift;
+  return ( "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"} );
 }
 
 =back

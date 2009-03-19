@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::CGS4New;
 
 =head1 NAME
@@ -78,19 +76,19 @@ sub can_translate {
   my $self = shift;
   my $headers = shift;
 
-  if( exists( $headers->{INSTRUME} ) &&
-      uc( $headers->{INSTRUME} ) eq 'CGS4' &&
-      exists( $headers->{DHSVER} ) &&
-      uc( $headers->{DHSVER} ) eq 'UKDHS 2008 DEC. 1' ) {
+  if ( exists( $headers->{INSTRUME} ) &&
+       uc( $headers->{INSTRUME} ) eq 'CGS4' &&
+       exists( $headers->{DHSVER} ) &&
+       uc( $headers->{DHSVER} ) eq 'UKDHS 2008 DEC. 1' ) {
     return 1;
   }
 
   # Handle the reverse case as well. This module can translate CGS4
   # headers newer than 20081115.
-  if( exists $headers->{INSTRUMENT} &&
-      uc( $headers->{INSTRUMENT} ) eq 'CGS4' &&
-      exists $headers->{UTDATE} &&
-      $headers->{UTDATE} >= 20081115 ) {
+  if ( exists $headers->{INSTRUMENT} &&
+       uc( $headers->{INSTRUMENT} ) eq 'CGS4' &&
+       exists $headers->{UTDATE} &&
+       $headers->{UTDATE} >= 20081115 ) {
     return 1;
   }
 
@@ -121,8 +119,8 @@ sub to_ROTATION {
 
   my $rtod = 45 / atan2( 1, 1 );
 
-  if( defined( $FITS_headers->{PC2_2} ) || defined( $FITS_headers->{PC2_3} ) ||
-      defined( $FITS_headers->{PC3_2} ) || defined( $FITS_headers->{PC3_3} ) ) {
+  if ( defined( $FITS_headers->{PC2_2} ) || defined( $FITS_headers->{PC2_3} ) ||
+       defined( $FITS_headers->{PC3_2} ) || defined( $FITS_headers->{PC3_3} ) ) {
     my $pc22 = defined( $FITS_headers->{PC2_2} ) ? $FITS_headers->{PC2_2} : 1.0;
     my $pc32 = defined( $FITS_headers->{PC3_2} ) ? $FITS_headers->{PC3_2} : 0.0;
     my $pc23 = defined( $FITS_headers->{PC2_3} ) ? $FITS_headers->{PC2_3} : 0.0;
@@ -165,7 +163,7 @@ sub to_UTDATE {
 
 =head1 REVISION
 
- $Id: $
+ $Id$
 
 =head1 SEE ALSO
 

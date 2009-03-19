@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::FITS;
 
 =head1 NAME
@@ -43,15 +41,15 @@ my %CONST_MAP = (
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-                 DATA_UNITS           => 'BUNIT',
-                 DEC_SCALE            => "CDELT2",
-                 INSTRUMENT           => 'INSTRUME',
-                 RA_SCALE             => "CDELT1",
-                 TELESCOPE            => 'TELESCOP',
-                 X_BASE               => "CRPIX1",
-                 X_REFERENCE_PIXEL    => "CRPIX1",
-                 Y_BASE               => "CRPIX2",
-                 Y_REFERENCE_PIXEL    => "CRPIX2",
+                DATA_UNITS           => 'BUNIT',
+                DEC_SCALE            => "CDELT2",
+                INSTRUMENT           => 'INSTRUME',
+                RA_SCALE             => "CDELT1",
+                TELESCOPE            => 'TELESCOP',
+                X_BASE               => "CRPIX1",
+                X_REFERENCE_PIXEL    => "CRPIX1",
+                Y_BASE               => "CRPIX2",
+                Y_REFERENCE_PIXEL    => "CRPIX2",
                );
 
 
@@ -92,51 +90,59 @@ the two estimates using FITS-WCS Paper II Section 6.2 prescription.
 =cut
 
 sub to_ROTATION {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $rotation;
-   my $rtod = 45 / atan2( 1, 1 );
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $rotation;
+  my $rtod = 45 / atan2( 1, 1 );
 
-# Try the IRAF-style headers.  Use the defaults prescribed in WCS Paper I,
-# Section 2.1.2.
-   if ( defined( $FITS_headers->{CD1_1} ) || defined( $FITS_headers->{CD1_2} ) ||
-        defined( $FITS_headers->{CD2_1} ) || defined( $FITS_headers->{CD2_2} ) ) {
-      my $cd11 = defined( $FITS_headers->{CD1_1} ) ? $FITS_headers->{CD1_1} : 0.0;
-      my $cd21 = defined( $FITS_headers->{CD2_1} ) ? $FITS_headers->{CD2_1} : 0.0;
-      my $cd12 = defined( $FITS_headers->{CD1_2} ) ? $FITS_headers->{CD1_2} : 0.0;
-      my $cd22 = defined( $FITS_headers->{CD2_2} ) ? $FITS_headers->{CD2_2} : 0.0;
+  # Try the IRAF-style headers.  Use the defaults prescribed in WCS Paper I,
+  # Section 2.1.2.
+  if ( defined( $FITS_headers->{CD1_1} ) || defined( $FITS_headers->{CD1_2} ) ||
+       defined( $FITS_headers->{CD2_1} ) || defined( $FITS_headers->{CD2_2} ) ) {
+    my $cd11 = defined( $FITS_headers->{CD1_1} ) ? $FITS_headers->{CD1_1} : 0.0;
+    my $cd21 = defined( $FITS_headers->{CD2_1} ) ? $FITS_headers->{CD2_1} : 0.0;
+    my $cd12 = defined( $FITS_headers->{CD1_2} ) ? $FITS_headers->{CD1_2} : 0.0;
+    my $cd22 = defined( $FITS_headers->{CD2_2} ) ? $FITS_headers->{CD2_2} : 0.0;
    
-# Determine the sense of the scales.
-      my $sgn1;
-      if ( $cd12 < 0 ) { $sgn1 = -1; } else { $sgn1 = 1; }
+    # Determine the sense of the scales.
+    my $sgn1;
+    if ( $cd12 < 0 ) {
+      $sgn1 = -1;
+    } else {
+      $sgn1 = 1;
+    }
 
-      my $sgn2;
-      if ( $cd21 < 0 ) { $sgn2 = -1; } else { $sgn2 = 1; }
+    my $sgn2;
+    if ( $cd21 < 0 ) {
+      $sgn2 = -1;
+    } else {
+      $sgn2 = 1;
+    }
    
-# Average the estimates of the rotation converting from radians to
-# degrees (rtod).
-      $rotation = $rtod * 0.5 * ( atan2( $sgn1 * $cd21 / $rtod,  $sgn1 * $cd11 / $rtod ) +
-                                  atan2( $sgn2 * $cd12 / $rtod, -$sgn2 * $cd22 / $rtod ) );
+    # Average the estimates of the rotation converting from radians to
+    # degrees (rtod).
+    $rotation = $rtod * 0.5 * ( atan2( $sgn1 * $cd21 / $rtod,  $sgn1 * $cd11 / $rtod ) +
+                                atan2( $sgn2 * $cd12 / $rtod, -$sgn2 * $cd22 / $rtod ) );
 
-# Now try the FITS WCS PC matrix.    Use the defaults prescribed in WCS Paper I,
-# Section 2.1.2.
-   } elsif ( defined( $FITS_headers->{PC1_1} ) || defined( $FITS_headers->{PC1_2} ) ||
-             defined( $FITS_headers->{PC2_1} ) || defined( $FITS_headers->{PC2_2} ) ) {
-      my $pc11 = defined( $FITS_headers->{PC1_1} ) ? $FITS_headers->{PC1_1} : 1.0;
-      my $pc21 = defined( $FITS_headers->{PC2_1} ) ? $FITS_headers->{PC2_1} : 0.0;
-      my $pc12 = defined( $FITS_headers->{PC1_2} ) ? $FITS_headers->{PC1_2} : 0.0;
-      my $pc22 = defined( $FITS_headers->{PC2_2} ) ? $FITS_headers->{PC2_2} : 1.0;
+    # Now try the FITS WCS PC matrix.    Use the defaults prescribed in WCS Paper I,
+    # Section 2.1.2.
+  } elsif ( defined( $FITS_headers->{PC1_1} ) || defined( $FITS_headers->{PC1_2} ) ||
+            defined( $FITS_headers->{PC2_1} ) || defined( $FITS_headers->{PC2_2} ) ) {
+    my $pc11 = defined( $FITS_headers->{PC1_1} ) ? $FITS_headers->{PC1_1} : 1.0;
+    my $pc21 = defined( $FITS_headers->{PC2_1} ) ? $FITS_headers->{PC2_1} : 0.0;
+    my $pc12 = defined( $FITS_headers->{PC1_2} ) ? $FITS_headers->{PC1_2} : 0.0;
+    my $pc22 = defined( $FITS_headers->{PC2_2} ) ? $FITS_headers->{PC2_2} : 1.0;
 
-# Average the estimates of the rotation converting from radians to
-# degrees (rtod) as the matrix may not represent a pure rotation.
-      $rotation = $rtod * 0.5 * ( atan2( -$pc21 / $rtod, $pc11 / $rtod ) +
-                                  atan2(  $pc12 / $rtod, $pc22 / $rtod ) );
+    # Average the estimates of the rotation converting from radians to
+    # degrees (rtod) as the matrix may not represent a pure rotation.
+    $rotation = $rtod * 0.5 * ( atan2( -$pc21 / $rtod, $pc11 / $rtod ) +
+                                atan2(  $pc12 / $rtod, $pc22 / $rtod ) );
 
-   } elsif ( defined( $FITS_headers->{CROTA2} ) ) {
-      $rotation = $FITS_headers->{CROTA2};
+  } elsif ( defined( $FITS_headers->{CROTA2} ) ) {
+    $rotation = $FITS_headers->{CROTA2};
 
-   }
-   return $rotation;
+  }
+  return $rotation;
 }
 
 
@@ -167,19 +173,19 @@ Converts UT date in C<DATE-END> header into C<Time::Piece> object.
 =cut
 
 sub to_UTEND {
-   my $class = shift;
-   my $FITS_headers = shift;
-   my $utend;
-   if( exists( $FITS_headers->{'DATE-END'} ) ) {
-       $utend = $FITS_headers->{'DATE-END'};
-   } else {
-       # try subheaders
-       my @end = $class->via_subheader( $FITS_headers, "DATE-END" );
-       $utend = $end[-1]; 
-   }
-   my $return;
-   $return = $class->_parse_iso_date( $utend ) if defined $utend;
-   return $return;
+  my $class = shift;
+  my $FITS_headers = shift;
+  my $utend;
+  if ( exists( $FITS_headers->{'DATE-END'} ) ) {
+    $utend = $FITS_headers->{'DATE-END'};
+  } else {
+    # try subheaders
+    my @end = $class->via_subheader( $FITS_headers, "DATE-END" );
+    $utend = $end[-1];
+  }
+  my $return;
+  $return = $class->_parse_iso_date( $utend ) if defined $utend;
+  return $return;
 }
 
 =item B<from_UTEND>
@@ -190,14 +196,14 @@ YYYY-MM-DDThh:mm:ss.
 =cut
 
 sub from_UTEND {
-   my $class = shift;
-   my $generic_headers = shift;
-   my %return_hash;
-   if ( exists( $generic_headers->{UTEND} ) ) {
-     my $date = $generic_headers->{UTEND};
-     $return_hash{'DATE-END'} = $date->datetime;
-   }
-   return %return_hash;
+  my $class = shift;
+  my $generic_headers = shift;
+  my %return_hash;
+  if ( exists( $generic_headers->{UTEND} ) ) {
+    my $date = $generic_headers->{UTEND};
+    $return_hash{'DATE-END'} = $date->datetime;
+  }
+  return %return_hash;
 }
 
 
@@ -208,19 +214,19 @@ Converts UT date in C<DATE-OBS> header into date object.
 =cut
 
 sub to_UTSTART {
-   my $class = shift;
-   my $FITS_headers = shift;
+  my $class = shift;
+  my $FITS_headers = shift;
 
-   my $utstart;
-   if ( exists( $FITS_headers->{'DATE-OBS'} ) ) {
-       $utstart = $FITS_headers->{"DATE-OBS"};
-   } else {
-       # try subheaders
-       $utstart = $class->via_subheader( $FITS_headers, "DATE-OBS" );
-   }
-   my $return;
-   $return = $class->_parse_iso_date( $utstart ) if defined $utstart;
-   return $return;
+  my $utstart;
+  if ( exists( $FITS_headers->{'DATE-OBS'} ) ) {
+    $utstart = $FITS_headers->{"DATE-OBS"};
+  } else {
+    # try subheaders
+    $utstart = $class->via_subheader( $FITS_headers, "DATE-OBS" );
+  }
+  my $return;
+  $return = $class->_parse_iso_date( $utstart ) if defined $utstart;
+  return $return;
 }
 
 =item B<from_UTSTART>
@@ -231,14 +237,14 @@ format: YYYY-MM-DDThh:mm:ss.
 =cut
 
 sub from_UTSTART {
-   my $class = shift;
-   my $generic_headers = shift;
-   my %return_hash;
-   if ( exists( $generic_headers->{UTSTART} ) ) {
-      my $date = $generic_headers->{UTSTART};
-      $return_hash{'DATE-OBS'} = $date->datetime;
-   }
-   return %return_hash;
+  my $class = shift;
+  my $generic_headers = shift;
+  my %return_hash;
+  if ( exists( $generic_headers->{UTSTART} ) ) {
+    my $date = $generic_headers->{UTSTART};
+    $return_hash{'DATE-OBS'} = $date->datetime;
+  }
+  return %return_hash;
 }
 
 =back

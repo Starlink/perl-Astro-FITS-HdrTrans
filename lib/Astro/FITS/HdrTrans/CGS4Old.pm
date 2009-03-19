@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::CGS4Old;
 
 =head1 NAME
@@ -36,26 +34,26 @@ $VERSION = "1.02";
 # header that is constant
 my %CONST_MAP = (
 
-		);
+                );
 
 # unit mapping implies that the value propogates directly
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-		# CGS4 Specific
-		GRATING_DISPERSION   => "GDISP",
-		GRATING_NAME         => "GRATING",
-		GRATING_ORDER        => "GORDER",
-		GRATING_WAVELENGTH   => "GLAMBDA",
-		SLIT_ANGLE           => "SANGLE",
-		SLIT_NAME            => "SLIT",
-		SLIT_WIDTH           => "SWIDTH",
-		# MICHELLE compatible
-		NSCAN_POSITIONS      => "DETNINCR",
-		SCAN_INCREMENT       => "DETINCR",
-		# MICHELLE + UIST + WFCAM
-		CONFIGURATION_INDEX  => 'CNFINDEX',
-	       );
+                # CGS4 Specific
+                GRATING_DISPERSION   => "GDISP",
+                GRATING_NAME         => "GRATING",
+                GRATING_ORDER        => "GORDER",
+                GRATING_WAVELENGTH   => "GLAMBDA",
+                SLIT_ANGLE           => "SANGLE",
+                SLIT_NAME            => "SLIT",
+                SLIT_WIDTH           => "SWIDTH",
+                # MICHELLE compatible
+                NSCAN_POSITIONS      => "DETNINCR",
+                SCAN_INCREMENT       => "DETINCR",
+                # MICHELLE + UIST + WFCAM
+                CONFIGURATION_INDEX  => 'CNFINDEX',
+               );
 
 
 # Create the translation methods
@@ -83,23 +81,23 @@ sub can_translate {
   my $self = shift;
   my $headers = shift;
 
-  if( exists $headers->{IDATE} &&
-      defined $headers->{IDATE} &&
-      exists $headers->{INSTRUME} &&
-      defined $headers->{INSTRUME} &&
-      ! exists $headers->{RAJ2000} &&
-      $headers->{IDATE} =~ /\d{8}/ &&
-      $headers->{IDATE} < 20081115 &&
-      uc( $headers->{INSTRUME} ) eq 'CGS4' ) {
+  if ( exists $headers->{IDATE} &&
+       defined $headers->{IDATE} &&
+       exists $headers->{INSTRUME} &&
+       defined $headers->{INSTRUME} &&
+       ! exists $headers->{RAJ2000} &&
+       $headers->{IDATE} =~ /\d{8}/ &&
+       $headers->{IDATE} < 20081115 &&
+       uc( $headers->{INSTRUME} ) eq 'CGS4' ) {
     return 1;
   }
 
   # Need to handle the reverse case as well. This module can translate
   # CGS4 headers older than 20081115.
-  if( exists $headers->{INSTRUMENT} &&
-      uc( $headers->{INSTRUMENT} ) eq 'CGS4' &&
-      exists $headers->{UTDATE} &&
-      $headers->{UTDATE} < 20081115 ) {
+  if ( exists $headers->{INSTRUMENT} &&
+       uc( $headers->{INSTRUMENT} ) eq 'CGS4' &&
+       exists $headers->{UTDATE} &&
+       $headers->{UTDATE} < 20081115 ) {
     return 1;
   }
 
@@ -131,7 +129,7 @@ sub to_POLARIMETRY {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{FILTER})) {
+  if (exists($FITS_headers->{FILTER})) {
     $return = ( $FITS_headers->{FILTER} =~ /prism/i ? 1 : 0);
   }
   return $return;
@@ -148,8 +146,8 @@ sub to_DEC_TELESCOPE_OFFSET {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if( exists( $FITS_headers->{IDATE} ) && defined( $FITS_headers->{IDATE} ) ) {
-    if( $FITS_headers->{IDATE} < 20050315 ) {
+  if ( exists( $FITS_headers->{IDATE} ) && defined( $FITS_headers->{IDATE} ) ) {
+    if ( $FITS_headers->{IDATE} < 20050315 ) {
       $return = $FITS_headers->{DECOFF};
     } else {
       $return = $FITS_headers->{TDECOFF};
@@ -170,20 +168,20 @@ sub from_DEC_TELESCOPE_OFFSET {
   my $self = shift;
   my $generic_headers = shift;
   my %return;
-  if( exists( $generic_headers->{UTDATE} ) &&
-      defined( $generic_headers->{UTDATE} ) ) {
+  if ( exists( $generic_headers->{UTDATE} ) &&
+       defined( $generic_headers->{UTDATE} ) ) {
     my $ut = $generic_headers->{UTDATE};
-    if( exists( $generic_headers->{DEC_TELESCOPE_OFFSET} ) &&
-        defined( $generic_headers->{DEC_TELESCOPE_OFFSET} ) ) {
-      if( $ut < 20050315 ) {
+    if ( exists( $generic_headers->{DEC_TELESCOPE_OFFSET} ) &&
+         defined( $generic_headers->{DEC_TELESCOPE_OFFSET} ) ) {
+      if ( $ut < 20050315 ) {
         $return{'DECOFF'} = $generic_headers->{DEC_TELESCOPE_OFFSET};
       } else {
         $return{'TDECOFF'} = $generic_headers->{DEC_TELESCOPE_OFFSET};
       }
     }
   } else {
-    if( exists( $generic_headers->{DEC_TELESCOPE_OFFSET} ) &&
-        defined( $generic_headers->{DEC_TELESCOPE_OFFSET} ) ) {
+    if ( exists( $generic_headers->{DEC_TELESCOPE_OFFSET} ) &&
+         defined( $generic_headers->{DEC_TELESCOPE_OFFSET} ) ) {
       $return{'TDECOFF'} = $generic_headers->{DEC_TELESCOPE_OFFSET};
     }
   }
@@ -201,8 +199,8 @@ sub to_RA_TELESCOPE_OFFSET {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if( exists( $FITS_headers->{IDATE} ) && defined( $FITS_headers->{IDATE} ) ) {
-    if( $FITS_headers->{IDATE} < 20050315 ) {
+  if ( exists( $FITS_headers->{IDATE} ) && defined( $FITS_headers->{IDATE} ) ) {
+    if ( $FITS_headers->{IDATE} < 20050315 ) {
       $return = $FITS_headers->{RAOFF};
     } else {
       $return = $FITS_headers->{TRAOFF};
@@ -223,20 +221,20 @@ sub from_RA_TELESCOPE_OFFSET {
   my $self = shift;
   my $generic_headers = shift;
   my %return;
-  if( exists( $generic_headers->{UTDATE} ) &&
-      defined( $generic_headers->{UTDATE} ) ) {
+  if ( exists( $generic_headers->{UTDATE} ) &&
+       defined( $generic_headers->{UTDATE} ) ) {
     my $ut = $generic_headers->{UTDATE};
-    if( exists( $generic_headers->{RA_TELESCOPE_OFFSET} ) &&
-        defined( $generic_headers->{RA_TELESCOPE_OFFSET} ) ) {
-      if( $ut < 20050315 ) {
+    if ( exists( $generic_headers->{RA_TELESCOPE_OFFSET} ) &&
+         defined( $generic_headers->{RA_TELESCOPE_OFFSET} ) ) {
+      if ( $ut < 20050315 ) {
         $return{'RAOFF'} = $generic_headers->{RA_TELESCOPE_OFFSET};
       } else {
         $return{'TRAOFF'} = $generic_headers->{RA_TELESCOPE_OFFSET};
       }
     }
   } else {
-    if( exists( $generic_headers->{RA_TELESCOPE_OFFSET} ) &&
-        defined( $generic_headers->{RA_TELESCOPE_OFFSET} ) ) {
+    if ( exists( $generic_headers->{RA_TELESCOPE_OFFSET} ) &&
+         defined( $generic_headers->{RA_TELESCOPE_OFFSET} ) ) {
       $return{'TRAOFF'} = $generic_headers->{RA_TELESCOPE_OFFSET};
     }
   }
@@ -254,7 +252,7 @@ sub to_SAMPLING {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{DETINCR}) && exists($FITS_headers->{DETNINCR})) {
+  if (exists($FITS_headers->{DETINCR}) && exists($FITS_headers->{DETNINCR})) {
     my $detincr = $FITS_headers->{DETINCR} || 1;
     my $detnincr = $FITS_headers->{DETNINCR} || 1;
     $return = int ( 1 / $detincr ) . 'x' . int ( $detincr * $detnincr );

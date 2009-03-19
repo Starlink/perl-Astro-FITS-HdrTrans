@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::UIST;
 
 =head1 NAME
@@ -35,8 +33,8 @@ $VERSION = "1.02";
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-                  NSCAN_POSITIONS     => 1,
-                  SCAN_INCREMENT      => 1,
+                 NSCAN_POSITIONS     => 1,
+                 SCAN_INCREMENT      => 1,
                 );
 
 # NULL mappings used to override base class implementations
@@ -46,30 +44,30 @@ my @NULL_MAP = qw/ DETECTOR_INDEX /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-                 RA_SCALE             => "CDELT2",
+                RA_SCALE             => "CDELT2",
                  
-                 # UIST specific
-                 GRATING_NAME         => "GRISM",
+                # UIST specific
+                GRATING_NAME         => "GRISM",
 
-                 # Not imaging
-                 GRATING_DISPERSION   => "DISPERSN",
-                 GRATING_NAME         => "GRISM",
-                 GRATING_ORDER        => "GRATORD",
-                 GRATING_WAVELENGTH   => "CENWAVL",
-                 SLIT_ANGLE           => "SLIT_PA",
-                 SLIT_WIDTH           => "SLITWID",
+                # Not imaging
+                GRATING_DISPERSION   => "DISPERSN",
+                GRATING_NAME         => "GRISM",
+                GRATING_ORDER        => "GRATORD",
+                GRATING_WAVELENGTH   => "CENWAVL",
+                SLIT_ANGLE           => "SLIT_PA",
+                SLIT_WIDTH           => "SLITWID",
 
-                 # MICHELLE compatible
-                 CHOP_ANGLE           => "CHPANGLE",
-                 CHOP_THROW           => "CHPTHROW",
-                 DETECTOR_READ_TYPE   => "DET_MODE",
-                 NUMBER_OF_READS      => "NREADS",
-                 OBSERVATION_MODE     => "INSTMODE",
-                 POLARIMETRY          => "POLARISE",
-                 SLIT_NAME            => "SLITNAME",
+                # MICHELLE compatible
+                CHOP_ANGLE           => "CHPANGLE",
+                CHOP_THROW           => "CHPTHROW",
+                DETECTOR_READ_TYPE   => "DET_MODE",
+                NUMBER_OF_READS      => "NREADS",
+                OBSERVATION_MODE     => "INSTMODE",
+                POLARIMETRY          => "POLARISE",
+                SLIT_NAME            => "SLITNAME",
 
-                 # CGS4 + MICHELLE + WFCAM
-                 CONFIGURATION_INDEX  => 'CNFINDEX',
+                # CGS4 + MICHELLE + WFCAM
+                CONFIGURATION_INDEX  => 'CNFINDEX',
                );
 
 
@@ -111,15 +109,15 @@ in the CDELT1 header, and for spectroscopy and IFU, it's in CDELT3.
 =cut
 
 sub to_DEC_SCALE {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $return;
-   if ( $self->to_OBSERVATION_MODE($FITS_headers) eq 'imaging' ) {
-      $return = $FITS_headers->{CDELT1};
-   } else {
-      $return = $FITS_headers->{CDELT3};
-   }
-   return $return;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $return;
+  if ( $self->to_OBSERVATION_MODE($FITS_headers) eq 'imaging' ) {
+    $return = $FITS_headers->{CDELT1};
+  } else {
+    $return = $FITS_headers->{CDELT3};
+  }
+  return $return;
 }
 
 =item B<from_DEC_SCALE>
@@ -129,21 +127,21 @@ Generate the PIXLSIZE header.
 =cut
 
 sub from_DEC_SCALE {
-   my $self = shift;
-   my $generic_headers = shift;
+  my $self = shift;
+  my $generic_headers = shift;
 
-# Can calculate the pixel size...
-   my $scale = abs( $generic_headers->{DEC_SCALE} );
-   $scale *= 3600;
-   my %result = ( PIXLSIZE => $scale );
+  # Can calculate the pixel size...
+  my $scale = abs( $generic_headers->{DEC_SCALE} );
+  $scale *= 3600;
+  my %result = ( PIXLSIZE => $scale );
 
-# and either CDELT1 or CDELT3.
-   my $ckey = 'CDELT3';
-   if ( $generic_headers->{OBSERVATION_MODE} eq 'imaging' ) {
-      $ckey = 'CDELT1';
-   }
-   $result{$ckey} = $generic_headers->{DEC_SCALE};
-   return %result;
+  # and either CDELT1 or CDELT3.
+  my $ckey = 'CDELT3';
+  if ( $generic_headers->{OBSERVATION_MODE} eq 'imaging' ) {
+    $ckey = 'CDELT1';
+  }
+  $result{$ckey} = $generic_headers->{DEC_SCALE};
+  return %result;
 }
 
 =item B<to_ROTATION>
@@ -159,32 +157,32 @@ mode and use that instead.
 =cut
 
 sub to_ROTATION {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $rotation;
-   if ( exists( $FITS_headers->{PC1_1} ) && exists( $FITS_headers->{PC2_1}) ) {
-      my $pc11;
-      my $pc21;
-      if ( exists ($FITS_headers->{PC3_2} ) && exists( $FITS_headers->{PC2_2} ) ) {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $rotation;
+  if ( exists( $FITS_headers->{PC1_1} ) && exists( $FITS_headers->{PC2_1}) ) {
+    my $pc11;
+    my $pc21;
+    if ( exists ($FITS_headers->{PC3_2} ) && exists( $FITS_headers->{PC2_2} ) ) {
 
-# We're in spectroscopy mode.
+      # We're in spectroscopy mode.
       $pc11 = $FITS_headers->{PC3_2};
       $pc21 = $FITS_headers->{PC2_2};
-   } else {
+    } else {
 
-# We're in imaging mode.
+      # We're in imaging mode.
       $pc11 = $FITS_headers->{PC1_1};
       $pc21 = $FITS_headers->{PC2_1};
-   }
-   my $rad = 57.2957795131;
-   $rotation = $rad * atan2( -$pc21 / $rad, $pc11 / $rad ) + 90.0;
+    }
+    my $rad = 57.2957795131;
+    $rotation = $rad * atan2( -$pc21 / $rad, $pc11 / $rad ) + 90.0;
 
-   } elsif ( exists $FITS_headers->{CROTA2} ) {
-      $rotation =  $FITS_headers->{CROTA2} + 90.0;
-   } else {
-      $rotation = 90.0;
-   }
-   return $rotation;
+  } elsif ( exists $FITS_headers->{CROTA2} ) {
+    $rotation =  $FITS_headers->{CROTA2} + 90.0;
+  } else {
+    $rotation = 90.0;
+  }
+  return $rotation;
 }
 
 
@@ -197,20 +195,20 @@ use a default which assumes the full array.
 =cut
 
 sub to_X_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $xref;
-   if ( exists $FITS_headers->{CRPIX1} ) {
-      $xref = $FITS_headers->{CRPIX1};
-   } elsif ( exists $FITS_headers->{RDOUT_X1} &&
-             exists $FITS_headers->{RDOUT_X2} ) {
-      my $xl = $FITS_headers->{RDOUT_X1};
-      my $xu = $FITS_headers->{RDOUT_X2};
-      $xref = $self->nint( ( $xl + $xu ) / 2 );
-   } else {
-      $xref = 480;
-   }
-   return $xref;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $xref;
+  if ( exists $FITS_headers->{CRPIX1} ) {
+    $xref = $FITS_headers->{CRPIX1};
+  } elsif ( exists $FITS_headers->{RDOUT_X1} &&
+            exists $FITS_headers->{RDOUT_X2} ) {
+    my $xl = $FITS_headers->{RDOUT_X1};
+    my $xu = $FITS_headers->{RDOUT_X2};
+    $xref = $self->nint( ( $xl + $xu ) / 2 );
+  } else {
+    $xref = 480;
+  }
+  return $xref;
 }
 
 =item B<from_X_REFERENCE_PIXEL>
@@ -220,9 +218,9 @@ Always returns the value as CRPIX1.
 =cut
 
 sub from_X_REFERENCE_PIXEL {
-   my $self = shift;
-   my $generic_headers = shift;
-   return ( "CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"} );
+  my $self = shift;
+  my $generic_headers = shift;
+  return ( "CRPIX1", $generic_headers->{"X_REFERENCE_PIXEL"} );
 }
 
 =item B<to_Y_REFERENCE_PIXEL>
@@ -234,20 +232,20 @@ use a default which assumes the full array.
 =cut
 
 sub to_Y_REFERENCE_PIXEL{
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $yref;
-   if ( exists $FITS_headers->{CRPIX2} ) {
-      $yref = $FITS_headers->{CRPIX2};
-   }  elsif ( exists $FITS_headers->{RDOUT_Y1} && 
-              exists $FITS_headers->{RDOUT_Y2} ) {
-      my $yl = $FITS_headers->{RDOUT_Y1};
-      my $yu = $FITS_headers->{RDOUT_Y2};
-      $yref = $self->nint( ( $yl + $yu ) / 2 );
-   } else {
-      $yref = 480;
-   }
-   return $yref;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $yref;
+  if ( exists $FITS_headers->{CRPIX2} ) {
+    $yref = $FITS_headers->{CRPIX2};
+  } elsif ( exists $FITS_headers->{RDOUT_Y1} &&
+            exists $FITS_headers->{RDOUT_Y2} ) {
+    my $yl = $FITS_headers->{RDOUT_Y1};
+    my $yu = $FITS_headers->{RDOUT_Y2};
+    $yref = $self->nint( ( $yl + $yu ) / 2 );
+  } else {
+    $yref = 480;
+  }
+  return $yref;
 }
 
 =item B<from_Y_REFERENCE_PIXEL>
@@ -257,9 +255,9 @@ Always returns the value as CRPIX2.
 =cut
 
 sub from_Y_REFERENCE_PIXEL {
-   my $self = shift;
-   my $generic_headers = shift;
-   return ( "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"} );
+  my $self = shift;
+  my $generic_headers = shift;
+  return ( "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"} );
 }
 
 =back

@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::NIRI;
 
 =head1 NAME
@@ -35,11 +33,11 @@ $VERSION = "1.02";
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-                  GAIN                 => 12.3, # hardwire for now
-                  OBSERVATION_MODE     => 'imaging',
-                  SPEED_GAIN           => "NA",
-                  STANDARD             => 0, # hardwire for now as all objects not a standard.
-                  WAVEPLATE_ANGLE      => 0, # hardwire for now
+                 GAIN                 => 12.3, # hardwire for now
+                 OBSERVATION_MODE     => 'imaging',
+                 SPEED_GAIN           => "NA",
+                 STANDARD             => 0, # hardwire for now as all objects not a standard.
+                 WAVEPLATE_ANGLE      => 0, # hardwire for now
                 );
 
 # NULL mappings used to override base class implementations
@@ -49,7 +47,7 @@ my @NULL_MAP = qw/ /;
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-                  DETECTOR_READ_TYPE   => "MODE",
+                DETECTOR_READ_TYPE   => "MODE",
                );
 
 
@@ -74,7 +72,7 @@ Returns "NIRI".
 =cut
 
 sub this_instrument {
-   return qr/^NIRI/;
+  return qr/^NIRI/;
 }
 
 =back
@@ -86,22 +84,22 @@ sub this_instrument {
 =cut
 
 sub to_EXPOSURE_TIME {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $et = $FITS_headers->{EXPTIME};
-   my $co = $FITS_headers->{COADDS};
-   return $et *= $co;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $et = $FITS_headers->{EXPTIME};
+  my $co = $FITS_headers->{COADDS};
+  return $et *= $co;
 }
 
 sub to_OBSERVATION_NUMBER {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $obsnum = 0;
-   if ( exists ( $FITS_headers->{FRMNAME} ) ) {
-      my $fname = $FITS_headers->{FRMNAME};
-      $obsnum = substr( $fname, index( $fname, ":" ) - 4, 4 );
-   }
-   return $obsnum;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $obsnum = 0;
+  if ( exists ( $FITS_headers->{FRMNAME} ) ) {
+    my $fname = $FITS_headers->{FRMNAME};
+    $obsnum = substr( $fname, index( $fname, ":" ) - 4, 4 );
+  }
+  return $obsnum;
 }
 
 =item B<to_ROTATION>
@@ -117,88 +115,88 @@ This routine also copes with errors in the matrix that can generate angles
 =cut
 
 sub to_ROTATION {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $rotation = 0.0;
-   if ( exists( $FITS_headers->{CD1_1} ) ) {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $rotation = 0.0;
+  if ( exists( $FITS_headers->{CD1_1} ) ) {
 
-# Access the CD matrix.
-      my $cd11 = $FITS_headers->{"CD1_1"};
-      my $cd12 = $FITS_headers->{"CD1_2"};
-      my $cd21 = $FITS_headers->{"CD2_1"};
-      my $cd22 = $FITS_headers->{"CD2_2"};
+    # Access the CD matrix.
+    my $cd11 = $FITS_headers->{"CD1_1"};
+    my $cd12 = $FITS_headers->{"CD1_2"};
+    my $cd21 = $FITS_headers->{"CD2_1"};
+    my $cd22 = $FITS_headers->{"CD2_2"};
 
-# Determine the orientation using SLALIB routine.  This has the
-# advantage of not assuming perpendicular axes (i.e. allows for
-# shear).
-      my ( $xz, $yz, $xs, $ys, $perp, $orient );
-      my @coeffs = ( 0.0, $cd11, $cd21, 0.0, $cd12, $cd22 );
-      slaDcmpf( @coeffs, $xz, $yz, $xs, $ys, $perp, $rotation );
+    # Determine the orientation using SLALIB routine.  This has the
+    # advantage of not assuming perpendicular axes (i.e. allows for
+    # shear).
+    my ( $xz, $yz, $xs, $ys, $perp, $orient );
+    my @coeffs = ( 0.0, $cd11, $cd21, 0.0, $cd12, $cd22 );
+    slaDcmpf( @coeffs, $xz, $yz, $xs, $ys, $perp, $rotation );
 
-# Convert from radians to degrees.
-      my $rtod = 45 / atan2( 1, 1 );
-      $rotation *= $rtod;
+    # Convert from radians to degrees.
+    my $rtod = 45 / atan2( 1, 1 );
+    $rotation *= $rtod;
 
-# The actual WCS matrix has errors and sometimes the angle which
-# should be near 0 degrees, can be out by 90 degrees.  So for this
-# case we hardwire the main rotation and merely apply the small
-# deviation from the cardinal orientations.
-      if ( abs( abs( $rotation ) - 90 ) < 2 ) {
-         my $delta_rho = 0.0;
+    # The actual WCS matrix has errors and sometimes the angle which
+    # should be near 0 degrees, can be out by 90 degrees.  So for this
+    # case we hardwire the main rotation and merely apply the small
+    # deviation from the cardinal orientations.
+    if ( abs( abs( $rotation ) - 90 ) < 2 ) {
+      my $delta_rho = 0.0;
          
-         $delta_rho = $rotation - ( 90 * int( $rotation / 90 ) );
-         $delta_rho -= 90 if ( $delta_rho > 45 );
-         $delta_rho += 90 if ( $delta_rho < -45 );
+      $delta_rho = $rotation - ( 90 * int( $rotation / 90 ) );
+      $delta_rho -= 90 if ( $delta_rho > 45 );
+      $delta_rho += 90 if ( $delta_rho < -45 );
 
-# Setting to near 180 is a fudge because the CD matrix appears is wrong
-# occasionally by 90 degrees, judging by the telescope offsets, CTYPEn, and
-# the support astronomer.
-         $rotation = 180.0 + $delta_rho;
-      }
+      # Setting to near 180 is a fudge because the CD matrix appears is wrong
+      # occasionally by 90 degrees, judging by the telescope offsets, CTYPEn, and
+      # the support astronomer.
+      $rotation = 180.0 + $delta_rho;
+    }
          
-   }
-   return $rotation;
+  }
+  return $rotation;
 }
 
 # Shift the bounds to GRID co-ordinates.
 sub to_X_LOWER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $bound = 1;
-   if ( exists( $FITS_headers->{LOWCOL} ) ) {
-      $bound = $self->nint( $FITS_headers->{LOWCOL} + 1 );
-   }
-   return $bound;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $bound = 1;
+  if ( exists( $FITS_headers->{LOWCOL} ) ) {
+    $bound = $self->nint( $FITS_headers->{LOWCOL} + 1 );
+  }
+  return $bound;
 }
 
 sub to_Y_LOWER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $bound = 1;
-   if ( exists( $FITS_headers->{LOWROW} ) ) {
-      $bound = $self->nint( $FITS_headers->{LOWROW} + 1 );
-   }
-   return $bound;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $bound = 1;
+  if ( exists( $FITS_headers->{LOWROW} ) ) {
+    $bound = $self->nint( $FITS_headers->{LOWROW} + 1 );
+  }
+  return $bound;
 }
 
 sub to_X_UPPER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $bound = 1024;
-   if ( exists( $FITS_headers->{HICOL} ) ) {
-      $bound = $self->nint( $FITS_headers->{HICOL} + 1 );
-   }
-   return $bound;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $bound = 1024;
+  if ( exists( $FITS_headers->{HICOL} ) ) {
+    $bound = $self->nint( $FITS_headers->{HICOL} + 1 );
+  }
+  return $bound;
 }
 
 sub to_Y_UPPER_BOUND {
-   my $self = shift;
-   my $FITS_headers = shift;
-   my $bound = 1024;
-   if ( exists( $FITS_headers->{HIROW} ) ) {
-      $bound = $self->nint( $FITS_headers->{HIROW} + 1 );
-   }
-   return $bound;
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $bound = 1024;
+  if ( exists( $FITS_headers->{HIROW} ) ) {
+    $bound = $self->nint( $FITS_headers->{HIROW} + 1 );
+  }
+  return $bound;
 }
 
 

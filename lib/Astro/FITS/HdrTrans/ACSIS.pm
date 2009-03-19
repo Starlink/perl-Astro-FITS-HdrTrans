@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::ACSIS;
 
 =head1 NAME
@@ -53,7 +51,7 @@ our $UTC = DateTime::TimeZone->new( name => 'UTC' );
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-		 INST_DHS          => 'ACSIS',
+                 INST_DHS          => 'ACSIS',
                  SUBSYSTEM_IDKEY   => 'SUBSYSNR',
                 );
 
@@ -61,35 +59,35 @@ my %CONST_MAP = (
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-		AIRMASS_START      => 'AMSTART',
-		AIRMASS_END        => 'AMEND',
-		AMBIENT_TEMPERATURE=> 'ATSTART',
-    AZIMUTH_START      => 'AZSTART',
-    AZIMUTH_END        => 'AZEND',
-    BACKEND            => 'BACKEND',
-    BANDWIDTH_MODE     => 'BWMODE',
-		CHOP_ANGLE         => 'CHOP_PA',
-    CHOP_COORDINATE_SYSTEM => 'CHOP_CRD',
-    CHOP_FREQUENCY     => 'CHOP_FRQ',
-		CHOP_THROW         => 'CHOP_THR',
-    ELEVATION_START    => 'ELSTART',
-    ELEVATION_END      => 'ELEND',
-    FILENAME           => 'FILE_ID',
-    FRONTEND           => 'INSTRUME',
-    HUMIDITY           => 'HUMSTART',
-    LATITUDE           => 'LAT-OBS',
-    LONGITUDE          => 'LONG-OBS',
-    NUMBER_OF_CYCLES   => 'NUM_CYC',
-		OBJECT             => 'OBJECT',
-		OBSERVATION_NUMBER => 'OBSNUM',
-		PROJECT            => 'PROJECT',
-		SEEING             => 'SEEINGST',
-		STANDARD           => 'STANDARD',
-		SWITCH_MODE        => 'SW_MODE',
-		TAU                => 'WVMTAUST',
-    VELOCITY_TYPE      => 'DOPPLER',
-    X_APERTURE => 'INSTAP_X',
-    Y_APERTURE => 'INSTAP_Y',
+                AIRMASS_START      => 'AMSTART',
+                AIRMASS_END        => 'AMEND',
+                AMBIENT_TEMPERATURE=> 'ATSTART',
+                AZIMUTH_START      => 'AZSTART',
+                AZIMUTH_END        => 'AZEND',
+                BACKEND            => 'BACKEND',
+                BANDWIDTH_MODE     => 'BWMODE',
+                CHOP_ANGLE         => 'CHOP_PA',
+                CHOP_COORDINATE_SYSTEM => 'CHOP_CRD',
+                CHOP_FREQUENCY     => 'CHOP_FRQ',
+                CHOP_THROW         => 'CHOP_THR',
+                ELEVATION_START    => 'ELSTART',
+                ELEVATION_END      => 'ELEND',
+                FILENAME           => 'FILE_ID',
+                FRONTEND           => 'INSTRUME',
+                HUMIDITY           => 'HUMSTART',
+                LATITUDE           => 'LAT-OBS',
+                LONGITUDE          => 'LONG-OBS',
+                NUMBER_OF_CYCLES   => 'NUM_CYC',
+                OBJECT             => 'OBJECT',
+                OBSERVATION_NUMBER => 'OBSNUM',
+                PROJECT            => 'PROJECT',
+                SEEING             => 'SEEINGST',
+                STANDARD           => 'STANDARD',
+                SWITCH_MODE        => 'SW_MODE',
+                TAU                => 'WVMTAUST',
+                VELOCITY_TYPE      => 'DOPPLER',
+                X_APERTURE => 'INSTAP_X',
+                Y_APERTURE => 'INSTAP_Y',
                );
 
 # Create the translation methods
@@ -137,17 +135,17 @@ unless they have been subclassed locally.
 =cut
 
 sub translate_from_FITS {
-    my $class = shift;
-    my $headers = shift;
+  my $class = shift;
+  my $headers = shift;
 
-    # clear cache
-    $COORDS = undef;
+  # clear cache
+  $COORDS = undef;
 
-    # sort out DATE-OBS and DATE-END
-    _fix_dates( $headers );
+  # sort out DATE-OBS and DATE-END
+  _fix_dates( $headers );
 
-    # Go to the base class
-    return $class->SUPER::translate_from_FITS( $headers, @_ );
+  # Go to the base class
+  return $class->SUPER::translate_from_FITS( $headers, @_ );
 }
 
 =back
@@ -190,12 +188,12 @@ sub to_DR_RECIPE {
     }
   }
 
-  if( $standard &&
-      $obstype =~ /science|raster|scan|grid|chop/ ) {
+  if ( $standard &&
+       $obstype =~ /science|raster|scan|grid|chop/ ) {
     $dr = "REDUCE_STANDARD";
   }
 
-  if( $utdate > 20081115 && $pol ) {
+  if ( $utdate > 20081115 && $pol ) {
     $dr .= "_POL";
   }
 
@@ -235,9 +233,9 @@ sub to_POLARIMETER {
   my $inbeam = $FITS_headers->{INBEAM};
   my $utdate = $class->to_UTDATE( $FITS_headers );
 
-  if( $utdate > 20081115 &&
-      defined( $inbeam ) &&
-      $inbeam =~ /pol/i ) {
+  if ( $utdate > 20081115 &&
+       defined( $inbeam ) &&
+       $inbeam =~ /pol/i ) {
     return 1;
   }
   return 0;
@@ -256,7 +254,7 @@ sub from_POLARIMETER {
 
   my $pol = $generic_headers->{POLARIMETER};
 
-  if( $pol ) {
+  if ( $pol ) {
     return ( "INBEAM" => "POL" );
   }
 
@@ -273,22 +271,22 @@ There are similar versions for to_UTDATE and to_UTEND
 =cut
 
 sub to_UTSTART {
-    my $class = shift;
-    my $FITS_headers = shift;
-    _fix_dates( $FITS_headers );
-    return $class->SUPER::to_UTSTART( $FITS_headers, @_ );
+  my $class = shift;
+  my $FITS_headers = shift;
+  _fix_dates( $FITS_headers );
+  return $class->SUPER::to_UTSTART( $FITS_headers, @_ );
 }
 sub to_UTEND {
-    my $class = shift;
-    my $FITS_headers = shift;
-    _fix_dates( $FITS_headers );
-    return $class->SUPER::to_UTEND( $FITS_headers, @_ );
+  my $class = shift;
+  my $FITS_headers = shift;
+  _fix_dates( $FITS_headers );
+  return $class->SUPER::to_UTEND( $FITS_headers, @_ );
 }
 sub to_UTDATE {
-    my $class = shift;
-    my $FITS_headers = shift;
-    _fix_dates( $FITS_headers );
-    return $class->SUPER::to_UTDATE( $FITS_headers, @_ );
+  my $class = shift;
+  my $FITS_headers = shift;
+  _fix_dates( $FITS_headers );
+  return $class->SUPER::to_UTDATE( $FITS_headers, @_ );
 }
 
 =item B<to_EXPOSURE_TIME>
@@ -307,8 +305,8 @@ sub to_EXPOSURE_TIME {
   _fix_dates( $FITS_headers );
 
   my $return;
-  if( exists( $FITS_headers->{'DATE-OBS'} ) &&
-      exists( $FITS_headers->{'DATE-END'} ) ) {
+  if ( exists( $FITS_headers->{'DATE-OBS'} ) &&
+       exists( $FITS_headers->{'DATE-END'} ) ) {
     my $start = $self->to_UTSTART( $FITS_headers );
     my $end = $self->to_UTEND( $FITS_headers );
     my $duration = $end - $start;
@@ -329,9 +327,9 @@ sub to_INSTRUMENT {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if( exists( $FITS_headers->{'INSTRUME'} ) ) {
-    if( $FITS_headers->{'INSTRUME'} =~ /^HARP/ ||
-        $FITS_headers->{'INSTRUME'} =~ /^FE_HARP/ ) {
+  if ( exists( $FITS_headers->{'INSTRUME'} ) ) {
+    if ( $FITS_headers->{'INSTRUME'} =~ /^HARP/ ||
+         $FITS_headers->{'INSTRUME'} =~ /^FE_HARP/ ) {
       $return = "HARP";
     } else {
       $return = $FITS_headers->{'INSTRUME'};
@@ -352,8 +350,8 @@ sub to_OBSERVATION_ID {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if( exists( $FITS_headers->{'OBSID'} ) &&
-      defined( $FITS_headers->{'OBSID'} ) ) {
+  if ( exists( $FITS_headers->{'OBSID'} ) &&
+       defined( $FITS_headers->{'OBSID'} ) ) {
     $return = $FITS_headers->{'OBSID'};
   } else {
     _fix_dates( $FITS_headers );
@@ -362,9 +360,9 @@ sub to_OBSERVATION_ID {
     my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
     my $dateobs = $self->to_UTSTART( $FITS_headers );
 
-    if( defined( $backend ) &&
-        defined( $obsnum ) &&
-        defined( $dateobs ) ) {
+    if ( defined( $backend ) &&
+         defined( $obsnum ) &&
+         defined( $dateobs ) ) {
       my $datetime = $dateobs->datetime;
       $datetime =~ s/-//g;
       $datetime =~ s/://g;
@@ -391,9 +389,9 @@ sub to_OBSERVATION_MODE {
   my $FITS_headers = shift;
 
   my $return;
-  if( exists( $FITS_headers->{'SAM_MODE'} ) &&
-      exists( $FITS_headers->{'SW_MODE'} ) &&
-      exists( $FITS_headers->{'OBS_TYPE'} ) ) {
+  if ( exists( $FITS_headers->{'SAM_MODE'} ) &&
+       exists( $FITS_headers->{'SW_MODE'} ) &&
+       exists( $FITS_headers->{'OBS_TYPE'} ) ) {
     my $sam_mode = $FITS_headers->{'SAM_MODE'};
     $sam_mode =~ s/\s//g;
     $sam_mode = "raster" if $sam_mode eq "scan";
@@ -406,8 +404,8 @@ sub to_OBSERVATION_MODE {
     $obs_type =~ s/\s//g;
 
     $return = ( ( $obs_type =~ /science/i )
-              ? join '_', $sam_mode, $sw_mode
-              : join '_', $sam_mode, $sw_mode, $obs_type );
+                ? join '_', $sam_mode, $sw_mode
+                : join '_', $sam_mode, $sw_mode, $obs_type );
   }
   return $return;
 }
@@ -437,30 +435,30 @@ sub to_OBSERVATION_TYPE {
   # even though the headers are broken. (eg 20080509#18 RxWD)
   $ot = "science" unless $ot;
 
-  if( $ot ) {
+  if ( $ot ) {
     my $obs_type = lc( $ot );
 
-    if( $obs_type =~ /science/ ) {
+    if ( $obs_type =~ /science/ ) {
 
-      if( defined( $FITS_headers->{'SAM_MODE'} ) ) {
+      if ( defined( $FITS_headers->{'SAM_MODE'} ) ) {
 
         my $sam_mode = $FITS_headers->{'SAM_MODE'};
 
-        if( $sam_mode =~ /raster|scan/ ) {
+        if ( $sam_mode =~ /raster|scan/ ) {
           $return = "raster";
-        } elsif( $sam_mode =~ /grid/ ) {
+        } elsif ( $sam_mode =~ /grid/ ) {
           $return = "grid";
-        } elsif( $sam_mode =~ /jiggle/ ) {
+        } elsif ( $sam_mode =~ /jiggle/ ) {
           $return = "jiggle";
         } else {
           croak "Unexpected sample mode: '$sam_mode'";
         }
       }
-    } elsif( $obs_type =~ /focus/ ) {
+    } elsif ( $obs_type =~ /focus/ ) {
       $return = "focus";
-    } elsif( $obs_type =~ /pointing/ ) {
+    } elsif ( $obs_type =~ /pointing/ ) {
       $return = "pointing";
-    } elsif( $obs_type =~ /skydip/) {
+    } elsif ( $obs_type =~ /skydip/) {
       $return = "skydip";
     } else {
       croak "Unexpected OBS_TYPE of '$obs_type'\n";
@@ -526,17 +524,17 @@ sub to_REST_FREQUENCY {
 
   my $return;
 
-  if( defined( $frameset ) &&
-      UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
+  if ( defined( $frameset ) &&
+       UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
     my $frequency = $frameset->Get( "restfreq" );
     $return = $frequency * 1_000_000_000;
-  } elsif( exists( $FITS_headers->{'RESTFREQ'} ) ||
-           ( exists( $FITS_headers->{'SUBHEADERS'} ) &&
-             exists( $FITS_headers->{'SUBHEADERS'}->[0]->{'RESTFREQ'} ) ) ) {
+  } elsif ( exists( $FITS_headers->{'RESTFREQ'} ) ||
+            ( exists( $FITS_headers->{'SUBHEADERS'} ) &&
+              exists( $FITS_headers->{'SUBHEADERS'}->[0]->{'RESTFREQ'} ) ) ) {
 
     $return = exists( $FITS_headers->{'RESTFREQ'} ) ?
-              $FITS_headers->{'RESTFREQ'}           :
-              $FITS_headers->{'SUBHEADERS'}->[0]->{'RESTFREQ'};
+      $FITS_headers->{'RESTFREQ'}           :
+        $FITS_headers->{'SUBHEADERS'}->[0]->{'RESTFREQ'};
     $return *= 1_000_000_000;
   }
 
@@ -560,22 +558,22 @@ sub to_SYSTEM_VELOCITY {
   my $frameset = shift;
 
   my $return;
-  if( exists( $FITS_headers->{'DOPPLER'} ) ) {
+  if ( exists( $FITS_headers->{'DOPPLER'} ) ) {
     my $doppler = uc( $FITS_headers->{'DOPPLER'} );
 
-    if( defined( $frameset ) &&
-        UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
+    if ( defined( $frameset ) &&
+         UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
       my $sourcevrf = uc( $frameset->Get( "sourcevrf" ) );
 
       $return = substr( $doppler, 0, 3 ) . substr( $sourcevrf, 0, 3 );
-    } elsif( exists( $FITS_headers->{'SPECSYS'} ) ) {
+    } elsif ( exists( $FITS_headers->{'SPECSYS'} ) ) {
       my $specsys = uc( $FITS_headers->{'SPECSYS'} );
       $return = substr( $doppler, 0, 3 ) . substr( $specsys, 0, 3 );
     } else {
       my $specsys = '';
-      if( $doppler eq 'RADIO' ) {
+      if ( $doppler eq 'RADIO' ) {
         $specsys = 'LSRK';
-      } elsif( $doppler eq 'OPTICAL' ) {
+      } elsif ( $doppler eq 'OPTICAL' ) {
         $specsys = 'HELIOCENTRIC';
       }
       $return = substr( $doppler, 0, 3 ) . substr( $specsys, 0, 3 );
@@ -605,16 +603,16 @@ sub to_VELOCITY {
   my $frameset = shift;
 
   my $velocity = 0;
-  if( defined( $frameset ) &&
-      UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
+  if ( defined( $frameset ) &&
+       UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
 
     my $sourcesys = "VRAD";
-    if( defined( $FITS_headers->{'DOPPLER'} ) ) {
-      if( $FITS_headers->{'DOPPLER'} =~ /rad/i ) {
+    if ( defined( $FITS_headers->{'DOPPLER'} ) ) {
+      if ( $FITS_headers->{'DOPPLER'} =~ /rad/i ) {
         $sourcesys = "VRAD";
-      } elsif( $FITS_headers->{'DOPPLER'} =~ /opt/i ) {
+      } elsif ( $FITS_headers->{'DOPPLER'} =~ /opt/i ) {
         $sourcesys = "VOPT";
-      } elsif( $FITS_headers->{'DOPPLER'} =~ /red/i ) {
+      } elsif ( $FITS_headers->{'DOPPLER'} =~ /red/i ) {
         $sourcesys = "REDSHIFT";
       }
     }
@@ -623,19 +621,19 @@ sub to_VELOCITY {
   } else {
 
     # We weren't passed a frameset, so try using other headers.
-    if( exists( $FITS_headers->{'DOPPLER'} ) &&
-        ( exists( $FITS_headers->{'ZSOURCE'} ) ||
-          exists( $FITS_headers->{'SUBHEADERS'}->[0]->{'ZSOURCE'} ) ) ) {
+    if ( exists( $FITS_headers->{'DOPPLER'} ) &&
+         ( exists( $FITS_headers->{'ZSOURCE'} ) ||
+           exists( $FITS_headers->{'SUBHEADERS'}->[0]->{'ZSOURCE'} ) ) ) {
       my $doppler = uc( $FITS_headers->{'DOPPLER'} );
       my $zsource = exists( $FITS_headers->{'ZSOURCE'} ) ?
-                    $FITS_headers->{'ZSOURCE'}           :
-                    $FITS_headers->{'SUBHEADERS'}->[0]->{'ZSOURCE'};
+        $FITS_headers->{'ZSOURCE'}           :
+          $FITS_headers->{'SUBHEADERS'}->[0]->{'ZSOURCE'};
 
-      if( $doppler eq 'REDSHIFT' ) {
+      if ( $doppler eq 'REDSHIFT' ) {
         $velocity = $zsource;
-      } elsif( $doppler eq 'OPTICAL' ) {
+      } elsif ( $doppler eq 'OPTICAL' ) {
         $velocity = $zsource * CLIGHT;
-      } elsif( $doppler eq 'RADIO' ) {
+      } elsif ( $doppler eq 'RADIO' ) {
         $velocity = ( CLIGHT * $zsource ) / ( 1 + $zsource );
       }
     }
@@ -669,15 +667,15 @@ sub _calc_coords {
 
   # Here be dragons. Possibility that cache will not be cleared properly
   # if a user comes in outside of the translate_from_FITS() method.
-  if( defined( $COORDS ) &&
-      UNIVERSAL::isa( $COORDS, "Astro::Coords" ) ) {
+  if ( defined( $COORDS ) &&
+       UNIVERSAL::isa( $COORDS, "Astro::Coords" ) ) {
     return $COORDS;
   }
 
-  if( exists( $FITS_headers->{'TELESCOP'} ) &&
-      exists( $FITS_headers->{'DATE-OBS'} ) &&
-      exists( $FITS_headers->{'AZSTART'} )  &&
-      exists( $FITS_headers->{'ELSTART'} ) ) {
+  if ( exists( $FITS_headers->{'TELESCOP'} ) &&
+       exists( $FITS_headers->{'DATE-OBS'} ) &&
+       exists( $FITS_headers->{'AZSTART'} )  &&
+       exists( $FITS_headers->{'ELSTART'} ) ) {
 
     my $dateobs   = $FITS_headers->{'DATE-OBS'};
     my $telescope = $FITS_headers->{'TELESCOP'};
@@ -708,13 +706,13 @@ sub _convert_sybase_date {
   $sybase_date =~ s/\s*$//;
 
   return unless 
-      $sybase_date =~ /\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s+(\d{1,2}):(\d\d):(\d\d)(AM|PM)/;
+    $sybase_date =~ /\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s+(\d{1,2}):(\d\d):(\d\d)(AM|PM)/;
 
   my $hour = $4;
   if (uc($7) eq 'AM' && $hour == 12) {
-      $hour = 0;
-  } elsif( uc($7) eq 'PM' && $hour < 12 ) {
-      $hour += 12;
+    $hour = 0;
+  } elsif ( uc($7) eq 'PM' && $hour < 12 ) {
+    $hour += 12;
   }
 
   my %mon_lookup = ( 'Jan' => 1,
@@ -753,32 +751,32 @@ FITS compliant.
 =cut
 
 sub _fix_dates {
-    my $FITS_headers = shift;
-    # DATE-OBS can be from LONGDATEOBS LONGDATE or DATE_OBS
-    _try_dates( $FITS_headers, 'DATE-OBS', qw/ LONGDATEOBS LONGDATE DATE_OBS / );
+  my $FITS_headers = shift;
+  # DATE-OBS can be from LONGDATEOBS LONGDATE or DATE_OBS
+  _try_dates( $FITS_headers, 'DATE-OBS', qw/ LONGDATEOBS LONGDATE DATE_OBS / );
 
-    # DATE-END can be from DATE_END or LONGDATEEND
-    _try_dates( $FITS_headers, 'DATE-END', qw/ LONGDATEEND DATE_END / );
+  # DATE-END can be from DATE_END or LONGDATEEND
+  _try_dates( $FITS_headers, 'DATE-END', qw/ LONGDATEEND DATE_END / );
 
-    return;
+  return;
 }
 
 # helper routine for _fix_dates
 sub _try_dates {
-    my $FITS_headers = shift;
-    my $outkey = shift;
-    my @tests = @_;
+  my $FITS_headers = shift;
+  my $outkey = shift;
+  my @tests = @_;
 
-    if (!exists $FITS_headers->{$outkey}) {
-        for my $key (@tests) {
-            if( exists( $FITS_headers->{$key} ) ) {
-                my $date = _convert_sybase_date( $FITS_headers->{$key} );
-                $FITS_headers->{$outkey} = $date->datetime;
-                last;
-            }
-        }
+  if (!exists $FITS_headers->{$outkey}) {
+    for my $key (@tests) {
+      if ( exists( $FITS_headers->{$key} ) ) {
+        my $date = _convert_sybase_date( $FITS_headers->{$key} );
+        $FITS_headers->{$outkey} = $date->datetime;
+        last;
+      }
     }
-    return;
+  }
+  return;
 }
 
 =back

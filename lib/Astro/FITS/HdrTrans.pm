@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans;
 
 =head1 NAME
@@ -49,8 +47,8 @@ $DEBUG   = 0;
 # translations shared by multiple instruments.
 
 my @REF_CLASS_LIST = qw/ ACSIS IRCAM CGS4New CGS4Old UIST UFTI
-JCMT_GSD JCMT_GSD_DB MICHELLE SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 SOFI
-ISAAC NACO INGRID GMOS SPEX NIRI ClassicCam CURVE /;
+                         JCMT_GSD JCMT_GSD_DB MICHELLE SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 SOFI
+                         ISAAC NACO INGRID GMOS SPEX NIRI ClassicCam CURVE /;
 
 # This is the actual list that is currently supported. It should always
 # default to the reference list
@@ -73,131 +71,131 @@ all the headers.
 =cut
 
 my @generic_headers = qw(
-                         AIRMASS_START
-                         AIRMASS_END
-                         ALTITUDE
-                         AMBIENT_TEMPERATURE
-                         AZIMUTH_START
-                         AZIMUTH_END
-                         BACKEND
-                         BACKEND_SECTIONS
-                         BANDWIDTH_MODE
-                         BOLOMETERS
-                         CAMERA
-                         CAMERA_NUMBER
-                         CHOP_ANGLE
-                         CHOP_COORDINATE_SYSTEM
-                         CHOP_FREQUENCY
-                         CHOP_THROW
-                         CONFIGURATION_INDEX
-                         COORDINATE_SYSTEM
-                         COORDINATE_UNITS
-                         COORDINATE_TYPE
-                         CYCLE_LENGTH
-                         DATA_UNITS
-                         DEC_BASE
-                         DEC_SCALE
-                         DEC_SCALE_UNITS
-                         DEC_TELESCOPE_OFFSET
-                         DETECTOR_BIAS
-                         DETECTOR_INDEX
-                         DETECTOR_READ_TYPE
-                         DR_GROUP
-                         DR_RECIPE
-                         ELEVATION_START
-                         ELEVATION_END
-                         EPOCH
-                         EQUINOX
-                         EXPOSURE_TIME
-                         FILE_FORMAT
-                         FILENAME
-                         FILTER
-                         FRONTEND
-                         GAIN
-                         GALACTIC_LATITUDE
-                         GALACTIC_LONGITUDE
-                         GRATING_DISPERSION
-                         GRATING_NAME
-                         GRATING_ORDER
-                         GRATING_WAVELENGTH
-                         HUMIDITY
-                         INSTRUMENT
-                         INST_DHS
-                         LATITUDE
-                         LONGITUDE
-                         MSBID
-                         MSB_TRANSACTION_ID
-                         NSCAN_POSITIONS
-                         NUMBER_OF_COADDS
-                         NUMBER_OF_CYCLES
-                         NUMBER_OF_DETECTORS
-                         NUMBER_OF_EXPOSURES
-                         NUMBER_OF_JITTER_POSITIONS
-                         NUMBER_OF_MICROSTEP_POSITIONS
-                         NUMBER_OF_OFFSETS
-                         NUMBER_OF_READS
-                         NUMBER_OF_SUBFRAMES
-                         NUMBER_OF_SUBSCANS
-                         OBJECT
-                         OBSERVATION_ID
-                         OBSERVATION_MODE
-                         OBSERVATION_NUMBER
-                         OBSERVATION_TYPE
-                         POLARIMETER
-                         POLARIMETRY
-                         PROJECT
-                         RA_BASE
-                         RA_SCALE
-                         RA_SCALE_UNITS
-                         RA_TELESCOPE_OFFSET
-                         RECEIVER_TEMPERATURE
-                         REST_FREQUENCY
-                         ROTATION
-                         SAMPLING
-                         SCAN_INCREMENT
-                         SEEING
-                         SLIT_ANGLE
-                         SLIT_NAME
-                         SLIT_WIDTH
-                         SPEED_GAIN
-                         STANDARD
-                         SUBSYSTEM_IDKEY
-                         SWITCH_MODE
-                         SYSTEM_TEMPERATURE
-                         SYSTEM_VELOCITY
-                         TAU
-                         TELESCOPE
-                         TILE_NUMBER
-                         USER_AZIMUTH_CORRECTION
-                         USER_ELEVATION_CORRECTION
-                         UTDATE
-                         UTEND
-                         UTSTART
-                         VELOCITY
-                         VELOCITY_REFERENCE_FRAME
-                         VELOCITY_TYPE
-                         WAVEPLATE_ANGLE
-                         X_APERTURE
-                         Y_APERTURE
-                         X_BASE
-                         Y_BASE
-                         X_OFFSET
-                         Y_OFFSET
-                         X_REFERENCE_PIXEL
-                         Y_REFERENCE_PIXEL
-                         X_REQUESTED
-                         Y_REQUESTED
-                         X_SCALE
-                         Y_SCALE
-                         X_DIM
-                         Y_DIM
-                         X_LOWER_BOUND
-                         X_UPPER_BOUND
-                         Y_LOWER_BOUND
-                         Y_UPPER_BOUND
-                         ZENITH_DISTANCE_START
-                         ZENITH_DISTANCE_END
-                        );
+                          AIRMASS_START
+                          AIRMASS_END
+                          ALTITUDE
+                          AMBIENT_TEMPERATURE
+                          AZIMUTH_START
+                          AZIMUTH_END
+                          BACKEND
+                          BACKEND_SECTIONS
+                          BANDWIDTH_MODE
+                          BOLOMETERS
+                          CAMERA
+                          CAMERA_NUMBER
+                          CHOP_ANGLE
+                          CHOP_COORDINATE_SYSTEM
+                          CHOP_FREQUENCY
+                          CHOP_THROW
+                          CONFIGURATION_INDEX
+                          COORDINATE_SYSTEM
+                          COORDINATE_UNITS
+                          COORDINATE_TYPE
+                          CYCLE_LENGTH
+                          DATA_UNITS
+                          DEC_BASE
+                          DEC_SCALE
+                          DEC_SCALE_UNITS
+                          DEC_TELESCOPE_OFFSET
+                          DETECTOR_BIAS
+                          DETECTOR_INDEX
+                          DETECTOR_READ_TYPE
+                          DR_GROUP
+                          DR_RECIPE
+                          ELEVATION_START
+                          ELEVATION_END
+                          EPOCH
+                          EQUINOX
+                          EXPOSURE_TIME
+                          FILE_FORMAT
+                          FILENAME
+                          FILTER
+                          FRONTEND
+                          GAIN
+                          GALACTIC_LATITUDE
+                          GALACTIC_LONGITUDE
+                          GRATING_DISPERSION
+                          GRATING_NAME
+                          GRATING_ORDER
+                          GRATING_WAVELENGTH
+                          HUMIDITY
+                          INSTRUMENT
+                          INST_DHS
+                          LATITUDE
+                          LONGITUDE
+                          MSBID
+                          MSB_TRANSACTION_ID
+                          NSCAN_POSITIONS
+                          NUMBER_OF_COADDS
+                          NUMBER_OF_CYCLES
+                          NUMBER_OF_DETECTORS
+                          NUMBER_OF_EXPOSURES
+                          NUMBER_OF_JITTER_POSITIONS
+                          NUMBER_OF_MICROSTEP_POSITIONS
+                          NUMBER_OF_OFFSETS
+                          NUMBER_OF_READS
+                          NUMBER_OF_SUBFRAMES
+                          NUMBER_OF_SUBSCANS
+                          OBJECT
+                          OBSERVATION_ID
+                          OBSERVATION_MODE
+                          OBSERVATION_NUMBER
+                          OBSERVATION_TYPE
+                          POLARIMETER
+                          POLARIMETRY
+                          PROJECT
+                          RA_BASE
+                          RA_SCALE
+                          RA_SCALE_UNITS
+                          RA_TELESCOPE_OFFSET
+                          RECEIVER_TEMPERATURE
+                          REST_FREQUENCY
+                          ROTATION
+                          SAMPLING
+                          SCAN_INCREMENT
+                          SEEING
+                          SLIT_ANGLE
+                          SLIT_NAME
+                          SLIT_WIDTH
+                          SPEED_GAIN
+                          STANDARD
+                          SUBSYSTEM_IDKEY
+                          SWITCH_MODE
+                          SYSTEM_TEMPERATURE
+                          SYSTEM_VELOCITY
+                          TAU
+                          TELESCOPE
+                          TILE_NUMBER
+                          USER_AZIMUTH_CORRECTION
+                          USER_ELEVATION_CORRECTION
+                          UTDATE
+                          UTEND
+                          UTSTART
+                          VELOCITY
+                          VELOCITY_REFERENCE_FRAME
+                          VELOCITY_TYPE
+                          WAVEPLATE_ANGLE
+                          X_APERTURE
+                          Y_APERTURE
+                          X_BASE
+                          Y_BASE
+                          X_OFFSET
+                          Y_OFFSET
+                          X_REFERENCE_PIXEL
+                          Y_REFERENCE_PIXEL
+                          X_REQUESTED
+                          Y_REQUESTED
+                          X_SCALE
+                          Y_SCALE
+                          X_DIM
+                          Y_DIM
+                          X_LOWER_BOUND
+                          X_UPPER_BOUND
+                          Y_LOWER_BOUND
+                          Y_UPPER_BOUND
+                          ZENITH_DISTANCE_START
+                          ZENITH_DISTANCE_END
+                       );
 
 sub generic_headers {
   my $class = shift;
@@ -323,21 +321,21 @@ sub translate_from_FITS {
 
   # translation classes
   my @classes;
-  if( exists( $options{class} ) &&
-      defined( $options{class} ) &&
-      ref( $options{class} ) eq 'ARRAY' ) {
+  if ( exists( $options{class} ) &&
+       defined( $options{class} ) &&
+       ref( $options{class} ) eq 'ARRAY' ) {
     @classes = @{$options{class}};
   }
 
   my $prefix;
-  if( exists( $options{prefix} ) &&
-      defined( $options{prefix} ) ) {
+  if ( exists( $options{prefix} ) &&
+       defined( $options{prefix} ) ) {
     $prefix = $options{prefix};
   }
 
   my $frameset;
-  if( exists( $options{frameset} ) &&
-      defined( $options{frameset} ) ) {
+  if ( exists( $options{frameset} ) &&
+       defined( $options{frameset} ) ) {
     $frameset = $options{frameset};
   }
 
@@ -392,16 +390,16 @@ sub translate_to_FITS {
   my %options = @_;
 
   my @classes;
-  if( exists( $options{class} ) &&
-      defined( $options{class} ) &&
-      ref( $options{class} ) eq 'ARRAY' ) {
+  if ( exists( $options{class} ) &&
+       defined( $options{class} ) &&
+       ref( $options{class} ) eq 'ARRAY' ) {
     @classes = @{$options{class}};
   }
 
 
   my $prefix;
-  if( exists( $options{prefix} ) &&
-      defined( $options{prefix} ) ) {
+  if ( exists( $options{prefix} ) &&
+       defined( $options{prefix} ) ) {
     $prefix = $options{prefix};
   } else {
     $prefix = '';
@@ -410,7 +408,7 @@ sub translate_to_FITS {
   # We need to strip off any prefix before figuring out what
   # class we need to use.
   my %stripped_header;
-  while( my ( $key, $value ) = each( %{$generic_header} ) ) {
+  while ( my ( $key, $value ) = each( %{$generic_header} ) ) {
     $key =~ s/^$prefix//;
     $stripped_header{$key} = $value;
   }
@@ -418,9 +416,9 @@ sub translate_to_FITS {
   # Check the UTSTART, UTEND, and UTDATE headers to make sure they're
   # Time::Piece objects.
   for my $h (qw/ UTSTART UTEND / ) {
-    if( exists( $stripped_header{$h} ) &&
-	defined( $stripped_header{$h} ) &&
-	! UNIVERSAL::isa( $stripped_header{$h}, "Time::Piece" ) ) {
+    if ( exists( $stripped_header{$h} ) &&
+         defined( $stripped_header{$h} ) &&
+         ! UNIVERSAL::isa( $stripped_header{$h}, "Time::Piece" ) ) {
       warnings::warnif( "Warning: $h generic header is not a Time::Piece object" );
     }
   }
@@ -469,18 +467,18 @@ sub determine_class {
   # Default classes if empty or undef
   my @defclasses = __PACKAGE__->translation_classes;
   if (!defined $classes || !@$classes) {
-      # see if we have an override
-      if (exists $hdr->{_TRANSLATION_CLASS} && defined $hdr->{_TRANSLATION_CLASS}) {
-          my $class = $hdr->{_TRANSLATION_CLASS};
-          my $loaded = eval "require $class";
-          if ($loaded) {
-              if ($class->can("can_translate") && $class->can_translate($hdr) ) {
-                  return $class;
-              }
-          }
+    # see if we have an override
+    if (exists $hdr->{_TRANSLATION_CLASS} && defined $hdr->{_TRANSLATION_CLASS}) {
+      my $class = $hdr->{_TRANSLATION_CLASS};
+      my $loaded = eval "require $class";
+      if ($loaded) {
+        if ($class->can("can_translate") && $class->can_translate($hdr) ) {
+          return $class;
+        }
       }
-      # did no have an override so use defaults
-      $classes = \@defclasses;
+    }
+    # did no have an override so use defaults
+    $classes = \@defclasses;
   }
 
   # Determine the class name so we can use the appropriate subclass
@@ -496,12 +494,12 @@ sub determine_class {
 
     # Try a class and if it fails to load, skip
     eval "require $class";
-    if( $@ ) {
+    if ( $@ ) {
       print "Error loading class $class: $@\n" if $DEBUG;
     }
     next if ( $@ );
-    if( $class->can("can_translate") ) {
-      if( $class->can_translate( $hdr ) ) {
+    if ( $class->can("can_translate") ) {
+      if ( $class->can_translate( $hdr ) ) {
         print "Class $class matches\n" if $DEBUG;
         $result{$subclass}++;
       }
@@ -510,15 +508,16 @@ sub determine_class {
     }
   }
 
-  if( ( scalar keys %result ) > 1 ) {
+  if ( ( scalar keys %result ) > 1 ) {
     croak "Ambiguities in determining which header translations to use (".
-       join(",",keys %result).")";
+      join(",",keys %result).")";
   }
 
-  if( ( scalar keys %result ) == 0 ) {
+  if ( ( scalar keys %result ) == 0 ) {
     # We couldn't figure out which one to use.
-    croak "Unable to determine header translation subclass. No matches for these headers when trying to convert " . ($fromfits ? 'from' : 'to' )
-      . " FITS using the following classes: ".join(",",@$classes);
+    croak "Unable to determine header translation subclass. No matches for these headers when trying to convert "
+      . ($fromfits ? 'from' : 'to' )
+        . " FITS using the following classes: ".join(",",@$classes);
   }
 
   # The class we wanted is the only key in the hash

@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::GMOS;
 
 =head1 NAME
@@ -34,7 +32,7 @@ $VERSION = "1.02";
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-                  OBSERVATION_MODE => 'imaging',
+                 OBSERVATION_MODE => 'imaging',
                 );
 
 # NULL mappings used to override base class implementations
@@ -68,7 +66,7 @@ Returns "GMOS".
 =cut
 
 sub this_instrument {
-   return qr/^GMOS/;
+  return qr/^GMOS/;
 }
 
 =back

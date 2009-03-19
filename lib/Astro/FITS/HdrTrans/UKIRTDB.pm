@@ -1,5 +1,3 @@
-# -*-perl-*-
-
 package Astro::FITS::HdrTrans::UKIRTDB;
 
 =head1 NAME
@@ -38,8 +36,8 @@ $VERSION = "1.02";
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
 my %CONST_MAP = (
-		 COORDINATE_UNITS => 'degrees',
-		);
+                 COORDINATE_UNITS => 'degrees',
+                );
 
 # NULL mappings used to override base class implementations
 my @NULL_MAP = ();
@@ -48,47 +46,47 @@ my @NULL_MAP = ();
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-		AIRMASS_START        => "AMSTART",
-		AIRMASS_END          => "AMEND",
-		CAMERA               => "CAMLENS",
-    CAMERA_NUMBER        => "CAMNUM",
-		CONFIGURATION_INDEX  => "CNFINDEX",
-		DEC_BASE             => "DECBASE",
-		DEC_SCALE            => "PIXELSIZ",
-		DEC_TELESCOPE_OFFSET => "DECOFF",
-		DETECTOR_READ_TYPE   => "MODE",
-		DR_GROUP             => "GRPNUM",
-		DR_RECIPE            => "RECIPE",
-		EQUINOX              => "EQUINOX",
-		FILTER               => "FILTER",
+                AIRMASS_START        => "AMSTART",
+                AIRMASS_END          => "AMEND",
+                CAMERA               => "CAMLENS",
+                CAMERA_NUMBER        => "CAMNUM",
+                CONFIGURATION_INDEX  => "CNFINDEX",
+                DEC_BASE             => "DECBASE",
+                DEC_SCALE            => "PIXELSIZ",
+                DEC_TELESCOPE_OFFSET => "DECOFF",
+                DETECTOR_READ_TYPE   => "MODE",
+                DR_GROUP             => "GRPNUM",
+                DR_RECIPE            => "RECIPE",
+                EQUINOX              => "EQUINOX",
+                FILTER               => "FILTER",
                 FILENAME             => "FILENAME",
-		GAIN                 => "DEPERDN",
-		GRATING_DISPERSION   => "GDISP",
-		GRATING_ORDER        => "GORDER",
-		INSTRUMENT           => "INSTRUME",
+                GAIN                 => "DEPERDN",
+                GRATING_DISPERSION   => "GDISP",
+                GRATING_ORDER        => "GORDER",
+                INSTRUMENT           => "INSTRUME",
                 NUMBER_OF_COADDS => 'NEXP',
-		NUMBER_OF_EXPOSURES  => "NEXP",
-		OBJECT               => "OBJECT",
-		OBSERVATION_MODE     => "INSTMODE",
-		OBSERVATION_NUMBER   => "RUN",
-		OBSERVATION_TYPE     => "OBSTYPE",
-		PROJECT              => "PROJECT",
-		RA_SCALE             => "PIXELSIZ",
-		RA_TELESCOPE_OFFSET  => "RAOFF",
-		TELESCOPE            => "TELESCOP",
-		WAVEPLATE_ANGLE      => "WPLANGLE",
-		Y_BASE               => "DECBASE",
-		X_DIM                => "DCOLUMNS",
-		Y_DIM                => "DROWS",
-		X_OFFSET             => "RAOFF",
-		Y_OFFSET             => "DECOFF",
-		X_SCALE              => "PIXELSIZ",
-		Y_SCALE              => "PIXELSIZ",
-		X_LOWER_BOUND        => "RDOUT_X1",
-		X_UPPER_BOUND        => "RDOUT_X2",
-		Y_LOWER_BOUND        => "RDOUT_Y1",
-		Y_UPPER_BOUND        => "RDOUT_Y2"
-	       );
+                NUMBER_OF_EXPOSURES  => "NEXP",
+                OBJECT               => "OBJECT",
+                OBSERVATION_MODE     => "INSTMODE",
+                OBSERVATION_NUMBER   => "RUN",
+                OBSERVATION_TYPE     => "OBSTYPE",
+                PROJECT              => "PROJECT",
+                RA_SCALE             => "PIXELSIZ",
+                RA_TELESCOPE_OFFSET  => "RAOFF",
+                TELESCOPE            => "TELESCOP",
+                WAVEPLATE_ANGLE      => "WPLANGLE",
+                Y_BASE               => "DECBASE",
+                X_DIM                => "DCOLUMNS",
+                Y_DIM                => "DROWS",
+                X_OFFSET             => "RAOFF",
+                Y_OFFSET             => "DECOFF",
+                X_SCALE              => "PIXELSIZ",
+                Y_SCALE              => "PIXELSIZ",
+                X_LOWER_BOUND        => "RDOUT_X1",
+                X_UPPER_BOUND        => "RDOUT_X2",
+                Y_LOWER_BOUND        => "RDOUT_Y1",
+                Y_UPPER_BOUND        => "RDOUT_Y2"
+               );
 
 
 # Create the translation methods
@@ -111,14 +109,14 @@ from the actual file headers.
 =cut
 
 sub can_translate {
-    my $self = shift;
-    my $FITS_headers = shift;
-    if (exists $FITS_headers->{TELESCOP}
-        && $FITS_headers->{TELESCOP} =~ /UKIRT/
-        && exists $FITS_headers->{FILENAME}
-        && exists $FITS_headers->{RAJ2000}) {
-        return 1;
-    }
+  my $self = shift;
+  my $FITS_headers = shift;
+  if (exists $FITS_headers->{TELESCOP}
+      && $FITS_headers->{TELESCOP} =~ /UKIRT/
+      && exists $FITS_headers->{FILENAME}
+      && exists $FITS_headers->{RAJ2000}) {
+    return 1;
+  }
 }
 
 =back
@@ -145,7 +143,7 @@ sub to_INST_DHS {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{DHSVER} ) ) {
+  if ( exists( $FITS_headers->{DHSVER} ) ) {
     $FITS_headers->{DHSVER} =~ /^(\w+)/;
     my $dhs = uc($1);
     $return = $FITS_headers->{INSTRUME} . "_$dhs";
@@ -170,11 +168,11 @@ sub to_EXPOSURE_TIME {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'EXPOSED'} ) && defined( $FITS_headers->{'EXPOSED'} ) ) {
+  if ( exists( $FITS_headers->{'EXPOSED'} ) && defined( $FITS_headers->{'EXPOSED'} ) ) {
     $return = $FITS_headers->{'EXPOSED'};
-  } elsif( exists( $FITS_headers->{'DEXPTIME'} ) && defined( $FITS_headers->{'DEXPTIME'} ) ) {
+  } elsif ( exists( $FITS_headers->{'DEXPTIME'} ) && defined( $FITS_headers->{'DEXPTIME'} ) ) {
     $return = $FITS_headers->{'DEXPTIME'};
-  } elsif( exists( $FITS_headers->{'EXP_TIME'} ) && defined( $FITS_headers->{'EXP_TIME'} ) ) {
+  } elsif ( exists( $FITS_headers->{'EXP_TIME'} ) && defined( $FITS_headers->{'EXP_TIME'} ) ) {
     $return = $FITS_headers->{'EXP_TIME'};
   }
   return $return;
@@ -191,8 +189,8 @@ sub to_COORDINATE_TYPE {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{EQUINOX})) {
-    if($FITS_headers->{EQUINOX} =~ /1950/) {
+  if (exists($FITS_headers->{EQUINOX})) {
+    if ($FITS_headers->{EQUINOX} =~ /1950/) {
       $return = "B1950";
     } elsif ($FITS_headers->{EQUINOX} =~ /2000/) {
       $return = "J2000";
@@ -209,9 +207,9 @@ sub to_GRATING_NAME {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{GRATING})) {
+  if (exists($FITS_headers->{GRATING})) {
     $return = $FITS_headers->{GRATING};
-  } elsif(exists($FITS_headers->{GRISM})) {
+  } elsif (exists($FITS_headers->{GRISM})) {
     $return = $FITS_headers->{GRISM};
   }
   return $return;
@@ -225,9 +223,9 @@ sub to_GRATING_WAVELENGTH {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{GLAMBDA})) {
+  if (exists($FITS_headers->{GLAMBDA})) {
     $return = $FITS_headers->{GLAMBDA};
-  } elsif(exists($FITS_headers->{CENWAVL})) {
+  } elsif (exists($FITS_headers->{CENWAVL})) {
     $return = $FITS_headers->{CENWAVL};
   }
   return $return;
@@ -244,9 +242,9 @@ sub to_SLIT_ANGLE {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{'SANGLE'})) {
+  if (exists($FITS_headers->{'SANGLE'})) {
     $return = $FITS_headers->{'SANGLE'};
-  } elsif(exists($FITS_headers->{'SLIT_PA'} )) {
+  } elsif (exists($FITS_headers->{'SLIT_PA'} )) {
     $return = $FITS_headers->{'SLIT_PA'};
   }
   return $return;
@@ -264,9 +262,9 @@ sub to_SLIT_NAME {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{'SLIT'})) {
+  if (exists($FITS_headers->{'SLIT'})) {
     $return = $FITS_headers->{'SLIT'};
-  } elsif(exists($FITS_headers->{'SLITNAME'} )) {
+  } elsif (exists($FITS_headers->{'SLITNAME'} )) {
     $return = $FITS_headers->{'SLITNAME'};
   }
   return $return;
@@ -282,10 +280,10 @@ sub to_SPEED_GAIN {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'SPD_GAIN'} ) ) {
+  if ( exists( $FITS_headers->{'SPD_GAIN'} ) ) {
     $return = $FITS_headers->{'SPD_GAIN'};
-  } elsif( exists( $FITS_headers->{'WAVEFORM'} ) ) {
-    if( $FITS_headers->{'WAVEFORM'} =~ /thermal/i ) {
+  } elsif ( exists( $FITS_headers->{'WAVEFORM'} ) ) {
+    if ( $FITS_headers->{'WAVEFORM'} =~ /thermal/i ) {
       $return = 'thermal';
     } else {
       $return = 'normal';
@@ -310,24 +308,24 @@ sub to_STANDARD {
 
   # Set false as default so we do not have to repeat this in the logic
   # below (could just use undef == false)
-  my $return = 0; # default false
+  my $return = 0;               # default false
 
-  if( exists( $FITS_headers->{'STANDARD'} ) &&
-      length( $FITS_headers->{'STANDARD'} . "") > 0 ) {
+  if ( exists( $FITS_headers->{'STANDARD'} ) &&
+       length( $FITS_headers->{'STANDARD'} . "") > 0 ) {
 
-    if($FITS_headers->{'STANDARD'} =~ /^[tf]$/i) {
+    if ($FITS_headers->{'STANDARD'} =~ /^[tf]$/i) {
       # Raw header read from FITS header
       $return = (uc($FITS_headers->{'STANDARD'}) eq 'T');
-    } elsif($FITS_headers->{'STANDARD'} =~ /^[01]$/) {
+    } elsif ($FITS_headers->{'STANDARD'} =~ /^[01]$/) {
       # Translated header either so a true logical
       $return = $FITS_headers->{'STANDARD'};
     }
 
   } elsif ( ( exists $FITS_headers->{OBJECT} &&
-	      $FITS_headers->{'OBJECT'} =~ /^[bf]s/i ) ||
-	    ( exists( $FITS_headers->{'RECIPE'} ) &&
-	      $FITS_headers->{'RECIPE'} =~ /^standard/i
-	    )) {
+              $FITS_headers->{'OBJECT'} =~ /^[bf]s/i ) ||
+            ( exists( $FITS_headers->{'RECIPE'} ) &&
+              $FITS_headers->{'RECIPE'} =~ /^standard/i
+            )) {
     # Either we have an object with name prefix of BS or FS or
     # our recipe looks suspiciously like a standard.
     $return = 1;
@@ -347,7 +345,7 @@ sub to_UTDATE {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'UT_DATE'} ) ) {
+  if ( exists( $FITS_headers->{'UT_DATE'} ) ) {
     $return = Time::Piece->strptime( $FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p" );
     $return = $return->strftime('%Y%m%d');
   }
@@ -369,11 +367,11 @@ sub to_UTSTART {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'DATE_OBS'} ) ) {
+  if ( exists( $FITS_headers->{'DATE_OBS'} ) ) {
     my $dateobs = $FITS_headers->{'DATE_OBS'};
     $return = $self->_parse_iso_date( $dateobs );
-  } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
-          exists($FITS_headers->{'RUTSTART'}) && defined( $FITS_headers->{'RUTSTART'} ) ) {
+  } elsif (exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
+           exists($FITS_headers->{'RUTSTART'}) && defined( $FITS_headers->{'RUTSTART'} ) ) {
     # Use the default UTDATE translation but insert "-" for ISO parsing
     my $ut = $self->to_UTDATE($FITS_headers);
     $ut = join("-", substr($ut,0,4), substr($ut,4,2), substr($ut,6,2));
@@ -397,7 +395,7 @@ sub from_UTSTART {
   my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{UTSTART})) {
+  if (exists($generic_headers->{UTSTART})) {
     my $t = _parse_date( $generic_headers->{'UTSTART'} );
     my $month = $t->month;
     $month =~ /^(.{3})/;
@@ -422,11 +420,11 @@ sub to_UTEND {
   my $FITS_headers = shift;
   my $return;
 
-  if( exists( $FITS_headers->{'DATE_END'} ) ) {
+  if ( exists( $FITS_headers->{'DATE_END'} ) ) {
     my $dateend = $FITS_headers->{'DATE_END'};
     $return = $self->_parse_iso_date( $dateend );
-  } elsif(exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
-          exists($FITS_headers->{'RUTEND'}) && defined( $FITS_headers->{'RUTEND'} ) ) {
+  } elsif (exists($FITS_headers->{'UT_DATE'}) && defined($FITS_headers->{'UT_DATE'}) &&
+           exists($FITS_headers->{'RUTEND'}) && defined( $FITS_headers->{'RUTEND'} ) ) {
     # Use the default UTDATE translation but insert "-" for ISO parsing
     my $ut = $self->to_UTDATE($FITS_headers);
     $ut = join("-", substr($ut,0,4), substr($ut,4,2), substr($ut,6,2));
@@ -450,7 +448,7 @@ sub from_UTEND {
   my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{UTEND})) {
+  if (exists($generic_headers->{UTEND})) {
     my $t = _parse_date( $generic_headers->{'UTEND'} );
     my $month = $t->month;
     $month =~ /^(.{3})/;
@@ -473,7 +471,7 @@ sub to_X_BASE {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{RABASE})) {
+  if (exists($FITS_headers->{RABASE})) {
     $return = $FITS_headers->{RABASE} * 15;
   }
   return $return;
@@ -490,7 +488,7 @@ sub from_X_BASE {
   my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{X_BASE})) {
+  if (exists($generic_headers->{X_BASE})) {
     $return_hash{'RABASE'} = $generic_headers->{X_BASE} / 15;
   }
   return %return_hash;
@@ -507,7 +505,7 @@ sub to_RA_BASE {
   my $self = shift;
   my $FITS_headers = shift;
   my $return;
-  if(exists($FITS_headers->{RABASE})) {
+  if (exists($FITS_headers->{RABASE})) {
     $return = $FITS_headers->{RABASE} * 15;
   }
   return $return;
@@ -524,7 +522,7 @@ sub from_RA_BASE {
   my $self = shift;
   my $generic_headers = shift;
   my %return_hash;
-  if(exists($generic_headers->{RA_BASE})) {
+  if (exists($generic_headers->{RA_BASE})) {
     $return_hash{'RABASE'} = $generic_headers->{RA_BASE} / 15;
   }
   return %return_hash;
