@@ -15,6 +15,7 @@ $header{'NOBCHAN'} = 2048;
 $header{'OBSMODE'} = 'sample';
 $header{'CYCLLEN'} = 60;
 $header{'FRONTEND'} = 'rxb';
+$header{'BACKEND'} = 'DAS';
 $header{'SWMODE'} = 'beamswitch';
 $header{'NSCAN'} = 1;
 $header{'NCYCLE'} = 2;

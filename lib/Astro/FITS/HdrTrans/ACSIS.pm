@@ -558,7 +558,7 @@ sub to_SYSTEM_VELOCITY {
   my $frameset = shift;
 
   my $return;
-  if ( exists( $FITS_headers->{'DOPPLER'} ) ) {
+  if ( exists( $FITS_headers->{'DOPPLER'} ) && defined $FITS_headers->{DOPPLER} ) {
     my $doppler = uc( $FITS_headers->{'DOPPLER'} );
 
     if ( defined( $frameset ) &&
