@@ -1,6 +1,7 @@
 #!perl
 # Testing translation to and from FITS headers.
 
+# Copyright (C) 2009 Science and Technology Facilities Council.
 # Copyright (C) 2002-2005 Particle Physics and Astronomy Research Council.
 # All Rights Reserved.
 
@@ -21,7 +22,7 @@
 
 use strict;
 
-use Test::More tests => 17;
+use Test::More tests => 19;
 
 # Test compilation.
 require_ok( 'Astro::FITS::HdrTrans' );
@@ -95,3 +96,10 @@ my %FITS_header_2 = Astro::FITS::HdrTrans::translate_to_FITS( \%generic_header_2
 is( $FITS_header_2{'IDATE'}, 20030301, "IDATE is 20030301, test_ prefix" );
 
 cmp_ok( abs( $FITS_header_2{'RUTSTART'} - 9.5333 ), '<', 0.0001, "RUTSTART is \"close\" to 9.5333, test_ prefix" );
+
+# Test that we can translate after explicit clean
+my %cleaned = Astro::FITS::HdrTrans::clean_prefix( \%generic_header_2, "test_" );
+my $class = Astro::FITS::HdrTrans::determine_class( \%cleaned, undef, 0 );
+is( $class, "Astro::FITS::HdrTrans::IRCAM", "Translation class after cleaning" );
+my %inst = $class->from_INSTRUMENT( \%cleaned );
+is( $inst{INSTRUME}, "IRCAM", "Get instrument from prefix translation");

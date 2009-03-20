@@ -407,11 +407,7 @@ sub translate_to_FITS {
 
   # We need to strip off any prefix before figuring out what
   # class we need to use.
-  my %stripped_header;
-  while ( my ( $key, $value ) = each( %{$generic_header} ) ) {
-    $key =~ s/^$prefix//;
-    $stripped_header{$key} = $value;
-  }
+  my %stripped_header = clean_prefix( $generic_header, $prefix );
 
   # Check the UTSTART, UTEND, and UTDATE headers to make sure they're
   # Time::Piece objects.
@@ -527,6 +523,36 @@ sub determine_class {
   return $class;
 }
 
+=item B<clean_prefix>
+
+If a prefix has been used and a targetted conversion is required (which will not understand
+the prefix) the prefix must first be removed. This function will remove the preifx, only
+returning headers that contained the prefix.
+
+  %cleaned = clean_prefix( \%header, $prefix );
+
+If prefix is an empty string or undefined, returns all headers.
+
+=cut
+
+sub clean_prefix {
+  my $href = shift;
+  my $prefix = shift;
+  return %$href unless $prefix;
+
+  my %stripped_header;
+  while ( my ( $key, $value ) = each( %{$href} ) ) {
+    if ($key eq '_TRANSLATION_CLASS') {
+      # this should be retained
+      $stripped_header{$key} = $value;
+    } elsif ($key =~ /^$prefix/) {
+      # only propagate keys that contain the prefix
+      $key =~ s/^$prefix//;
+      $stripped_header{$key} = $value;
+    }
+  }
+  return %stripped_header;
+}
 
 =back
 
@@ -546,6 +572,14 @@ The syntax for conversion from generic to FITS headers is:
 Note that the conversion to FITS can result in multiple header items
 and can require more than a single generic translated header item.
 
+If you are using a prefix, the general paradigm for converting a
+translated header back to FITS is:
+
+  my %cleaned = Astro::FITS::HdrTrans::clean_prefix( \%translated_hdr, $prefix );
+  my $class = Astro::FITS::HdrTrans::determine_class( \%cleaned, undef, 0 );
+  my %fits = $class->from_DR_RECIPE( \%cleaned );
+
+
 =head1 AUTHOR
 
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
@@ -553,7 +587,7 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2008 Science and Technology Facilities Council.
+Copyright (C) 2007-2009 Science and Technology Facilities Council.
 Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
