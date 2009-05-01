@@ -235,8 +235,8 @@ use Anubhav::Debug qw[ err_pkg_line err_trace ];
 
 err_pkg_line( 'date-obs found ? '
               .  ( exists $FITS_headers->{'DATE-OBS'} ? 1 : 0 )
-              . ', in '
-              , $FITS_headers
+              #. ', in '
+              #, $FITS_headers
             );
 
   my $utstart;
@@ -251,10 +251,14 @@ err_pkg_line( 'date-obs - searching in sub headers' );
 
   }
 
-err_pkg_line( [ 'date-obs' , $utstart ] );
-
   my $return;
+
+err_pkg_line( { 'date-obs' => $utstart } );
+
   $return = $class->_parse_iso_date( $utstart ) if defined $utstart;
+
+err_pkg_line( { 'date-obs' => $return } );
+
   return $return;
 }
 
@@ -274,86 +278,6 @@ sub from_UTSTART {
     $return_hash{'DATE-OBS'} = $date->datetime;
   }
   return %return_hash;
-}
-
-sub _convert_sybase_date {
-  my $sybase_date = shift;
-
-  $sybase_date =~ s/:\d\d\d//;
-  $sybase_date =~ s/\s*$//;
-
-  return unless
-    $sybase_date =~ /\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s+(\d{1,2}):(\d\d):(\d\d)(AM|PM)/;
-
-  my $hour = $4;
-  if (uc($7) eq 'AM' && $hour == 12) {
-    $hour = 0;
-  } elsif ( uc($7) eq 'PM' && $hour < 12 ) {
-    $hour += 12;
-  }
-
-  my %mon_lookup = ( 'Jan' => 1,
-                     'Feb' => 2,
-                     'Mar' => 3,
-                     'Apr' => 4,
-                     'May' => 5,
-                     'Jun' => 6,
-                     'Jul' => 7,
-                     'Aug' => 8,
-                     'Sep' => 9,
-                     'Oct' => 10,
-                     'Nov' => 11,
-                     'Dec' => 12 );
-  my $month = $mon_lookup{$1};
-
-  my $return = DateTime->new( year => $3,
-                              month => $month,
-                              day => $2,
-                              hour => $hour,
-                              minute => $5,
-                              second => $6,
-                              time_zone => $UTC,
-                            );
-  return $return;
-}
-
-=item B<_fix_dates>
-
-Sort out DATE-OBS and DATE-END in cases where they are not available directly.
-This is mainly an issue with database retrievals where the date format is not
-FITS compliant.
-
-  _fix_dates( \%headers );
-
-=cut
-
-sub _fix_dates {
-  my $FITS_headers = shift;
-  # DATE-OBS can be from LONGDATEOBS LONGDATE or DATE_OBS
-  _try_dates( $FITS_headers, 'DATE-OBS', qw/ LONGDATEOBS LONGDATE DATE_OBS / );
-
-  # DATE-END can be from DATE_END or LONGDATEEND
-  _try_dates( $FITS_headers, 'DATE-END', qw/ LONGDATEEND DATE_END / );
-
-  return;
-}
-
-# helper routine for _fix_dates
-sub _try_dates {
-  my $FITS_headers = shift;
-  my $outkey = shift;
-  my @tests = @_;
-
-  if (!exists $FITS_headers->{$outkey}) {
-    for my $key (@tests) {
-      if ( exists( $FITS_headers->{$key} ) ) {
-        my $date = _convert_sybase_date( $FITS_headers->{$key} );
-        $FITS_headers->{$outkey} = $date->datetime;
-        last;
-      }
-    }
-  }
-  return;
 }
 
 =back
