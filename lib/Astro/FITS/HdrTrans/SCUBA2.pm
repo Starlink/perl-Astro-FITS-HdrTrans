@@ -17,8 +17,10 @@ use warnings;
 use strict;
 use Carp;
 
-# Inherit from generic JAC class.
-use base qw/ Astro::FITS::HdrTrans::JAC /;
+use base
+  qw/ Astro::FITS::HdrTrans::JAC
+      Astro::FITS::HdrTrans::JCMT
+    /;
 
 use vars qw/ $VERSION /;
 
