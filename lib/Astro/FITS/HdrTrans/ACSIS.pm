@@ -26,7 +26,10 @@ use DateTime::TimeZone;
 
 # inherit from the Base translation class and not HdrTrans
 # itself (which is just a class-less wrapper)
-use base qw/ Astro::FITS::HdrTrans::JAC /;
+use base
+  qw/ Astro::FITS::HdrTrans::JAC
+      Astro::FITS::HdrTrans::JCMT
+    /;
 
 # Use the FITS standard DATE-OBS handling
 #use Astro::FITS::HdrTrans::FITS;
@@ -259,70 +262,6 @@ sub from_POLARIMETER {
   }
 
   return ( "INBEAM" => undef );
-}
-
-=item B<to_SURVEY>
-
-Checks the value of the SURVEY header and uses that. If it's
-undefined, then use the PROJECT header to determine an appropriate
-survey.
-
-=cut
-
-sub to_SURVEY {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $survey;
-
-  if( defined( $FITS_headers->{'SURVEY'} ) ) {
-    $survey = $FITS_headers->{'SURVEY'};
-  } else {
-
-    my $project = $FITS_headers->{'PROJECT'};
-    if( defined( $project ) ) {
-      if( $project =~ /JLS([GNS])/ ) {
-        if( $1 eq 'G' ) {
-          $survey = 'GBS';
-        } elsif( $1 eq 'N' ) {
-          $survey = 'NGS';
-        } elsif( $1 eq 'S' ) {
-          $survey = 'SLS';
-        }
-      }
-    }
-  }
-
-  return $survey;
-
-}
-
-=item B<to_UTSTART>
-
-Standard FITS implementation except that database fields are converted
-before passing to the FITS implementation.
-
-There are similar versions for to_UTDATE and to_UTEND
-
-=cut
-
-sub to_UTSTART {
-  my $class = shift;
-  my $FITS_headers = shift;
-  $class->_fix_dates( $FITS_headers );
-  return $class->SUPER::to_UTSTART( $FITS_headers, @_ );
-}
-sub to_UTEND {
-  my $class = shift;
-  my $FITS_headers = shift;
-  $class->_fix_dates( $FITS_headers );
-  return $class->SUPER::to_UTEND( $FITS_headers, @_ );
-}
-sub to_UTDATE {
-  my $class = shift;
-  my $FITS_headers = shift;
-  $class->_fix_dates( $FITS_headers );
-  return $class->SUPER::to_UTDATE( $FITS_headers, @_ );
 }
 
 =item B<to_EXPOSURE_TIME>
