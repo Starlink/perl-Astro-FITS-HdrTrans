@@ -38,9 +38,6 @@ use vars qw/ $VERSION /;
 
 $VERSION = "1.02";
 
-use lib '/home/agarwal/comp/perl5/lib';
-use Anubhav::Debug qw[ err_pkg_line err_trace ];
-
 # in each class we have three sets of data.
 #   - constant mappings
 #   - unit mappings
@@ -118,31 +115,25 @@ Sort out DATE-OBS and DATE-END in cases where they are not available directly.
 This is mainly an issue with database retrievals where the date format is not
 FITS compliant.
 
-  _fix_dates( \%headers );
+  Astro::FITS::HdrTrans::JAC->_fix_dates( \%headers );
 
 =cut
 
 sub _fix_dates {
   my ( $class, $FITS_headers ) = @_;
 
-err_trace();
-
   # DATE-OBS can be from LONGDATEOBS LONGDATE or DATE_OBS
-  $class->_try_dates( $FITS_headers, 'DATE-OBS', qw/ LONGDATEOBS LONGDATE DATE_OBS / );
+  __PACKAGE__->_try_dates( $FITS_headers, 'DATE-OBS', qw/ LONGDATEOBS LONGDATE DATE_OBS / );
 
   # DATE-END can be from DATE_END or LONGDATEEND
-  $class->_try_dates( $FITS_headers, 'DATE-END', qw/ LONGDATEEND DATE_END / );
+  __PACKAGE__->_try_dates( $FITS_headers, 'DATE-END', qw/ LONGDATEEND DATE_END / );
 
   return;
 }
 
 # helper routine for _fix_dates
 sub _try_dates {
-  my ( $class, $FITS_headers ) = shift;
-  my $outkey = shift;
-  my @tests = @_;
-
-#err_trace();
+  my ( $class, $FITS_headers, $outkey, @tests ) = @_;
 
   if (!exists $FITS_headers->{$outkey}) {
     for my $key (@tests) {
@@ -158,9 +149,6 @@ sub _try_dates {
 
 sub _convert_sybase_date {
   my $sybase_date = shift;
-
-err_pkg_line( 'hoo' );
-err_trace();
 
   $sybase_date =~ s/:\d\d\d//;
   $sybase_date =~ s/\s*$//;
