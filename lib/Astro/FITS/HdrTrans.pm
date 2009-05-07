@@ -160,6 +160,7 @@ my @generic_headers = qw(
                           SPEED_GAIN
                           STANDARD
                           SUBSYSTEM_IDKEY
+                          SURVEY
                           SWITCH_MODE
                           SYSTEM_TEMPERATURE
                           SYSTEM_VELOCITY
