@@ -264,6 +264,42 @@ sub from_POLARIMETER {
   return ( "INBEAM" => undef );
 }
 
+=item B<to_SURVEY>
+
+Checks the value of the SURVEY header and uses that. If it's
+undefined, then use the PROJECT header to determine an appropriate
+survey.
+
+=cut
+
+sub to_SURVEY {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $survey;
+
+  if( defined( $FITS_headers->{'SURVEY'} ) ) {
+    $survey = $FITS_headers->{'SURVEY'};
+  } else {
+
+    my $project = $FITS_headers->{'PROJECT'};
+    if( defined( $project ) ) {
+      if( $project =~ /JLS([GNS])/ ) {
+        if( $1 eq 'G' ) {
+          $survey = 'GBS';
+        } elsif( $1 eq 'N' ) {
+          $survey = 'NGS';
+        } elsif( $1 eq 'S' ) {
+          $survey = 'SLS';
+        }
+      }
+    }
+  }
+
+  return $survey;
+
+}
+
 =item B<to_EXPOSURE_TIME>
 
 Uses the to_UTSTART and to_UTEND functions to calculate the exposure
