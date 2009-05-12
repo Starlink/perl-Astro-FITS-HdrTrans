@@ -3,8 +3,6 @@ package Astro::FITS::HdrTrans::JCMT;
 use strict;
 use warnings;
 
-use Astro::FITS::HdrTrans::JAC;
-
 # Unit mapping implies that the value propogates directly
 # to the output with only a keyword name change.
 my %UNIT_MAP =
@@ -13,7 +11,6 @@ my %UNIT_MAP =
     AZIMUTH_START        => 'AZSTART',
     ELEVATION_START      => 'ELSTART',
     FILENAME             => 'FILE_ID',
-    FILTER               => 'FILTER',
     HUMIDITY             => 'HUMSTART',
     LATITUDE             => 'LAT-OBS',
     LONGITUDE            => 'LONG-OBS',
@@ -25,9 +22,6 @@ my %UNIT_MAP =
     X_APERTURE           => 'INSTAP_X',
     Y_APERTURE           => 'INSTAP_Y',
   );
-
-# Create the translation methods
-__PACKAGE__->_generate_lookup_methods( \%UNIT_MAP );
 
 
 BEGIN {
@@ -58,6 +52,12 @@ sub to_UTSTART {
 
   $JAC->_fix_dates( $FITS_headers );
   return $class->SUPER::to_UTSTART( $FITS_headers, @_ );
+}
+
+sub common_unit_map {
+
+  my ( $class ) = @_;
+  return %UNIT_MAP;
 }
 
 

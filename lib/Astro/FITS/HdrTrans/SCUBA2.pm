@@ -39,6 +39,7 @@ my @NULL_MAP = ();
 # to the output with only a keyword name change.
 
 my %UNIT_MAP = (
+                FILTER               => "FILTER",
                 INSTRUMENT           => "INSTRUME",
                 DR_GROUP             => "DRGROUP",
                 DR_RECIPE            => "RECIPE",
@@ -46,6 +47,7 @@ my %UNIT_MAP = (
                 POLARIMETER          => 'POL_CONN',
                 UTDATE               => "UTDATE",
                 TELESCOPE            => "TELESCOP",
+                Astro::FITS::HdrTrans::JCMT->common_unit_map()
                );
 
 # Values that are derived from the last subheader entry
