@@ -39,28 +39,13 @@ my @NULL_MAP = ();
 # to the output with only a keyword name change.
 
 my %UNIT_MAP = (
-                AIRMASS_START        => 'AMSTART',
-                AZIMUTH_START        => 'AZSTART',
                 INSTRUMENT           => "INSTRUME",
                 DR_GROUP             => "DRGROUP",
                 DR_RECIPE            => "RECIPE",
-                ELEVATION_START      => "ELSTART",
-                FILENAME             => "FILE_ID",
-                FILTER               => "FILTER",
-                HUMIDITY             => "HUMSTART",
-                LATITUDE             => 'LAT-OBS',
-                LONGITUDE            => 'LONG-OBS',
-                OBJECT               => "OBJECT",
-                OBSERVATION_NUMBER   => "OBSNUM",
                 OBSERVATION_TYPE     => "OBS_TYPE",
                 POLARIMETER          => 'POL_CONN',
-                PROJECT              => 'PROJECT',
                 UTDATE               => "UTDATE",
-                STANDARD             => "STANDARD",
-                TAU                  => "MEANWVM",
                 TELESCOPE            => "TELESCOP",
-                X_APERTURE           => "INSTAP_X",
-                Y_APERTURE           => "INSTAP_Y",
                );
 
 # Values that are derived from the last subheader entry

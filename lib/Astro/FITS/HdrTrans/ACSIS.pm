@@ -62,10 +62,8 @@ my %CONST_MAP = (
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
-                AIRMASS_START      => 'AMSTART',
                 AIRMASS_END        => 'AMEND',
                 AMBIENT_TEMPERATURE=> 'ATSTART',
-                AZIMUTH_START      => 'AZSTART',
                 AZIMUTH_END        => 'AZEND',
                 BACKEND            => 'BACKEND',
                 BANDWIDTH_MODE     => 'BWMODE',
@@ -73,24 +71,12 @@ my %UNIT_MAP = (
                 CHOP_COORDINATE_SYSTEM => 'CHOP_CRD',
                 CHOP_FREQUENCY     => 'CHOP_FRQ',
                 CHOP_THROW         => 'CHOP_THR',
-                ELEVATION_START    => 'ELSTART',
                 ELEVATION_END      => 'ELEND',
-                FILENAME           => 'FILE_ID',
                 FRONTEND           => 'INSTRUME',
-                HUMIDITY           => 'HUMSTART',
-                LATITUDE           => 'LAT-OBS',
-                LONGITUDE          => 'LONG-OBS',
                 NUMBER_OF_CYCLES   => 'NUM_CYC',
-                OBJECT             => 'OBJECT',
-                OBSERVATION_NUMBER => 'OBSNUM',
-                PROJECT            => 'PROJECT',
                 SEEING             => 'SEEINGST',
-                STANDARD           => 'STANDARD',
                 SWITCH_MODE        => 'SW_MODE',
-                TAU                => 'WVMTAUST',
                 VELOCITY_TYPE      => 'DOPPLER',
-                X_APERTURE => 'INSTAP_X',
-                Y_APERTURE => 'INSTAP_Y',
                );
 
 # Create the translation methods

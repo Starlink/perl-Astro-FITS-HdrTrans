@@ -5,6 +5,31 @@ use warnings;
 
 use Astro::FITS::HdrTrans::JAC;
 
+# Unit mapping implies that the value propogates directly
+# to the output with only a keyword name change.
+my %UNIT_MAP =
+  (
+    AIRMASS_START        => 'AMSTART',
+    AZIMUTH_START        => 'AZSTART',
+    ELEVATION_START      => 'ELSTART',
+    FILENAME             => 'FILE_ID',
+    FILTER               => 'FILTER',
+    HUMIDITY             => 'HUMSTART',
+    LATITUDE             => 'LAT-OBS',
+    LONGITUDE            => 'LONG-OBS',
+    OBJECT               => 'OBJECT',
+    OBSERVATION_NUMBER   => 'OBSNUM',
+    PROJECT              => 'PROJECT',
+    STANDARD             => 'STANDARD',
+    TAU                  => 'MEANWVM',
+    X_APERTURE           => 'INSTAP_X',
+    Y_APERTURE           => 'INSTAP_Y',
+  );
+
+# Create the translation methods
+__PACKAGE__->_generate_lookup_methods( \%UNIT_MAP );
+
+
 BEGIN {
 
   our $JAC = 'Astro::FITS::HdrTrans::JAC';
