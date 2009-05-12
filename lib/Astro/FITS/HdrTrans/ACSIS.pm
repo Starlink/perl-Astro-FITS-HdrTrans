@@ -77,6 +77,7 @@ my %UNIT_MAP = (
                 SEEING             => 'SEEINGST',
                 SWITCH_MODE        => 'SW_MODE',
                 VELOCITY_TYPE      => 'DOPPLER',
+                Astro::FITS::HdrTrans::JCMT->common_unit_map()
                );
 
 # Create the translation methods
