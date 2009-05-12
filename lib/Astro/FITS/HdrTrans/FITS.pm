@@ -233,11 +233,11 @@ sub to_UTSTART {
 use lib '/home/agarwal/comp/perl5/lib';
 use Anubhav::Debug qw[ err_pkg_line err_trace ];
 
-err_pkg_line( 'date-obs found ? '
-              .  ( exists $FITS_headers->{'DATE-OBS'} ? 1 : 0 )
-              #. ', in '
-              #, $FITS_headers
-            );
+#err_pkg_line( 'date-obs found ? '
+#              .  ( exists $FITS_headers->{'DATE-OBS'} ? 1 : 0 )
+#              #. ', in '
+#              #, $FITS_headers
+#            );
 
   my $utstart;
   if ( exists( $FITS_headers->{'DATE-OBS'} ) ) {
@@ -245,7 +245,7 @@ err_pkg_line( 'date-obs found ? '
   } else {
     # try subheaders
 
-err_pkg_line( 'date-obs - searching in sub headers' );
+#err_pkg_line( 'date-obs - searching in sub headers' );
 
     $utstart = $class->via_subheader( $FITS_headers, "DATE-OBS" );
 
@@ -253,11 +253,11 @@ err_pkg_line( 'date-obs - searching in sub headers' );
 
   my $return;
 
-err_pkg_line( { 'date-obs' => $utstart } );
+#err_pkg_line( { 'date-obs' => $utstart } );
 
   $return = $class->_parse_iso_date( $utstart ) if defined $utstart;
 
-err_pkg_line( { 'date-obs' => $return } );
+#err_pkg_line( { 'date-obs' => $return } );
 
   return $return;
 }
