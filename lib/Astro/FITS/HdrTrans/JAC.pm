@@ -38,9 +38,6 @@ use vars qw/ $VERSION /;
 
 $VERSION = "1.02";
 
-use lib '/home/agarwal/comp/perl5/lib';
-use Anubhav::Debug qw[ err_pkg_line err_trace ];
-
 # in each class we have three sets of data.
 #   - constant mappings
 #   - unit mappings

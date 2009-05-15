@@ -175,16 +175,6 @@ Converts UT date in C<DATE-END> header into C<Time::Piece> object.
 sub to_UTEND {
   my $class = shift;
   my $FITS_headers = shift;
-
-#my $test = Astro::FITS::HdrTrans::determine_class( $hdr, undef, 1);
-#err_pkg_line( 'before try date: ' , $test );
-
-  # DATE-END can be from DATE_END or LONGDATEEND
-  #_try_dates( $FITS_headers, 'DATE-END', qw/ LONGDATEEND DATE_END / );
-
-#$test = Astro::FITS::HdrTrans::determine_class( $hdr, undef, 1);
-#err_pkg_line( 'after try date: ' , $test );
-
   my $utend;
   if ( exists( $FITS_headers->{'DATE-END'} ) ) {
     $utend = $FITS_headers->{'DATE-END'};
@@ -227,38 +217,15 @@ sub to_UTSTART {
   my $class = shift;
   my $FITS_headers = shift;
 
-  # DATE-OBS can be from LONGDATEOBS LONGDATE or DATE_OBS
-  #_try_dates( $FITS_headers, 'DATE-OBS', qw/ LONGDATEOBS LONGDATE DATE_OBS / );
-
-use lib '/home/agarwal/comp/perl5/lib';
-use Anubhav::Debug qw[ err_pkg_line err_trace ];
-
-#err_pkg_line( 'date-obs found ? '
-#              .  ( exists $FITS_headers->{'DATE-OBS'} ? 1 : 0 )
-#              #. ', in '
-#              #, $FITS_headers
-#            );
-
   my $utstart;
   if ( exists( $FITS_headers->{'DATE-OBS'} ) ) {
     $utstart = $FITS_headers->{"DATE-OBS"};
   } else {
     # try subheaders
-
-#err_pkg_line( 'date-obs - searching in sub headers' );
-
     $utstart = $class->via_subheader( $FITS_headers, "DATE-OBS" );
-
   }
-
   my $return;
-
-#err_pkg_line( { 'date-obs' => $utstart } );
-
   $return = $class->_parse_iso_date( $utstart ) if defined $utstart;
-
-#err_pkg_line( { 'date-obs' => $return } );
-
   return $return;
 }
 
