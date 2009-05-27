@@ -17,6 +17,7 @@ lib/Astro/FITS/HdrTrans/IRCAM.pm
 lib/Astro/FITS/HdrTrans/IRIS2.pm
 lib/Astro/FITS/HdrTrans/ISAAC.pm
 lib/Astro/FITS/HdrTrans/JAC.pm
+lib/Astro/FITS/HdrTrans/JCMT.pm
 lib/Astro/FITS/HdrTrans/JCMT_GSD.pm
 lib/Astro/FITS/HdrTrans/JCMT_GSD_DB.pm
 lib/Astro/FITS/HdrTrans/MICHELLE.pm
