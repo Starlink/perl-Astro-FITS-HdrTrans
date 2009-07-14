@@ -157,7 +157,8 @@ Usually simply copies the "RECIPE" header. If the observation type is
 skydip and the RECIPE header is "REDUCE_SCIENCE" we actually use
 REDUCE_SKYDIP. If a skydip is not being done and the STANDARD header
 is true, then the recipe is set to REDUCE_STANDARD. If the INBEAM
-header is "POL", the recipe name has "_POL" appended.
+header is "POL", the recipe name has "_POL" appended if it is
+a science observation.
 
 =cut
 
@@ -178,12 +179,13 @@ sub to_DR_RECIPE {
     }
   }
 
-  if ( $standard &&
-       $obstype =~ /science|raster|scan|grid|chop/ ) {
+  my $is_sci = ( $obstype =~ /science|raster|scan|grid|chop/ );
+
+  if ( $standard && $is_sci ) {
     $dr = "REDUCE_STANDARD";
   }
 
-  if ( $utdate > 20081115 && $pol ) {
+  if ( $utdate > 20081115 && $pol && $is_sci ) {
     $dr .= "_POL";
   }
 
