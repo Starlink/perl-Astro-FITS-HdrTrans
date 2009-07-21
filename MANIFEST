@@ -45,6 +45,7 @@ t/scuba2.t
 t/translate.t
 t/bidi.t
 t/data/README
+t/data/acsis.hdr
 t/data/cgs4.hdr
 t/data/ircam.hdr
 t/data/michelle.hdr
