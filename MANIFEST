@@ -41,6 +41,7 @@ t/das_db.t
 t/jcmt_gsd.t
 t/obs_das_0006.dat
 t/scuba.t
+t/scuba2.t
 t/translate.t
 t/bidi.t
 t/data/README
@@ -48,6 +49,7 @@ t/data/cgs4.hdr
 t/data/ircam.hdr
 t/data/michelle.hdr
 t/data/scuba.hdr
+t/data/scuba2.hdr
 t/data/ufti.hdr
 t/data/uist_ifu.hdr
 t/data/uist_im.hdr
