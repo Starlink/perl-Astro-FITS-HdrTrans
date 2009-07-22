@@ -585,7 +585,7 @@ sub _parse_date {
   } else {
     # Assume Sybase date
     # Mar 15 2002  7:04AM
-    $format = "%b%t%d%t%Y%t%I:%M%p";
+    $format = "%b %d %Y %I:%M%p";
 
   }
 

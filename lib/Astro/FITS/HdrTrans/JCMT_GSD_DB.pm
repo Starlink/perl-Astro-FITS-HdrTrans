@@ -453,10 +453,10 @@ sub _sybase_convert_date {
   if ($drophms) {
     $longdate =~ s/\s*\d\d?:\d\d:\d\d[A|P]M$//;
     $return = Time::Piece->strptime( $longdate,
-                                     "%b%t%d%t%Y" );
+                                     "%b %e %Y" );
   } else {
     $return = Time::Piece->strptime( $longdate,
-                                     "%b%t%d%t%Y%t%I:%M:%S%p" );
+                                     "%b %e %Y %l:%M:%S%p" );
   }
   return $return;
 }
