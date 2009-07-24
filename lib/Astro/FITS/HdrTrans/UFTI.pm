@@ -373,7 +373,7 @@ sub from_UTDATE {
   my %return_hash;
   if ( exists( $generic_headers->{UTDATE} ) ) {
     my $date = $generic_headers->{UTDATE};
-    $date = Time::Piece->strptime( $date,'%Y%m%d' );
+    $date = $self->_parse_yyyymmdd_date( $date, '' );
     return () unless defined $date;
     $return_hash{DATE} = sprintf( "%04d-%02d-%02d",
                                   $date->year, $date->mon, $date->mday );

@@ -406,6 +406,37 @@ sub _parse_iso_date {
   return $return;
 }
 
+=item B<_parse_yyyymmdd_date>
+
+Converts a UT date in format YYYYMMDD into a date object.
+
+  $ojbect = $trans->_parse_yyyymmdd_date( $date, $sep );
+
+Where $sep is the separator string and can be an empty string.
+This allows 20090215, 2009-02-15 and 2009:02:15 to be parsed
+by the same routine by using '', '-' and ':' respectively.
+
+=cut
+
+sub _parse_yyyymmdd_date {
+  my $self = shift;
+  my $datestr = shift;
+  my $sep = shift;
+  $sep = '' unless defined $sep;
+
+  # OSX Leopard has a completely broken strptime that can not
+  # handle %Y%m%d. We need to change the string to make it
+  # into a parseable form (or switch to DateTime).
+  if (!$sep) {
+    $sep = "-";
+    $datestr = join($sep, substr($datestr,0,4),
+                    substr($datestr,4,2),
+                   substr($datestr,6));
+  }
+
+  return Time::Piece->strptime( $datestr,join($sep,'%Y','%m','%d') );
+}
+
 =item B<_add_seconds>
 
 Add the supplied number of seconds to the supplied time object
