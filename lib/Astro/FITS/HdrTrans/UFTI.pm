@@ -352,7 +352,7 @@ sub to_UTDATE {
     if ( ref( $utdate ) eq 'ARRAY' ) {
       $utdate = $utdate->[0];
     }
-    $return = Time::Piece->strptime( $utdate, "%Y-%m-%d" );
+    $return = $self->_parse_yyyymmdd_date( $utdate, "-" );
     $return = $return->strftime( '%Y%m%d' );
   }
 

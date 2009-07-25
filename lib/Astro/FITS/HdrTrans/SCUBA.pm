@@ -340,7 +340,7 @@ sub to_UTDATE {
   if ( exists( $FITS_headers->{'UTDATE'} ) &&
        defined( $FITS_headers->{'UTDATE'} ) ) {
     my $utdate = $FITS_headers->{'UTDATE'};
-    $return = Time::Piece->strptime( $utdate, "%Y:%m:%d" );
+    $return = $self->_parse_yyyymmdd_date( $utdate, ":" );
   } elsif ( exists( $FITS_headers->{'DATE'} ) &&
             defined( $FITS_headers->{'DATE'} ) ) {
     my $utdate = $FITS_headers->{'DATE'};
