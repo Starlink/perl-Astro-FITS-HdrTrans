@@ -76,5 +76,5 @@ is( sprintf( "%.3f", $generic_header{'DEC_BASE'} ), "13.205", "DEC_BASE is 13.20
 is( $generic_header{'REST_FREQUENCY'}, 345795989900, "REST_FREQUENCY is 345795989900" );
 is( sprintf( "%.6f", $generic_header{'VELOCITY'} ), "-25.900000", "VELOCITY is -25.900000" );
 
-is( $generic_header{'DR_RECIPE'}, 'REDUCE_SCIENCE', "DR_RECIPE is REDUCE_SCIENCE" );
+is( $generic_header{'DR_RECIPE'}, 'REDUCE_SCIENCE_GRADIENT', "DR_RECIPE is REDUCE_SCIENCE_GRADIENT" );
 is( $generic_header{'OBSERVATION_TYPE'}, 'grid', "OBSERVATION_TYPE is science" );
