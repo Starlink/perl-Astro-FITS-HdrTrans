@@ -1,3 +1,8 @@
+2009-09-17  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
+
+	* ACSIS.pm: If the RECIPE FITS header is REDUCE_SCIENCE, translate
+	this to REDUCE_SCIENCE_GRADIENT.
+
 2009-01-23  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
 
   * Increase version to 1.01.
