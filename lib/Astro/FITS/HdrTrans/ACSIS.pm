@@ -112,32 +112,6 @@ sub can_translate {
   }
 }
 
-=item B<translate_from_FITS>
-
-This routine overrides the base class implementation to enable the
-caches to be cleared and for the location of the DATE-OBS/DATE-END field to
-be found so that base class implementations will work correctly.
-
-This means that some conversion methods (in particular those using time in
-a base class) may not work properly outside the context of a full translation
-unless they have been subclassed locally.
-
-=cut
-
-sub translate_from_FITS {
-  my $class = shift;
-  my $headers = shift;
-
-  # clear cache
-  $COORDS = undef;
-
-  # sort out DATE-OBS and DATE-END
-  $class->_fix_dates( $headers );
-
-  # Go to the base class
-  return $class->SUPER::translate_from_FITS( $headers, @_ );
-}
-
 =back
 
 =head1 COMPLEX CONVERSIONS
