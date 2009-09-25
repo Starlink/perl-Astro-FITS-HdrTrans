@@ -151,6 +151,7 @@ my @generic_headers = qw(
                           RECEIVER_TEMPERATURE
                           REST_FREQUENCY
                           ROTATION
+                          SAMPLE_MODE
                           SAMPLING
                           SCAN_INCREMENT
                           SEEING

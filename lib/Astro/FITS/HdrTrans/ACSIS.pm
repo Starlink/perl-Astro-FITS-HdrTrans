@@ -258,6 +258,27 @@ sub from_POLARIMETER {
   return ( "INBEAM" => undef );
 }
 
+=item B<to_SAMPLE_MODE>
+
+If the SAM_MODE value is either 'raster' or 'scan', return
+'scan'. Otherwise, return the value in lowercase.
+
+=cut
+
+sub to_SAMPLE_MODE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $sam_mode;
+  if( defined( $FITS_headers->{'SAM_MODE'} ) &&
+      $FITS_headers->{'SAM_MODE'} eq 'RASTER' ) {
+    $sam_mode = 'scan';
+  } else {
+    $sam_mode = lc( $FITS_headers->{'SAM_MODE'} );
+  }
+  return $sam_mode;
+}
+
 =item B<to_SURVEY>
 
 Checks the value of the SURVEY header and uses that. If it's
