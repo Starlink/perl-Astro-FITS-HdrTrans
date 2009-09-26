@@ -41,8 +41,6 @@ use vars qw/ $VERSION /;
 
 $VERSION = "1.02";
 
-our $COORDS;
-
 # Cache UTC definition
 our $UTC = DateTime::TimeZone->new( name => 'UTC' );
 
@@ -468,44 +466,6 @@ sub to_OBSERVATION_TYPE {
   return $return;
 }
 
-=item B<to_RA_BASE>
-
-Uses the elevation, azimuth, telescope name, and observation start
-time headers (ELSTART, AZSTART, TELESCOP, and DATE-OBS headers,
-respectively) to calculate the base RA.
-
-Returns the RA in degrees.
-
-=cut
-
-sub to_RA_BASE {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $coords = $self->_calc_coords( $FITS_headers );
-  return undef unless defined $coords;
-  return $coords->ra( format => 'deg' );
-}
-
-=item B<to_DEC_BASE>
-
-Uses the elevation, azimuth, telescope name, and observation start
-time headers (ELSTART, AZSTART, TELESCOP, and DATE-OBS headers,
-respectively) to calculate the base declination.
-
-Returns the declination in degrees.
-
-=cut
-
-sub to_DEC_BASE {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  my $coords = $self->_calc_coords( $FITS_headers );
-
-  return undef unless defined $coords;
-  return $coords->dec( format => 'deg' );
-}
 
 =item B<to_REST_FREQUENCY>
 
@@ -644,62 +604,6 @@ sub to_VELOCITY {
 
 =back
 
-=head1 PRIVATE METHODS
-
-=over 4
-
-=item B<_calc_coords>
-
-Function to calculate the coordinates at the start of the observation by using
-the elevation, azimuth, telescope, and observation start time. Caches
-the result if it's already been calculated.
-
-Returns an Astro::Coords object.
-
-=cut
-
-sub _calc_coords {
-  my $self = shift;
-  my $FITS_headers = shift;
-
-  # Force dates to be standardized
-  $self->_fix_dates( $FITS_headers );
-
-  # Here be dragons. Possibility that cache will not be cleared properly
-  # if a user comes in outside of the translate_from_FITS() method.
-  if ( defined( $COORDS ) &&
-       UNIVERSAL::isa( $COORDS, "Astro::Coords" ) ) {
-    return $COORDS;
-  }
-
-  if ( exists( $FITS_headers->{'TELESCOP'} ) &&
-       exists( $FITS_headers->{'DATE-OBS'} ) &&
-       exists( $FITS_headers->{'AZSTART'} )  &&
-       exists( $FITS_headers->{'ELSTART'} ) ) {
-
-    my $dateobs   = $FITS_headers->{'DATE-OBS'};
-    my $telescope = $FITS_headers->{'TELESCOP'};
-    my $az_start  = $FITS_headers->{'AZSTART'};
-    my $el_start  = $FITS_headers->{'ELSTART'};
-
-    my $coords = new Astro::Coords( az => $az_start,
-                                    el => $el_start,
-                                  );
-    $coords->telescope( new Astro::Telescope( $telescope ) );
-
-    # convert ISO date to object
-    my $dt = $self->_parse_iso_date( $dateobs );
-    return unless defined $dt;
-
-    $coords->datetime( $dt );
-
-    $COORDS = $coords;
-    return $COORDS;
-  }
-  return undef;
-}
-
-=back
 
 =head1 REVISION
 
