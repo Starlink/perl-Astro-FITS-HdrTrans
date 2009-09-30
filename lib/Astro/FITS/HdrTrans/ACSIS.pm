@@ -271,7 +271,7 @@ sub to_SAMPLE_MODE {
 
   my $sam_mode;
   if( defined( $FITS_headers->{'SAM_MODE'} ) &&
-      $FITS_headers->{'SAM_MODE'} eq 'RASTER' ) {
+      uc( $FITS_headers->{'SAM_MODE'} ) eq 'RASTER' ) {
     $sam_mode = 'scan';
   } else {
     $sam_mode = lc( $FITS_headers->{'SAM_MODE'} );
