@@ -178,7 +178,10 @@ sub _calc_coords {
   if ( exists( $FITS_headers->{'TELESCOP'} ) &&
        exists( $FITS_headers->{'DATE-OBS'} ) &&
        exists( $FITS_headers->{'AZSTART'} )  &&
-       exists( $FITS_headers->{'ELSTART'} ) ) {
+       exists( $FITS_headers->{'ELSTART'} )  &&
+       defined $FITS_headers->{AZSTART} &&
+       defined $FITS_headers->{ELSTART}
+     ) {
 
     my $dateobs   = $FITS_headers->{'DATE-OBS'};
     my $telescope = $FITS_headers->{'TELESCOP'};
