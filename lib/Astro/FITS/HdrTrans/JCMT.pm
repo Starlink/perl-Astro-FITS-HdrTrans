@@ -40,12 +40,13 @@ our $COORDS;
 =item B<translate_from_FITS>
 
 This routine overrides the base class implementation to enable the
-caches to be cleared and for the location of the DATE-OBS/DATE-END field to
-be found so that base class implementations will work correctly.
+caches to be cleared for target location.
 
 This means that some conversion methods (in particular those using time in
 a base class) may not work properly outside the context of a full translation
 unless they have been subclassed locally.
+
+Date fixups are handled in a super class.
 
 =cut
 
@@ -55,9 +56,6 @@ sub translate_from_FITS {
 
   # clear cache
   $COORDS = undef;
-
-  # sort out DATE-OBS and DATE-END
-  $class->_fix_dates( $headers );
 
   # Go to the base class
   return $class->SUPER::translate_from_FITS( $headers, @_ );

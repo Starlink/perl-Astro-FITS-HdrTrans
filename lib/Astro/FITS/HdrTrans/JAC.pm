@@ -32,8 +32,6 @@ our $UTC = DateTime::TimeZone->new( name => 'UTC' );
 
 use base qw/ Astro::FITS::HdrTrans::FITS /;
 
-use Astro::FITS::HdrTrans::FITS;
-
 use vars qw/ $VERSION /;
 
 $VERSION = "1.02";
@@ -71,19 +69,18 @@ unless they have been subclassed locally.
 
 =cut
 
-#sub translate_from_FITS {
-#  my $class = shift;
-#  my $headers = shift;
-#
-#  # clear cache
-#  $COORDS = undef;
-#
-#  # sort out DATE-OBS and DATE-END
-#  Astro::FITS::HdrTrans::JAC->_fix_dates( $headers );
-#
-#  # Go to the base class
-#  return $class->SUPER::translate_from_FITS( $headers, @_ );
-#}
+sub translate_from_FITS {
+  my $class = shift;
+  my $headers = shift;
+
+  # sort out DATE-OBS and DATE-END
+  Astro::FITS::HdrTrans::JAC->_fix_dates( $headers );
+
+  # Go to the base class
+  return $class->SUPER::translate_from_FITS( $headers, @_ );
+}
+
+
 
 =head1 COMPLEX CONVERSIONS
 
