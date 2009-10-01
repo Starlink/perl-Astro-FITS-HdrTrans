@@ -25,7 +25,6 @@ my %UNIT_MAP =
     OBSERVATION_NUMBER   => 'OBSNUM',
     PROJECT              => 'PROJECT',
     STANDARD             => 'STANDARD',
-    TAU                  => 'MEANWVM',
     X_APERTURE           => 'INSTAP_X',
     Y_APERTURE           => 'INSTAP_Y',
   );
@@ -123,6 +122,30 @@ sub to_DEC_BASE {
   return undef unless defined $coords;
   return $coords->dec( format => 'deg' );
 }
+
+=item B<to_TAU>
+
+Use the average WVM tau measurements.
+
+=cut
+
+sub to_TAU {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $tau = 0.0;
+  for my $src (qw/ TAU225 WVMTAU /) {
+    my $st = $src . "ST";
+    my $en = $src . "EN";
+    if (defined $FITS_headers->{$st} &&
+        defined $FITS_headers->{$en}) {
+      $tau = ($FITS_headers->{$st} + $FITS_headers->{$en}) / 2.0;
+      last;
+    }
+  }
+  return $tau;
+}
+
 
 =head1 PRIVATE METHODS
 
