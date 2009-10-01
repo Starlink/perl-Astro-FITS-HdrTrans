@@ -144,12 +144,8 @@ sub _calc_coords {
   my $self = shift;
   my $FITS_headers = shift;
 
-epl();
-
   # Force dates to be standardized
   $self->_fix_dates( $FITS_headers );
-
-epl();
 
   # Here be dragons. Possibility that cache will not be cleared properly
   # if a user comes in outside of the translate_from_FITS() method.
@@ -157,8 +153,6 @@ epl();
        UNIVERSAL::isa( $COORDS, "Astro::Coords" ) ) {
     return $COORDS;
   }
-
-epl();
 
   if ( exists( $FITS_headers->{'TELESCOP'} ) &&
        exists( $FITS_headers->{'DATE-OBS'} ) &&
@@ -175,27 +169,20 @@ epl();
                                   );
     $coords->telescope( new Astro::Telescope( $telescope ) );
 
-epl();
-
     # convert ISO date to object
     my $dt = Astro::FITS::HdrTrans::Base->_parse_iso_date( $dateobs );
     return unless defined $dt;
 
     $coords->datetime( $dt );
 
-epl();
-
     $COORDS = $coords;
     return $COORDS;
   }
-
-epl();
 
   return undef;
 }
 
 =back
-1;
 
 =pod
 
