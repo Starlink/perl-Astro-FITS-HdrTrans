@@ -26,10 +26,7 @@ use DateTime::TimeZone;
 
 # inherit from the Base translation class and not HdrTrans
 # itself (which is just a class-less wrapper)
-use base
-  qw/ Astro::FITS::HdrTrans::JAC
-      Astro::FITS::HdrTrans::JCMT
-    /;
+use base qw/ Astro::FITS::HdrTrans::JCMT /;
 
 # Use the FITS standard DATE-OBS handling
 #use Astro::FITS::HdrTrans::FITS;
@@ -75,7 +72,6 @@ my %UNIT_MAP = (
                 SEEING             => 'SEEINGST',
                 SWITCH_MODE        => 'SW_MODE',
                 VELOCITY_TYPE      => 'DOPPLER',
-                Astro::FITS::HdrTrans::JCMT->common_unit_map()
                );
 
 # Create the translation methods

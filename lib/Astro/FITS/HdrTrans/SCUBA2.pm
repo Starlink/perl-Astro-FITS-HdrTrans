@@ -17,10 +17,7 @@ use warnings;
 use strict;
 use Carp;
 
-use base
-  qw/ Astro::FITS::HdrTrans::JAC
-      Astro::FITS::HdrTrans::JCMT
-    /;
+use base qw/ Astro::FITS::HdrTrans::JCMT /;
 
 use vars qw/ $VERSION /;
 
@@ -47,7 +44,6 @@ my %UNIT_MAP = (
                 POLARIMETER          => 'POL_CONN',
                 UTDATE               => "UTDATE",
                 TELESCOPE            => "TELESCOP",
-                Astro::FITS::HdrTrans::JCMT->common_unit_map()
                );
 
 # Values that are derived from the last subheader entry

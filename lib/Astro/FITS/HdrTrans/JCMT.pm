@@ -8,9 +8,7 @@ use Astro::Telescope;
 use DateTime;
 use DateTime::TimeZone;
 
-# Cache UTC definition
-our $UTC = DateTime::TimeZone->new( name => 'UTC' );
-use Astro::FITS::HdrTrans::Base ;
+use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 # Unit mapping implies that the value propogates directly
 # to the output with only a keyword name change.
@@ -32,12 +30,10 @@ my %UNIT_MAP =
     Y_APERTURE           => 'INSTAP_Y',
   );
 
+my %CONST_MAP = ();
 
-BEGIN {
-
-  our $JAC = 'Astro::FITS::HdrTrans::JAC';
-}
-our $JAC;
+# Create the translation methods
+__PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
 our $COORDS;
 
@@ -61,7 +57,7 @@ sub translate_from_FITS {
   $COORDS = undef;
 
   # sort out DATE-OBS and DATE-END
-  Astro::FITS::HdrTrans::JAC->_fix_dates( $headers );
+  $class->_fix_dates( $headers );
 
   # Go to the base class
   return $class->SUPER::translate_from_FITS( $headers, @_ );
@@ -71,7 +67,7 @@ sub to_UTDATE {
   my $class = shift;
   my $FITS_headers = shift;
 
-  $JAC->_fix_dates( $FITS_headers );
+  $class->_fix_dates( $FITS_headers );
   return $class->SUPER::to_UTDATE( $FITS_headers, @_ );
 }
 
@@ -79,7 +75,7 @@ sub to_UTEND {
   my $class = shift;
   my $FITS_headers = shift;
 
-  $JAC->_fix_dates( $FITS_headers );
+  $class->_fix_dates( $FITS_headers );
   return $class->SUPER::to_UTEND( $FITS_headers, @_ );
 }
 
@@ -87,16 +83,9 @@ sub to_UTSTART {
   my $class = shift;
   my $FITS_headers = shift;
 
-  $JAC->_fix_dates( $FITS_headers );
+  $class->_fix_dates( $FITS_headers );
   return $class->SUPER::to_UTSTART( $FITS_headers, @_ );
 }
-
-sub common_unit_map {
-
-  my ( $class ) = @_;
-  return %UNIT_MAP;
-}
-
 
 =item B<to_RA_BASE>
 
@@ -273,3 +262,4 @@ Place,Suite 330, Boston, MA  02111-1307, USA
 
 =cut
 
+1;
