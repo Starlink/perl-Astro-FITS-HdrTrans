@@ -26,6 +26,7 @@ $VERSION = "1.02";
 # For a constant mapping, there is no FITS header, just a generic
 # header that is constant.
 my %CONST_MAP = (
+                 BACKEND    => 'SCUBA-2',
                  DATA_UNITS => 'pW',
                 );
 
