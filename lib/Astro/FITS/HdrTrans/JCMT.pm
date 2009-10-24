@@ -137,10 +137,19 @@ sub to_TAU {
   for my $src (qw/ TAU225 WVMTAU /) {
     my $st = $src . "ST";
     my $en = $src . "EN";
-    if (defined $FITS_headers->{$st} &&
-        defined $FITS_headers->{$en}) {
-      $tau = ($FITS_headers->{$st} + $FITS_headers->{$en}) / 2.0;
+
+    my @startvals = $self->via_subheader_undef_check( $FITS_headers, $st );
+    my @endvals   = $self->via_subheader_undef_check( $FITS_headers, $en );
+    my $startval = $startvals[0];
+    my $endval = $endvals[-1];
+
+    if (defined $startval && defined $endval) {
+      $tau = ($startval + $endval) / 2;
       last;
+    } elsif (defined $startval) {
+      $tau = $startval;
+    } elsif (defined $endval) {
+      $tau = $endval;
     }
   }
   return $tau;
@@ -204,6 +213,25 @@ sub _calc_coords {
   }
 
   return undef;
+}
+
+=item B<_via_subheader_undef_check>
+
+Version of via_subheader that removes undefined values from the list before
+returning the answer. Useful for SCUBA-2 where the first dark may not include
+the TCS information.
+
+Same interface as via_subheader.
+
+=cut
+
+sub via_subheader_undef_check {
+  my $self = shift;
+  my @values = $self->via_subheader( @_ );
+
+  # completely filter out undefs
+  @values = grep { defined $_ } @values;
+  return (wantarray ? @values : $values[0] );
 }
 
 =back
