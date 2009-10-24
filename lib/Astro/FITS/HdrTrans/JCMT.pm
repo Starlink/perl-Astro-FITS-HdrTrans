@@ -215,25 +215,6 @@ sub _calc_coords {
   return undef;
 }
 
-=item B<_via_subheader_undef_check>
-
-Version of via_subheader that removes undefined values from the list before
-returning the answer. Useful for SCUBA-2 where the first dark may not include
-the TCS information.
-
-Same interface as via_subheader.
-
-=cut
-
-sub via_subheader_undef_check {
-  my $self = shift;
-  my @values = $self->via_subheader( @_ );
-
-  # completely filter out undefs
-  @values = grep { defined $_ } @values;
-  return (wantarray ? @values : $values[0] );
-}
-
 =back
 
 =pod

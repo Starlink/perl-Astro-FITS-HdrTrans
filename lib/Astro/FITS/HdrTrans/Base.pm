@@ -296,7 +296,7 @@ sub _generate_lookup_methods {
 
     # First generate the code to generate Generic headers
     my $subname = "to_$key";
-    my $sub = qq/ $p sub $subname { scalar \$_[0]->via_subheader(\$_[1],\"$fhdr\"); } $ep /;
+    my $sub = qq/ $p sub $subname { scalar \$_[0]->via_subheader_undef_check(\$_[1],\"$fhdr\"); } $ep /;
     eval "$sub";
     #print "Sub: $sub\n";
 
@@ -345,7 +345,7 @@ sub _generate_lookup_methods {
       # First generate the code to generate Generic headers
       my $subname = "to_$key";
       my $sub = qq/ $p sub $subname {
-	  my \@allresults = \$_[0]->via_subheader(\$_[1],\"$fhdr\");
+	  my \@allresults = \$_[0]->via_subheader_undef_check(\$_[1],\"$fhdr\");
           return \$allresults[-1];
         } $ep /;
       eval "$sub";
@@ -543,6 +543,25 @@ sub via_subheader {
     }
   }
 
+  return (wantarray ? @values : $values[0] );
+}
+
+=item B<via_subheader_undef_check>
+
+Version of via_subheader that removes undefined values from the list before
+returning the answer. Useful for SCUBA-2 where the first dark may not include
+the TCS information.
+
+Same interface as via_subheader.
+
+=cut
+
+sub via_subheader_undef_check {
+  my $self = shift;
+  my @values = $self->via_subheader( @_ );
+
+  # completely filter out undefs
+  @values = grep { defined $_ } @values;
   return (wantarray ? @values : $values[0] );
 }
 
