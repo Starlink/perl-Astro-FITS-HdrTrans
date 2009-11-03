@@ -534,6 +534,25 @@ sub from_RA_BASE {
 
 =over 4
 
+Handle the case where DATE_OBS and/or DATE_END are given, and convert
+them into DATE-OBS and/or DATE-END.
+
+=item B<_fix_dates>
+
+=cut
+
+sub _fix_dates {
+  my ( $class, $FITS_headers ) = @_;
+
+  if( defined( $FITS_headers->{'DATE_OBS'} ) ) {
+    $FITS_headers->{'DATE-OBS'} = $class->_parse_iso_date( $FITS_headers->{'DATE_OBS'} );
+  }
+  if( defined( $FITS_headers->{'DATE_END'} ) ) {
+    $FITS_headers->{'DATE-END'} = $class->_parse_iso_date( $FITS_headers->{'DATE_END'} );
+  }
+
+}
+
 =item B<_parse_date>
 
 Parses a string as a date. Returns a C<Time::Piece> object.

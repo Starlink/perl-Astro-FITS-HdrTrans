@@ -74,7 +74,7 @@ sub translate_from_FITS {
   my $headers = shift;
 
   # sort out DATE-OBS and DATE-END
-  Astro::FITS::HdrTrans::JAC->_fix_dates( $headers );
+  $class->_fix_dates( $headers );
 
   # Go to the base class
   return $class->SUPER::translate_from_FITS( $headers, @_ );
@@ -209,16 +209,6 @@ sub _convert_sybase_date {
                                 second => $6,
                                 time_zone => $UTC,
                               );
-    return $return;
-
-  } elsif( $sybase_date =~ /\s*(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/ ) {
-
-    my $return = DateTime->new( year => $1,
-                                month => $2,
-                                day => $3,
-                                hour => $4,
-                                minute => $5,
-                                second => $6 );
     return $return;
 
   } else {
