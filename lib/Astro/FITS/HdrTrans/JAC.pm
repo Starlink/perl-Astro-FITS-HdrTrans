@@ -162,8 +162,10 @@ sub _try_dates {
     for my $key (@tests) {
       if ( exists( $FITS_headers->{$key} ) ) {
         my $date = _convert_sybase_date( $FITS_headers->{$key} );
-        $FITS_headers->{$outkey} = $date->datetime;
-        last;
+        if( defined( $date ) ) {
+          $FITS_headers->{$outkey} = $date->datetime;
+          last;
+        }
       }
     }
   }
@@ -176,40 +178,52 @@ sub _convert_sybase_date {
   $sybase_date =~ s/:\d\d\d//;
   $sybase_date =~ s/\s*$//;
 
-  return unless
-    $sybase_date =~ /\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s+(\d{1,2}):(\d\d):(\d\d)(AM|PM)/;
+  if( $sybase_date =~ /\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s+(\d{1,2}):(\d\d):(\d\d)(AM|PM)/ ) {
 
-  my $hour = $4;
-  if (uc($7) eq 'AM' && $hour == 12) {
-    $hour = 0;
-  } elsif ( uc($7) eq 'PM' && $hour < 12 ) {
-    $hour += 12;
+    my $hour = $4;
+    if (uc($7) eq 'AM' && $hour == 12) {
+      $hour = 0;
+    } elsif ( uc($7) eq 'PM' && $hour < 12 ) {
+      $hour += 12;
+    }
+
+    my %mon_lookup = ( 'Jan' => 1,
+                       'Feb' => 2,
+                       'Mar' => 3,
+                       'Apr' => 4,
+                       'May' => 5,
+                       'Jun' => 6,
+                       'Jul' => 7,
+                       'Aug' => 8,
+                       'Sep' => 9,
+                       'Oct' => 10,
+                       'Nov' => 11,
+                       'Dec' => 12 );
+    my $month = $mon_lookup{$1};
+
+    my $return = DateTime->new( year => $3,
+                                month => $month,
+                                day => $2,
+                                hour => $hour,
+                                minute => $5,
+                                second => $6,
+                                time_zone => $UTC,
+                              );
+    return $return;
+
+  } elsif( $sybase_date =~ /\s*(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/ ) {
+
+    my $return = DateTime->new( year => $1,
+                                month => $2,
+                                day => $3,
+                                hour => $4,
+                                minute => $5,
+                                second => $6 );
+    return $return;
+
+  } else {
+    return undef;
   }
-
-  my %mon_lookup = ( 'Jan' => 1,
-                     'Feb' => 2,
-                     'Mar' => 3,
-                     'Apr' => 4,
-                     'May' => 5,
-                     'Jun' => 6,
-                     'Jul' => 7,
-                     'Aug' => 8,
-                     'Sep' => 9,
-                     'Oct' => 10,
-                     'Nov' => 11,
-                     'Dec' => 12 );
-  my $month = $mon_lookup{$1};
-
-
-  my $return = DateTime->new( year => $3,
-                              month => $month,
-                              day => $2,
-                              hour => $hour,
-                              minute => $5,
-                              second => $6,
-                              time_zone => $UTC,
-                            );
-  return $return;
 }
 
 =back
