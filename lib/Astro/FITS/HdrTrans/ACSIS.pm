@@ -482,8 +482,11 @@ sub to_REST_FREQUENCY {
 
   if ( defined( $frameset ) &&
        UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
-    my $frequency = $frameset->Get( "restfreq" );
-    $return = $frequency * 1_000_000_000;
+    # in some rare cases restfreq is not set in the frameset
+    eval {
+       my $frequency = $frameset->Get( "restfreq" );
+       $return = $frequency * 1_000_000_000;
+    };
   } elsif ( exists( $FITS_headers->{'RESTFREQ'} ) ||
             ( exists( $FITS_headers->{'SUBHEADERS'} ) &&
               exists( $FITS_headers->{'SUBHEADERS'}->[0]->{'RESTFREQ'} ) ) ) {
@@ -519,20 +522,25 @@ sub to_SYSTEM_VELOCITY {
 
     if ( defined( $frameset ) &&
          UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
-      my $sourcevrf = uc( $frameset->Get( "sourcevrf" ) );
-
-      $return = substr( $doppler, 0, 3 ) . substr( $sourcevrf, 0, 3 );
-    } elsif ( exists( $FITS_headers->{'SPECSYS'} ) ) {
-      my $specsys = uc( $FITS_headers->{'SPECSYS'} );
-      $return = substr( $doppler, 0, 3 ) . substr( $specsys, 0, 3 );
-    } else {
-      my $specsys = '';
-      if ( $doppler eq 'RADIO' ) {
-        $specsys = 'LSRK';
-      } elsif ( $doppler eq 'OPTICAL' ) {
-        $specsys = 'HELIOCENTRIC';
+      # Sometimes we have frequency axis (rare)
+      eval {
+        my $sourcevrf = uc( $frameset->Get( "sourcevrf" ) );
+        $return = substr( $doppler, 0, 3 ) . substr( $sourcevrf, 0, 3 );
+      };
+    }
+    if (!defined $return) {
+      if ( exists( $FITS_headers->{'SPECSYS'} ) ) {
+        my $specsys = uc( $FITS_headers->{'SPECSYS'} );
+        $return = substr( $doppler, 0, 3 ) . substr( $specsys, 0, 3 );
+      } else {
+        my $specsys = '';
+        if ( $doppler eq 'RADIO' ) {
+          $specsys = 'LSRK';
+        } elsif ( $doppler eq 'OPTICAL' ) {
+          $specsys = 'HELIOCENTRIC';
+        }
+        $return = substr( $doppler, 0, 3 ) . substr( $specsys, 0, 3 );
       }
-      $return = substr( $doppler, 0, 3 ) . substr( $specsys, 0, 3 );
     }
   }
   return $return;
@@ -572,8 +580,11 @@ sub to_VELOCITY {
         $sourcesys = "REDSHIFT";
       }
     }
-    $frameset->Set( sourcesys => $sourcesys );
-    $velocity = $frameset->Get( "sourcevel" );
+    # Sometimes we do not have a spec frame (broken files)
+    eval {
+      $frameset->Set( sourcesys => $sourcesys );
+      $velocity = $frameset->Get( "sourcevel" );
+    };
   } else {
 
     # We weren't passed a frameset, so try using other headers.
