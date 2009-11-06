@@ -8,12 +8,12 @@ use Test::More;
 use File::Spec;
 
 # Load NDF if we can.
-eval {
+my $isok = eval {
   require NDF;
+  1;
 };
-if( $@ ) {
-  print $@;
-  plan skip_all => 'Test requires NDF module';
+if( !$isok ) {
+  plan skip_all => "Test requires NDF module: $@";
 } else {
 
   # Load NDF if we can.
