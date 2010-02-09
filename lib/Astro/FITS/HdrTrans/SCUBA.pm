@@ -390,14 +390,15 @@ sub to_UTSTART {
   my $FITS_headers = shift;
   my $return;
   if ( exists( $FITS_headers->{'UTDATE'} ) &&
-       defined( $FITS_headers->{'UTDATE'} ) ) {
+       defined( $FITS_headers->{'UTDATE'} ) &&
+       exists $FITS_headers->{UTSTART} &&
+       defined $FITS_headers->{UTSTART} ) {
 
     # To convert to ISO replace colons with dashes
     my $utdate = $FITS_headers->{UTDATE};
     $utdate =~ s/:/\-/g;
 
     my $ut = $utdate . "T" . $FITS_headers->{'UTSTART'};
-
     $return = $self->_parse_iso_date( $ut );
 
   } elsif (exists $FITS_headers->{"DATE-OBS"}) { 
@@ -449,7 +450,9 @@ sub to_UTEND {
   my $return;
 
   if ( exists( $FITS_headers->{'UTDATE'} ) &&
-       defined( $FITS_headers->{'UTDATE'} ) ) {
+       defined( $FITS_headers->{'UTDATE'} ) &&
+       exists $FITS_headers->{UTEND} &&
+       defined $FITS_headers->{UTEND} ) {
 
     # need to replace colons with -
     my $utdate = $FITS_headers->{"UTDATE"};
@@ -459,6 +462,9 @@ sub to_UTEND {
 
     $return = $self->_parse_iso_date( $ut );
 
+  } elsif (exists $FITS_headers->{"DATE-END"}) {
+    # reduced data
+    $return = $self->_parse_iso_date( $FITS_headers->{"DATE-END"} );
   }
   return $return;
 }

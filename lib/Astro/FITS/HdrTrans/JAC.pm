@@ -119,7 +119,7 @@ sub to_OBSERVATION_ID {
     my $dateobs = $self->to_UTSTART( $FITS_headers );
 
     my $datetime;
-    if ( defined $dateobs ) {
+    if ( defined $dateobs && defined $obsnum ) {
       $datetime = $dateobs->datetime;
       $datetime =~ s/-//g;
       $datetime =~ s/://g;
