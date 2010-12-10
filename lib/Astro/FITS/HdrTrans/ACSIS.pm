@@ -154,8 +154,9 @@ sub to_DR_RECIPE {
     $dr = "REDUCE_STANDARD";
   }
 
+  # Append unless we have already appended
   if ( $utdate > 20081115 && $pol && $is_sci ) {
-    $dr .= "_POL";
+    $dr .= "_POL" unless $dr =~ /_POL$/;
   }
 
   if( uc( $dr ) eq 'REDUCE_SCIENCE' ) {
