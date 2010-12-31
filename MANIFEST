@@ -8,6 +8,7 @@ lib/Astro/FITS/HdrTrans/Base.pm
 lib/Astro/FITS/HdrTrans/CGS4New.pm
 lib/Astro/FITS/HdrTrans/CGS4Old.pm
 lib/Astro/FITS/HdrTrans/ClassicCam.pm
+lib/Astro/FITS/HdrTrans/CURVE.pm
 lib/Astro/FITS/HdrTrans/ESO.pm
 lib/Astro/FITS/HdrTrans/FITS.pm
 lib/Astro/FITS/HdrTrans/GEMINI.pm
@@ -44,6 +45,8 @@ t/scuba.t
 t/scuba2.t
 t/translate.t
 t/bidi.t
+t/ircam.t
+t/ukirtdb.t
 t/data/README
 t/data/acsis.hdr
 t/data/cgs4.hdr
