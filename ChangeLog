@@ -1,3 +1,7 @@
+2010-08-26  Brad Cavanagh <brad.cavanagh@gmail.com>
+
+	* CPAN release. Increment to version 1.50.
+
 2009-09-17  Brad Cavanagh <b.cavanagh@jach.hawaii.edu>
 
 	* ACSIS.pm: If the RECIPE FITS header is REDUCE_SCIENCE, translate
