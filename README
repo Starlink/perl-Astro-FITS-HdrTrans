@@ -42,7 +42,8 @@ The module was written by Brad Cavanagh <b.cavanagh@jach.hawaii.edu> and
 Tim Jenness <t.jenness@jach.hawaii.edu> of the Joint Astronomy Centre
 (JAC) in Hawaii.
 
-Copyright (C) 2003-2005 Particle Physics and Astronomy Research Council.
+Copyright (C) 2007-2011 Science and Technologh Facilities Council.
+Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved. 
 
 This program is free software; you can redistribute it and/or modify it under
@@ -60,8 +61,7 @@ Place,Suite 330, Boston, MA  02111-1307, USA
 
 Maintainer
 ----------
-The package is currently maintained by Brad Cavanagh 
-<b.cavanagh@jach.hawaii.edu>.
+The package is currently maintained by Brad Cavanagh <brad.cavanagh@gmail.com>.
 
 Changes
 -------
@@ -73,3 +73,9 @@ Changes
          Add requirement on Test::More and Time::Piece to Makefile.PL.
 
  v0.03 - Licence should have been GPL
+
+ v0.05 - Major rewrite of internals.
+         Supports all UKIRT and JCMT instruments
+
+ v1.50 - Includes support for SCUBA-2 and many fixes for ACSIS.
+
