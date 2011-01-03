@@ -40,7 +40,7 @@
 	expression in this_instrument() method. This allows IRCAM to match
 	IRCAM and IRCAM3.
 
-2005-04-05  Tim Jenness  <timj@jach.hawaii.edu>
+2005-04-05  Tim Jenness  <tjenness@cpan.org>
 
 	* All modules: Major rewriting of the internals to use inheritance
 	and method importing. This leads to much smaller individual
@@ -49,7 +49,7 @@
 	is unchanged but the public access to variables has been removed
 	(and replaced with some class methods).
 
-2005-03-28  Tim Jenness <t.jenness@jach.hawaii.edu>
+2005-03-28  Tim Jenness <tjenness@cpan.org>
 
 	* Add GPL to all files
 
@@ -105,5 +105,3 @@
 
 	* Makefile.PL: Add requirements for Test::More and
 	Time::Piece.
-
-	
