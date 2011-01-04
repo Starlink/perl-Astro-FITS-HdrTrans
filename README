@@ -3,12 +3,12 @@ Astro::FITS::HdrTrans module
 
 What is it?
 -----------
-Astro::FITS::HdrTrans and associated sub-classes are tools for translating 
+Astro::FITS::HdrTrans and associated sub-classes are tools for translating
 instrument-specific FITS headers into generically named headers.
 
 Requirements
 ------------
-The Astro::FITS::HdrTrans module has minimal requirements on other 
+The Astro::FITS::HdrTrans module has minimal requirements on other
 modules; only Carp and Time::Piece are required. Instrument-specific
 sub-classes of Astro::FITS::HdrTrans may require other modules to be
 installed, depending on the transformations those sub-classes make.
@@ -30,13 +30,13 @@ Installation
 ------------
 Installation is automated using the ExtUtils::MakeMaker library
 
-    % perl Makefile.PL
-    % make
-    % make test
-    % make install
+    % perl Build.PL
+    % ./Build
+    % ./Build test
+    % ./Build install
 
-Authors 
-------- 
+Authors
+-------
 
 The module was written by Brad Cavanagh <b.cavanagh@jach.hawaii.edu> and
 Tim Jenness <t.jenness@jach.hawaii.edu> of the Joint Astronomy Centre
@@ -44,7 +44,7 @@ Tim Jenness <t.jenness@jach.hawaii.edu> of the Joint Astronomy Centre
 
 Copyright (C) 2007-2011 Science and Technologh Facilities Council.
 Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
-All Rights Reserved. 
+All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -79,3 +79,5 @@ Changes
 
  v1.50 - Includes support for SCUBA-2 and many fixes for ACSIS.
 
+ v1.51 - Use Module::Build
+       - Minor fix for polarimeter recipe in ACSIS

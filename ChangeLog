@@ -1,3 +1,14 @@
+2011-01-04  Tim Jenness  <tjenness@cpan.org>
+
+	* Build.PL: Update to Version 1.51 for CPAN release.
+
+2010-12-10  Tim Jenness  <tjenness@cpan.org>
+
+	* Build.PL: Use Module::Build
+
+	* lib/Astro/FITS/HdrTrans/ACSIS.pm (to_DR_RECIPE):  Do not append
+	_POL if it has already been appended.
+
 2010-08-26  Brad Cavanagh <brad.cavanagh@gmail.com>
 
 	* CPAN release. Increment to version 1.50.

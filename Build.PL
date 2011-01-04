@@ -32,7 +32,7 @@ my $build = Module::Build->new
                    'Tim Jenness <t.jenness@jach.hawaii.edu>',
                    'Brad Cavanagh <b.cavanagh@jach.hawaii.edu>',
                   ],
-   dist_version => '1.50',
+   dist_version => '1.51',
    script_files => [ qw/
                          translatehdr
                        / ],
@@ -41,6 +41,9 @@ my $build = Module::Build->new
                               repository => "git://github.com/bradcavanagh/perl-Astro-FITS-HdrTrans.git",
                              },
                 },
+   recommends => {
+                  'Starlink::AST' => 0,
+                 },
    requires => {
                 'Astro::Coords' => 0,
                 'Astro::FITS::Header' => 0,
