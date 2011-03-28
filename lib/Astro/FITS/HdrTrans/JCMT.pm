@@ -155,6 +155,27 @@ sub to_TAU {
   return $tau;
 }
 
+=item B<to_OBSERVATION_ID_SUBSYSTEM>
+
+Returns the subsystem observation IDs associated with the header.
+Returns a reference to an array. Will be empty if the OBSIDSS header
+is missing.
+
+=cut
+
+sub to_OBSERVATION_ID_SUBSYSTEM {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my @obsidss = $self->via_subheader( $FITS_headers, "OBSIDSS" );
+  use Data::Dumper; print Dumper \@obsidss;
+  my @all;
+  if (@obsidss) {
+    # Remove duplicates and do not worry about the order
+    my %seen = map { $_ => undef } @obsidss;
+    @all = keys %seen;
+  }
+  return \@all;
+}
 
 =head1 PRIVATE METHODS
 
