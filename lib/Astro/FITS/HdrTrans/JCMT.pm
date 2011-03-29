@@ -166,13 +166,20 @@ is missing.
 sub to_OBSERVATION_ID_SUBSYSTEM {
   my $self = shift;
   my $FITS_headers = shift;
-  my @obsidss = $self->via_subheader( $FITS_headers, "OBSIDSS" );
-  use Data::Dumper; print Dumper \@obsidss;
+  # Try multiple headers since the database is different to the file
+  my @obsidss;
+  for my $h (qw/ OBSIDSS OBSID_SUBSYSNR /) {
+    my @found = $self->via_subheader( $FITS_headers, "OBSIDSS" );
+    if (@found) {
+      @obsidss = @found;
+      last;
+    }
+  }
   my @all;
   if (@obsidss) {
-    # Remove duplicates and do not worry about the order
-    my %seen = map { $_ => undef } @obsidss;
-    @all = keys %seen;
+    # Remove duplicates
+    my %seen;
+    @all = grep { ! $seen{$_}++ } @obsidss;
   }
   return \@all;
 }
