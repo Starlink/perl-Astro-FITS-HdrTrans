@@ -169,7 +169,7 @@ sub to_OBSERVATION_ID_SUBSYSTEM {
   # Try multiple headers since the database is different to the file
   my @obsidss;
   for my $h (qw/ OBSIDSS OBSID_SUBSYSNR /) {
-    my @found = $self->via_subheader( $FITS_headers, "OBSIDSS" );
+    my @found = $self->via_subheader( $FITS_headers, $h );
     if (@found) {
       @obsidss = @found;
       last;
