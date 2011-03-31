@@ -121,6 +121,19 @@ sub to_OBSERVATION_MODE {
   return $return;
 }
 
+=item B<to_SUBSYSTEM_IDKEY>
+
+=cut
+
+sub to_SUBSYSTEM_IDKEY {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  # Try the general headers first
+  my $general = $self->SUPER::to_SUBSYSTEM_IDKEY( $FITS_headers );
+  return ( defined $general ? $general : "FILTER" );
+}
+
 =back
 
 =head1 REVISION

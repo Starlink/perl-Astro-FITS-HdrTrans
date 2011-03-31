@@ -184,6 +184,22 @@ sub to_OBSERVATION_ID_SUBSYSTEM {
   return \@all;
 }
 
+=item B<to_SUBSYSTEM_IDKEY>
+
+=cut
+
+sub to_SUBSYSTEM_IDKEY {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  for my $try ( qw/ OBSIDSS OBSID_SUBSYSNR / ) {
+    my @results = $self->via_subheader( $FITS_headers, $try );
+    return $try if @results;
+  }
+  return;
+}
+
+
 =head1 PRIVATE METHODS
 
 =over 4

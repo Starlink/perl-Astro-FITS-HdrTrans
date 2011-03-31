@@ -50,7 +50,6 @@ our $UTC = DateTime::TimeZone->new( name => 'UTC' );
 # header that is constant
 my %CONST_MAP = (
                  INST_DHS          => 'ACSIS',
-                 SUBSYSTEM_IDKEY   => 'SUBSYSNR',
                 );
 
 # unit mapping implies that the value propogates directly
@@ -609,6 +608,20 @@ sub to_VELOCITY {
 
   return $velocity;
 }
+
+=item B<to_SUBSYSTEM_IDKEY>
+
+=cut
+
+sub to_SUBSYSTEM_IDKEY {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  # Try the general headers first
+  my $general = $self->SUPER::to_SUBSYSTEM_IDKEY( $FITS_headers );
+  return ( defined $general ? $general : "SUBSYSNR" );
+}
+
 
 =back
 
