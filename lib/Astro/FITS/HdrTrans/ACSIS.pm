@@ -140,6 +140,7 @@ sub to_DR_RECIPE {
   my $pol = $class->to_POLARIMETER( $FITS_headers );
   my $standard = $class->to_STANDARD( $FITS_headers );
   my $utdate = $class->to_UTDATE( $FITS_headers );
+  my $freq_sw = $class->_is_FSW( $FITS_headers );
 
   if ($utdate < 20080701) {
     if ($obstype eq 'skydip' && $dr eq 'REDUCE_SCIENCE') {
@@ -157,9 +158,9 @@ sub to_DR_RECIPE {
   if ( $utdate > 20081115 && $pol && $is_sci ) {
     $dr .= "_POL" unless $dr =~ /_POL$/;
   }
-
-  if( uc( $dr ) eq 'REDUCE_SCIENCE' ) {
-    $dr = 'REDUCE_SCIENCE_GRADIENT';
+  $dr = uc($dr);
+  if( $dr eq 'REDUCE_SCIENCE' ) {
+    $dr .= '_' . ($freq_sw ? 'FSW' : 'GRADIENT');
   }
 
   return $dr;
@@ -622,6 +623,25 @@ sub to_SUBSYSTEM_IDKEY {
   return ( defined $general ? $general : "SUBSYSNR" );
 }
 
+
+=item B<_is_FSW>
+
+Helper function to determine if we are doing frequency switch.
+
+=cut
+
+sub _is_FSW {
+  my $class = shift;
+  my $FITS_headers = shift;
+
+  my $fsw = $FITS_headers->{SW_MODE};
+
+  if ( defined( $fsw ) &&
+       $fsw =~ /freqsw/i ) {
+    return 1;
+  }
+  return 0;
+}
 
 =back
 
