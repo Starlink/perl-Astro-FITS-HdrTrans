@@ -18,6 +18,7 @@ my %UNIT_MAP =
     AZIMUTH_START        => 'AZSTART',
     ELEVATION_START      => 'ELSTART',
     FILENAME             => 'FILE_ID',
+    DR_RECIPE            => "RECIPE",
     HUMIDITY             => 'HUMSTART',
     LATITUDE             => 'LAT-OBS',
     LONGITUDE            => 'LONG-OBS',
