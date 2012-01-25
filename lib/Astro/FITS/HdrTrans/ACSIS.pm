@@ -89,6 +89,8 @@ Returns true if the supplied headers can be handled by this class.
 For this class, the method will return true if the B<BACKEND> header exists
 and matches 'ACSIS'.
 
+Can also match translated GSD files.
+
 =cut
 
 sub can_translate {
@@ -99,6 +101,21 @@ sub can_translate {
        defined $headers->{BACKEND} &&
        $headers->{BACKEND} =~ /^ACSIS/i
      ) {
+    return 1;
+  } elsif ( exists $headers->{BACKEND} &&
+            defined $headers->{BACKEND} &&
+            $headers->{BACKEND} =~ /^DAS/i &&
+            exists $headers->{OBSID} &&
+            defined $headers->{OBSID} &&
+            $headers->{OBSID} =~ /^DAS/) {
+    # Do not want to confuse with reverse conversion
+    # of JCMT_GSD data headers which will have a defined
+    # BACKEND header of DAS.
+    return 1;
+  } elsif ( exists $headers->{INST_DHS} &&
+            defined $headers->{INST_DHS} &&
+            $headers->{INST_DHS} eq 'ACSIS') {
+    # This is for the reverse conversion of DAS data
     return 1;
   } else {
     return 0;
