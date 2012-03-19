@@ -206,40 +206,6 @@ sub from_RA_TELESCOPE_OFFSET {
   "RAOFFSE",  $generic_headers->{ "RA_TELESCOPE_OFFSET" };
 }
 
-# ROTATION, DEC_SCALE and RA_SCALE transformations courtesy Micah Johnson, from
-# the cdelrot.pl script supplied for use with XIMAGE.  Extended here to the
-# FITS-WCS Paper II Section 6.2 prescription, averaging the rotation.
-
-sub to_ROTATION {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $cd11 = $FITS_headers->{"CD1_1"};
-  my $cd12 = $FITS_headers->{"CD1_2"};
-  my $cd21 = $FITS_headers->{"CD2_1"};
-  my $cd22 = $FITS_headers->{"CD2_2"};
-
-  # Determine the sense of the scales.
-  my $sgn2;
-  if ( $cd12 < 0 ) {
-    $sgn2 = -1;
-  } else {
-    $sgn2 = 1;
-  }
-  my $sgn3;
-  if ( $cd21 < 0 ) {
-    $sgn3 = -1;
-  } else {
-    $sgn3 = 1;
-  }
-  my $rtod = 45 / atan2( 1, 1 );
-   
-  # Average the estimates of the rotation.
-  my $rotation = $rtod * 0.5 * ( atan2( $sgn2 * $cd21 / $rtod, $sgn2 * $cd11 / $rtod ) +
-                                 atan2( $sgn3 * $cd12 / $rtod, -$sgn3 * $cd22 / $rtod ) );
-                                  
-  return $rotation;
-}
-
 sub to_UTSTART {
   my $self = shift;
   my $FITS_headers = shift;
