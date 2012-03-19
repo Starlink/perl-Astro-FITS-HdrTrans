@@ -43,11 +43,11 @@ my $build = Module::Build->new
                 },
    recommends => {
                   'Starlink::AST' => 0,
+                  'Astro::SLA' => 0,
                  },
    requires => {
                 'Astro::Coords' => 0,
                 'Astro::FITS::Header' => 0,
-                'Astro::SLA' => 0,
                 'Astro::Telescope' => 0,
                 'DateTime' => 0,
                 'DateTime::TimeZone' => 0,
