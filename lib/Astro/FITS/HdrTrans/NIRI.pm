@@ -21,7 +21,6 @@ use 5.006;
 use warnings;
 use strict;
 use Carp;
-use Astro::SLA;
 
 # Inherit from GEMINI
 use base qw/ Astro::FITS::HdrTrans::GEMINI /;
@@ -131,7 +130,13 @@ sub to_ROTATION {
     # shear).
     my ( $xz, $yz, $xs, $ys, $perp, $orient );
     my @coeffs = ( 0.0, $cd11, $cd21, 0.0, $cd12, $cd22 );
-    slaDcmpf( @coeffs, $xz, $yz, $xs, $ys, $perp, $rotation );
+    eval {
+      require Astro::SLA;
+      Astro::SLA::slaDcmpf( @coeffs, $xz, $yz, $xs, $ys, $perp, $rotation );
+    };
+    if (!defined $perp) {
+      croak "NIRI translations require Astro::SLA. Please contact the authors";
+    }
 
     # Convert from radians to degrees.
     my $rtod = 45 / atan2( 1, 1 );
