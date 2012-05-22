@@ -242,8 +242,13 @@ sub _calc_coords {
     my $az_start  = $FITS_headers->{'AZSTART'};
     my $el_start  = $FITS_headers->{'ELSTART'};
 
+    $dateobs  = _middle_value($dateobs)  if ref $dateobs;
+    $az_start = _middle_value($az_start) if ref $az_start;
+    $el_start = _middle_value($el_start) if ref $el_start;
+
     my $coords = new Astro::Coords( az => $az_start,
                                     el => $el_start,
+                                    units => 'degrees',
                                   );
     $coords->telescope( new Astro::Telescope( $telescope ) );
 
@@ -258,6 +263,17 @@ sub _calc_coords {
   }
 
   return undef;
+}
+
+=item B<_middle_value>
+
+Returns the value from the middle of an array reference.
+
+=cut
+
+sub _middle_value {
+  my $arr = shift;
+  return $arr->[int ((scalar @$arr) / 2)];
 }
 
 =back
