@@ -48,7 +48,8 @@ $DEBUG   = 0;
 
 my @REF_CLASS_LIST = qw/ ACSIS IRCAM CGS4New CGS4Old UIST UFTI
                          JCMT_GSD JCMT_GSD_DB MICHELLE SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 SOFI
-                         ISAAC NACO INGRID GMOS SPEX NIRI ClassicCam CURVE /;
+                         ISAAC NACO INGRID GMOS SPEX NIRI ClassicCam CURVE LCOSBIG_CC
+                         LCOSBIG_1m0 LCOSBIG_0m4/;
 
 # This is the actual list that is currently supported. It should always
 # default to the reference list
@@ -178,6 +179,8 @@ my @generic_headers = qw(
                           VELOCITY_REFERENCE_FRAME
                           VELOCITY_TYPE
                           WAVEPLATE_ANGLE
+                          XBINNING
+                          YBINNING
                           X_APERTURE
                           Y_APERTURE
                           X_BASE
