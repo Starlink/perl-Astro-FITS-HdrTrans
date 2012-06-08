@@ -81,3 +81,5 @@ Changes
 
  v1.51 - Use Module::Build
        - Minor fix for polarimeter recipe in ACSIS
+
+ v1.52 - Add LCOG instruments
