@@ -59,6 +59,9 @@ my $build = Module::Build->new
                       'Test::More' => 0,
                       'Time::Piece' => 0,
                      },
+   configure_requires => {
+                          "Module::Build" => 0.30,
+                         },
   );
 
 $build->create_build_script;
