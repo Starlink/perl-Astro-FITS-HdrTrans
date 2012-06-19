@@ -42,7 +42,7 @@ The module was written by Brad Cavanagh <b.cavanagh@jach.hawaii.edu> and
 Tim Jenness <t.jenness@jach.hawaii.edu> of the Joint Astronomy Centre
 (JAC) in Hawaii.
 
-Copyright (C) 2007-2011 Science and Technologh Facilities Council.
+Copyright (C) 2007-2012 Science and Technologh Facilities Council.
 Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
@@ -61,7 +61,11 @@ Place,Suite 330, Boston, MA  02111-1307, USA
 
 Maintainer
 ----------
-The package is currently maintained by Brad Cavanagh <brad.cavanagh@gmail.com>.
+The package is currently maintained by Tim Jenness <tjenness@cpan.org>.
+Please use CPAN RT for bug reports and github pull requests for patches.
+The source code repository is at
+
+  git://github.com/timj/perl-Astro-FITS-HdrTrans.git
 
 Changes
 -------
@@ -82,4 +86,7 @@ Changes
  v1.51 - Use Module::Build
        - Minor fix for polarimeter recipe in ACSIS
 
- v1.52 - Add LCOG instruments
+ v1.52 - Add LCOG instruments (thanks to Tim Lister)
+       - Added OBSERVATION_ID_SUBSYSTEM
+       - Many improvements to JCMT translations.
+       - Astro::SLA is now only required for NIRI translations.
