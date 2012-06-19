@@ -1,32 +1,18 @@
 #!perl
 
 # This test simply loads all the modules
-# it does this by scanning ORAC-DR lib dir for .pm files
+# it does this by scanning the directory for .pm files
 # and use'ing each in turn
 
 # It is slow because of the fork required for each separate use
-
-# Copyright (C) 2002-2005 Particle Physics and Astronomy Research Council.
-# All Rights Reserved.
-
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place,Suite 330, Boston, MA 02111-1307,
-# USA
-
+use 5.006;
 use strict;
 use warnings;
-use Test; # Not really needed since we don't use ok()
+
+# Test module only used for planning
+# Note that we can not use Test::More since Test::More
+# will lose count of its tests and complain (through the fork)
+use Test::More;
 
 use File::Find;
 
@@ -40,20 +26,22 @@ if (exists $ENV{SKIP_COMPILE_TEST}) {
 }
 
 
-# Scan the blib/lib/Astro directory looking for modules
+# Scan the blib/ directory looking for modules
 
 
 find({ wanted => \&wanted,
        no_chdir => 1,
-       }, "blib/lib/Astro");
+       }, "blib");
 
 # Start the tests
-plan tests => scalar(@modules);
-
+plan tests => (scalar(@modules));
 
 # Loop through each module and try to run it
 
 $| = 1;
+my $counter = 0;
+
+my $tempfile = "results.dat";
 
 for my $module (@modules) {
 
@@ -64,7 +52,7 @@ for my $module (@modules) {
   if ($pid = fork) {
     # parent
 
-    # wait for the forked process to complet
+    # wait for the forked process to complete
     waitpid($pid, 0);
 
     # Control now back with parent.
@@ -72,27 +60,49 @@ for my $module (@modules) {
   } else {
     # Child
     die "cannot fork: $!" unless defined $pid;
+
+    my $isok = 1;
+    my $skip = '';
     eval "use $module ();";
     if( $@ ) {
-      warn "require failed with '$@'\n";
-      print "not ";
+      if ($@ =~ /Can't locate (.*\.pm) in/) {
+        my $missing = $1;
+        diag( "$module can not locate $missing" );
+        $skip = "missing module $missing from $module";
+      } else {
+        diag( "require failed with '$@'\n" );
+        $isok = 0;
+      }
     }
-    print "ok - $module\n";
-    # Must remember to exit from the fork
+
+    # Open the temp file
+    open( my $fh, "> $tempfile") || die "Could not open $tempfile: $!";
+    print $fh "$isok $skip\n";
+    close($fh);
+
     exit;
   }
+
+  if (open( my $fh, "< $tempfile")) {
+    my $line = <$fh>;
+    close($fh);
+    if (defined $line) {
+      chomp($line);
+      my ($status, $skip) = split(/\s+/, $line, 2);
+    SKIP: {
+        skip( $skip, 1) if $skip;
+        ok( $status, "Load $module");
+      }
+    } else {
+      ok( 0, "Could not get results from loading module $module");
+    }
+  } else {
+    # did not get the temp file
+    ok(0, "Could not get results from loading module $module");
+  }
+  unlink($tempfile);
+
 }
-
-
-
-# We do this as a separate process else we'll blow the hell
-# out of our namespace.
-sub compile_module {
-    my ($module) = $_[0];
-    return scalar `$^X "-Ilib" t/lib/compmod.pl $module` =~ /^ok/;
-}
-
-
 
 # This determines whether we are interested in the module
 # and then stores it in the array @modules
@@ -102,10 +112,6 @@ sub wanted {
 
   # is it a module
   return unless $pm =~ /\.pm$/;
-
-#  print "pm is $pm\n";
-
-
 
   # Remove the blib/lib (assumes unix!)
   $pm =~ s|^blib/lib/||;
