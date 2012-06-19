@@ -13,7 +13,7 @@ my $isok = eval {
   1;
 };
 if( !$isok ) {
-  plan skip_all => "Test requires NDF module: $@";
+  plan skip_all => "Test requires NDF module";
 } else {
 
   # Load NDF if we can.
