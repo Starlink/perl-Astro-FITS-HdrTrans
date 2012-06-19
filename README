@@ -90,3 +90,5 @@ Changes
        - Added OBSERVATION_ID_SUBSYSTEM
        - Many improvements to JCMT translations.
        - Astro::SLA is now only required for NIRI translations.
+
+ v1.53 - The ACSIS test should skip if Starlink::AST is missing.

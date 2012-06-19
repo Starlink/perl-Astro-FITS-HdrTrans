@@ -32,7 +32,7 @@ my $build = Module::Build->new
                    'Tim Jenness <t.jenness@jach.hawaii.edu>',
                    'Brad Cavanagh <b.cavanagh@jach.hawaii.edu>',
                   ],
-   dist_version => '1.52',
+   dist_version => '1.53',
    script_files => [ qw/
                          translatehdr
                        / ],
@@ -42,7 +42,7 @@ my $build = Module::Build->new
                              },
                 },
    recommends => {
-                  'Starlink::AST' => 0,
+                  'Starlink::AST' => 1.02,
                   'Astro::SLA' => 0,
                  },
    requires => {
