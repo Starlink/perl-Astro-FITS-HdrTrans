@@ -16,14 +16,23 @@ if( !$isok ) {
   plan skip_all => "Test requires NDF module";
 } else {
 
-  # Load NDF if we can.
+  # Load Astro::FITS::Header::NDF if we can.
   eval {
     require Astro::FITS::Header::NDF;
   };
   if( $@ ) {
     plan skip_all => 'Test requires Astro::FITS::Header::NDF module';
   } else {
-    plan tests => 26;
+
+    # Load Starlink::AST if we can. We call ndfGtwcs below.
+    eval {
+      require Starlink::AST;
+    };
+    if ($@) {
+      plan skip_all => "Test requires Starlink::AST module";
+    } else {
+      plan tests => 26;
+    }
   }
 }
 
