@@ -8,6 +8,8 @@ use Astro::Telescope;
 use DateTime;
 use DateTime::TimeZone;
 
+our $VERSION = '1.01';
+
 use base qw/ Astro::FITS::HdrTrans::JAC /;
 
 # Unit mapping implies that the value propogates directly
@@ -229,42 +231,49 @@ sub _calc_coords {
     return $COORDS;
   }
 
-  if ( exists( $FITS_headers->{'TELESCOP'} ) &&
-       exists( $FITS_headers->{'DATE-OBS'} ) &&
-       exists( $FITS_headers->{'AZSTART'} )  &&
-       exists( $FITS_headers->{'ELSTART'} )  &&
-       defined $FITS_headers->{AZSTART} &&
-       defined $FITS_headers->{ELSTART}
-     ) {
+  my $telescope = $FITS_headers->{'TELESCOP'};
 
-    my $dateobs   = $FITS_headers->{'DATE-OBS'};
-    my $telescope = $FITS_headers->{'TELESCOP'};
-    my $az_start  = $FITS_headers->{'AZSTART'};
-    my $el_start  = $FITS_headers->{'ELSTART'};
+  # We can try DATE-OBS and AZEL START or DATE-END and AZEL END
+  my ($dateobs, $az, $el);
+
+  my @keys = ( { date => "DATE-OBS", az => "AZSTART", el => "ELSTART" },
+               { date => "DATE-END", az => "AZEND", el => "ELEND" } );
+
+  for my $keys_to_try ( @keys ) {
+
+    # We might have subheaders, especially for the AZEL
+    # values so we read into arrays and check them.
+
+    my @dateobs = $self->via_subheader( $FITS_headers, $keys_to_try->{date} );
+    my @azref = $self->via_subheader( $FITS_headers, $keys_to_try->{az} );
+    my @elref = $self->via_subheader( $FITS_headers, $keys_to_try->{el} );
 
     # try to ensure that we use the same index everywhere
     my $idx;
-    ($idx, $dateobs)  = _middle_value($dateobs, $idx)  if ref $dateobs;
-    ($idx, $az_start) = _middle_value($az_start, $idx) if ref $az_start;
-    ($idx, $el_start) = _middle_value($el_start, $idx) if ref $el_start;
+    ($idx, $dateobs) = _middle_value(\@dateobs, $idx);
+    ($idx, $az) = _middle_value(\@azref, $idx);
+    ($idx, $el) = _middle_value(\@elref, $idx);
 
-    # only proceed if we have a defined value
-    if (defined $dateobs && defined $telescope
-        && defined $az_start && defined $el_start) {
-      my $coords = new Astro::Coords( az => $az_start,
-                                      el => $el_start,
-                                      units => 'degrees',
-                                    );
-      $coords->telescope( new Astro::Telescope( $telescope ) );
+    # if we have a set of values we can stop looking
+    last if (defined $dateobs && defined $az && defined $el);
+  }
 
-      # convert ISO date to object
-      my $dt = Astro::FITS::HdrTrans::Base->_parse_iso_date( $dateobs );
-      return unless defined $dt;
+  # only proceed if we have a defined value
+  if (defined $dateobs && defined $telescope
+      && defined $az && defined $el ) {
+    my $coords = new Astro::Coords( az => $az,
+                                    el => $el,
+                                    units => 'degrees',
+                                  );
+    $coords->telescope( new Astro::Telescope( $telescope ) );
 
-      $coords->datetime( $dt );
+    # convert ISO date to object
+    my $dt = Astro::FITS::HdrTrans::Base->_parse_iso_date( $dateobs );
+    return unless defined $dt;
 
-      $COORDS = $coords;
-    }
+    $coords->datetime( $dt );
+
+    $COORDS = $coords;
     return $COORDS;
   }
 

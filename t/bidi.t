@@ -75,6 +75,9 @@ for my $hdrfile (sort readdir $dh) {
   my $inst = $hdrfile;
   $inst =~ s/\.hdr$//;
 
+  # skip if we have a header that is not listed in the test hash
+  next unless exists $COUNT{$inst};
+
   # Get the Astro::FITS::Header object
   my $fits = readfits( File::Spec->catfile( $datadir, $hdrfile) );
   die "Error reading fits headers from $hdrfile"
