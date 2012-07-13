@@ -248,19 +248,23 @@ sub _calc_coords {
     ($idx, $az_start) = _middle_value($az_start, $idx) if ref $az_start;
     ($idx, $el_start) = _middle_value($el_start, $idx) if ref $el_start;
 
-    my $coords = new Astro::Coords( az => $az_start,
-                                    el => $el_start,
-                                    units => 'degrees',
-                                  );
-    $coords->telescope( new Astro::Telescope( $telescope ) );
+    # only proceed if we have a defined value
+    if (defined $dateobs && defined $telescope
+        && defined $az_start && defined $el_start) {
+      my $coords = new Astro::Coords( az => $az_start,
+                                      el => $el_start,
+                                      units => 'degrees',
+                                    );
+      $coords->telescope( new Astro::Telescope( $telescope ) );
 
-    # convert ISO date to object
-    my $dt = Astro::FITS::HdrTrans::Base->_parse_iso_date( $dateobs );
-    return unless defined $dt;
+      # convert ISO date to object
+      my $dt = Astro::FITS::HdrTrans::Base->_parse_iso_date( $dateobs );
+      return unless defined $dt;
 
-    $coords->datetime( $dt );
+      $coords->datetime( $dt );
 
-    $COORDS = $coords;
+      $COORDS = $coords;
+    }
     return $COORDS;
   }
 
