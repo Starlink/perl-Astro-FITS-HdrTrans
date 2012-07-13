@@ -242,9 +242,11 @@ sub _calc_coords {
     my $az_start  = $FITS_headers->{'AZSTART'};
     my $el_start  = $FITS_headers->{'ELSTART'};
 
-    $dateobs  = _middle_value($dateobs)  if ref $dateobs;
-    $az_start = _middle_value($az_start) if ref $az_start;
-    $el_start = _middle_value($el_start) if ref $el_start;
+    # try to ensure that we use the same index everywhere
+    my $idx;
+    ($idx, $dateobs)  = _middle_value($dateobs, $idx)  if ref $dateobs;
+    ($idx, $az_start) = _middle_value($az_start, $idx) if ref $az_start;
+    ($idx, $el_start) = _middle_value($el_start, $idx) if ref $el_start;
 
     my $coords = new Astro::Coords( az => $az_start,
                                     el => $el_start,
@@ -267,13 +269,26 @@ sub _calc_coords {
 
 =item B<_middle_value>
 
-Returns the value from the middle of an array reference.
+Returns the value from the middle of an array reference. If that is
+not defined we start from the beginning until we find a defined
+value. Return undef if we can not find anything.
 
 =cut
 
 sub _middle_value {
   my $arr = shift;
-  return $arr->[int ((scalar @$arr) / 2)];
+  my $idx = shift;
+
+  $idx = int ((scalar @$arr) / 2) unless defined $idx;
+
+  return ($idx, $arr->[$idx]) if (defined $arr->[$idx]);
+
+  # No luck scan them all
+  for my $idx (0..$#$arr) {
+    my $val = $arr->[$idx];
+    return ($idx, $val) if defined $val;
+  }
+  return (undef, undef);
 }
 
 =back
