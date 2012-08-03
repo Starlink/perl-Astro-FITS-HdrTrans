@@ -261,6 +261,12 @@ sub getbounds{
   my $self = shift;
   my $FITS_headers = shift;
   my @bounds = ( 11, 1536, 4, 1024 );
+  if ( exists $FITS_headers->{CCDSUM} ) {
+    my $binning = $FITS_headers->{CCDSUM};
+    if ( $binning eq '1 1' ) {
+      @bounds = ( 22, 3072, 8, 2048 );
+    }
+  }
   if ( exists $FITS_headers->{TRIMSEC} ) {
     my $section = $FITS_headers->{TRIMSEC};
     if ( $section !~ /UNKNOWN/i ) {
@@ -278,7 +284,7 @@ sub getbounds{
 
 =head1 REVISION
 
-$Id: LCOSBIG_0m4.pm 5661 2012-05-10 17:29:10Z tlister $
+$Id: LCOSBIG_0m4.pm 5932 2012-08-01 20:23:43Z tlister $
 
 
 =head1 SEE ALSO
