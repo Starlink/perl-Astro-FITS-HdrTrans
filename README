@@ -95,3 +95,5 @@ Changes
 
  v1.54 - Update SCUBA-2 base coordinates estimate so that it can
          work with subheaders and missing start azel position.
+
+ v1.55 - Updates to some LCOG telescope translations (Tim Lister)
