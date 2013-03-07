@@ -44,6 +44,7 @@ my %UNIT_MAP = (
                 POLARIMETER          => 'POL_CONN',
                 UTDATE               => "UTDATE",
                 TELESCOPE            => "TELESCOP",
+                AMBIENT_TEMPERATURE  => 'ATSTART',
                );
 
 # Values that are derived from the last subheader entry
