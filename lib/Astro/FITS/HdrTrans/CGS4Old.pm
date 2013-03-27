@@ -75,6 +75,9 @@ This method returns true if the INSTRUME header exists and is equal to
 'CGS4', and if the IDATE header exists, matches the regular
 expression '\d{8}', and is less than 20081115.
 
+It also handles the reverse (to FITS) case where the INSTRUMENT header
+replaces INSTRUME, and UTDATE replaces IDATE in the above tests.
+
 =cut
 
 sub can_translate {
@@ -83,21 +86,25 @@ sub can_translate {
 
   if ( exists $headers->{IDATE} &&
        defined $headers->{IDATE} &&
+       $headers->{IDATE} =~ /\d{8}/ &&
+       $headers->{IDATE} < 20081115 &&
        exists $headers->{INSTRUME} &&
        defined $headers->{INSTRUME} &&
        ! exists $headers->{RAJ2000} &&
-       $headers->{IDATE} =~ /\d{8}/ &&
-       $headers->{IDATE} < 20081115 &&
        uc( $headers->{INSTRUME} ) eq 'CGS4' ) {
     return 1;
   }
 
   # Need to handle the reverse case as well. This module can translate
-  # CGS4 headers older than 20081115.
-  if ( exists $headers->{INSTRUMENT} &&
-       uc( $headers->{INSTRUMENT} ) eq 'CGS4' &&
-       exists $headers->{UTDATE} &&
-       $headers->{UTDATE} < 20081115 ) {
+  # CGS4 headers older than 20081115.  Note that the translations mean
+  # different header names are tested.
+  if ( exists $headers->{UTDATE} &&
+       defined $headers->{UTDATE} &&
+       $headers->{UTDATE} =~ /\d{8}/ &&
+       $headers->{UTDATE} < 20081115 &&
+       exists $headers->{INSTRUMENT} &&
+       defined $headers->{INSTRUMENT} &&
+       uc( $headers->{INSTRUMENT} ) eq 'CGS4' ) {
     return 1;
   }
 
