@@ -415,7 +415,7 @@ sub translate_to_FITS {
   # class we need to use.
   my %stripped_header = clean_prefix( $generic_header, $prefix );
 
-  # Check the UTSTART, UTEND, and UTDATE headers to make sure they're
+  # Check the UTSTART and UTEND headers to make sure they're
   # Time::Piece objects.
   for my $h (qw/ UTSTART UTEND / ) {
     if ( exists( $stripped_header{$h} ) &&
@@ -479,7 +479,7 @@ sub determine_class {
         }
       }
     }
-    # did no have an override so use defaults
+    # did not have an override so use defaults
     $classes = \@defclasses;
   }
 
@@ -589,26 +589,27 @@ translated header back to FITS is:
 =head1 AUTHOR
 
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
-Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>
+Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>,
+Malcolm J. Currie E,lt>mjc@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2009 Science and Technology Facilities Council.
+Copyright (C) 2007-2009, 2013 Science and Technology Facilities Council.
 Copyright (C) 2003-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
+Foundation; either Version 2 of the License, or (at your option) any later
 version.
 
-This program is distributed in the hope that it will be useful,but WITHOUT ANY
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place,Suite 330, Boston, MA  02111-1307, USA
+Place, Suite 330, Boston, MA  02111-1307, USA.
 
 =cut
 
