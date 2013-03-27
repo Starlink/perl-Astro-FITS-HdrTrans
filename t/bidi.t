@@ -6,6 +6,7 @@
 # Author: Tim Jenness <t.jenness@jach.hawaii.edu>
 
 # Copyright (C) 2005 Particle Physics and Astronomy Research Council.
+# Copyright (C) 2013 Science and Technology Facilities Council.
 # All Rights Reserved.
 
 # This program is free software; you can redistribute it and/or modify
@@ -69,7 +70,7 @@ opendir my $dh, $datadir or die "Unable to locate header data directory: $!";
 for my $hdrfile (sort readdir $dh) {
   next unless $hdrfile =~ /\.hdr$/;
   #next unless $hdrfile eq 'gsd_ras.hdr';
-  print "# Processing file $hdrfile...\n";
+  print "\n\n# Processing file $hdrfile...\n";
 
   # get the ref instrument name
   my $inst = $hdrfile;
@@ -87,10 +88,12 @@ for my $hdrfile (sort readdir $dh) {
   my %hdr;
   tie %hdr, "Astro::FITS::Header", $fits;
 
-  # translate from FITS
+  # Translate from FITS...
+  print "# Test translation from FITS...\n";
   my %generic = Astro::FITS::HdrTrans::translate_from_FITS( \%hdr );
 
-  # and back to FITS
+  # and back to FITS.
+  print "\n# and to FITS\n";
   my %nfits = Astro::FITS::HdrTrans::translate_to_FITS( \%generic );
 
   # for testing, dump the contents of the new FITS header
