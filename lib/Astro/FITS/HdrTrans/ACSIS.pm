@@ -102,12 +102,12 @@ sub can_translate {
        $headers->{BACKEND} =~ /^ACSIS/i
      ) {
     return 1;
+
+  # BACKEND will discriminate between DAS files converted to ACSIS format
+  # from GSD format directly (handled by Astro::FITS::HdrTrans::JCMT_GSD).
   } elsif ( exists $headers->{BACKEND} &&
             defined $headers->{BACKEND} &&
-            $headers->{BACKEND} =~ /^DAS/i &&
-            exists $headers->{OBSID} &&
-            defined $headers->{OBSID} &&
-            $headers->{OBSID} =~ /^DAS/) {
+            $headers->{BACKEND} =~ /^DAS/i ) {
     # Do not want to confuse with reverse conversion
     # of JCMT_GSD data headers which will have a defined
     # BACKEND header of DAS.
