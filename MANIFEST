@@ -66,3 +66,5 @@ t/data/uist_sp.hdr
 t/data/wfcam.hdr
 t/data/a20070425_00012_02_bl.sdf
 translatehdr
+META.yml
+META.json
