@@ -5,6 +5,5 @@ Makefile.old
 .#*
 _build
 Build
-MYMETA.yml
-MYMETA.json
+/*META.*
 Astro-FITS-HdrTrans-*
