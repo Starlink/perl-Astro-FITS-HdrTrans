@@ -31,6 +31,7 @@ my $build = Module::Build->new
    dist_author => [
                    'Tim Jenness <t.jenness@jach.hawaii.edu>',
                    'Brad Cavanagh <b.cavanagh@jach.hawaii.edu>',
+                   'Malcolm J. Currie <mjc@star.rl.ac.uk>',
                   ],
    dist_version => '1.55',
    script_files => [ qw/
@@ -38,7 +39,7 @@ my $build = Module::Build->new
                        / ],
    meta_merge => {
                resources =>  {
-                              repository => "git://github.com/bradcavanagh/perl-Astro-FITS-HdrTrans.git",
+                              repository => "git://github.com/Starlink/perl-Astro-FITS-HdrTrans.git",
                              },
                 },
    recommends => {

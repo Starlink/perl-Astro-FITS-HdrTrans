@@ -36,7 +36,7 @@ use vars qw/ $VERSION $DEBUG @ISA /;
 use Exporter 'import';
 our @EXPORT_OK = qw( translate_from_FITS translate_to_FITS );
 
-$VERSION = '1.51';
+$VERSION = '1.55';
 $DEBUG   = 0;
 
 # The reference list of classes we can try This list should be
@@ -590,7 +590,7 @@ translated header back to FITS is:
 
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,
 Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>,
-Malcolm J. Currie E,lt>mjc@jach.hawaii.eduE<gt>
+Malcolm J. Currie E<lt>mjc@jach.hawaii.eduE<gt>
 
 =head1 COPYRIGHT
 
