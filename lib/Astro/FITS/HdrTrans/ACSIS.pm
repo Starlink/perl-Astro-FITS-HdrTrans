@@ -107,7 +107,8 @@ sub can_translate {
   # from GSD format directly (handled by Astro::FITS::HdrTrans::JCMT_GSD).
   } elsif ( exists $headers->{BACKEND} &&
             defined $headers->{BACKEND} &&
-            $headers->{BACKEND} =~ /^DAS/i ) {
+            $headers->{BACKEND} =~ /^DAS/i &&
+            ! (exists $headers->{'GSDFILE'} && exists $headers->{'SCA#'})) {
     # Do not want to confuse with reverse conversion
     # of JCMT_GSD data headers which will have a defined
     # BACKEND header of DAS.
