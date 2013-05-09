@@ -26,7 +26,7 @@ use Module::Build;
 my $build = Module::Build->new
   (
    module_name => 'Astro::FITS::HdrTrans',
-   license  => 'gpl',
+   license  => 'gpl2',
    dist_abstract => 'Translate FITS headers to standardised form',
    dist_author => [
                    'Tim Jenness <t.jenness@jach.hawaii.edu>',
