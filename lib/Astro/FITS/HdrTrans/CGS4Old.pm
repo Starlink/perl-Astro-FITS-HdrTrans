@@ -248,6 +248,36 @@ sub from_RA_TELESCOPE_OFFSET {
   return %return;
 }
 
+=item B<to_DETECTOR_READ_TYPE>
+
+Should be the "MODE" header but if this is missing we can look
+at INTTYPE instead.
+
+=cut
+
+sub to_DETECTOR_READ_TYPE {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my %mode = (
+    CHOP        => 'CHOP',
+    'STARE+NDR' => 'ND_STARE',
+    STARE       => 'STARE',
+  );
+
+  if (exists $FITS_headers->{'MODE'}) {
+    return $FITS_headers->{'MODE'};
+  }
+  elsif (exists $FITS_headers->{'INTTYPE'}) {
+    my $inttype = $FITS_headers->{'INTTYPE'};
+    if (exists $mode{$inttype}) {
+      return $mode{$inttype};
+    }
+  }
+
+  return undef;
+}
+
 =item B<to_SAMPLING>
 
 Converts FITS header values in C<DETINCR> and C<DETNINCR> to a single
