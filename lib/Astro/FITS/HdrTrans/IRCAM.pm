@@ -377,6 +377,29 @@ sub from_Y_REFERENCE_PIXEL {
   return ( "CRPIX2", $generic_headers->{"Y_REFERENCE_PIXEL"} );
 }
 
+=item B<to_ROTATION>
+
+Returns fixed rotation values based on the UT date.
+
+=cut
+
+sub to_ROTATION {
+  my $self = shift;
+  my $FITS_headers = shift;
+  my $utdate = $self->to_UTDATE($FITS_headers);
+
+  if ($utdate < 19990901) {
+    return 1.5;
+  }
+
+  # TODO: determine correct sense for later rotations given on the
+  # IRCAM website http://www.jach.hawaii.edu/UKIRT/instruments/ircam/scale.html
+  # Sept 99: -89.04
+  # June 01: -88.84
+
+  return 0.0;
+}
+
 =back
 
 =head1 REVISION
