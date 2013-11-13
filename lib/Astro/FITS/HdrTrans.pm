@@ -519,7 +519,7 @@ sub determine_class {
     # We couldn't figure out which one to use.
     croak "Unable to determine header translation subclass. No matches for these headers when trying to convert "
       . ($fromfits ? 'from' : 'to' )
-        . " FITS using the following classes: ".join(",",@$classes);
+        . " FITS using the following classes: ".join(", ",@$classes);
   }
 
   # The class we wanted is the only key in the hash
