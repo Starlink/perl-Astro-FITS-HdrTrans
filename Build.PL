@@ -58,6 +58,7 @@ my $build = Module::Build->new
                },
    build_requires => {
                       'Test::More' => 0,
+                      'Test::Number::Delta' => 0,
                       'Time::Piece' => 0,
                      },
    configure_requires => {
