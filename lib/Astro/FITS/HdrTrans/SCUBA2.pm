@@ -161,13 +161,7 @@ sub to_DR_RECIPE {
   return $dr;
 }
 
-=cut
-
 =back
-
-=head1 REVISION
-
- $Id$
 
 =head1 SEE ALSO
 

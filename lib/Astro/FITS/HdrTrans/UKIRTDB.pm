@@ -534,10 +534,10 @@ sub from_RA_BASE {
 
 =over 4
 
+=item B<_fix_dates>
+
 Handle the case where DATE_OBS and/or DATE_END are given, and convert
 them into DATE-OBS and/or DATE-END.
-
-=item B<_fix_dates>
 
 =cut
 
@@ -632,10 +632,6 @@ sub _parse_date {
 }
 
 =back
-
-=head1 REVISION
-
- $Id$
 
 =head1 SEE ALSO
 

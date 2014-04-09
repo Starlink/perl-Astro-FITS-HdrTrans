@@ -1,3 +1,9 @@
+=head1 NAME
+
+Astro::FITS::HdrTrans::JCMT - class combining common behaviour for modern JCMT instruments
+
+=cut
+
 package Astro::FITS::HdrTrans::JCMT;
 
 use strict;
@@ -39,6 +45,10 @@ __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
 our $COORDS;
 
+=head1 METHODS
+
+=over 4
+
 =item B<translate_from_FITS>
 
 This routine overrides the base class implementation to enable the
@@ -63,6 +73,12 @@ sub translate_from_FITS {
   return $class->SUPER::translate_from_FITS( $headers, @_ );
 }
 
+=item B<to_UTDATE>
+
+Converts the date in a date-obs header into a number of form YYYYMMDD.
+
+=cut
+
 sub to_UTDATE {
   my $class = shift;
   my $FITS_headers = shift;
@@ -71,6 +87,12 @@ sub to_UTDATE {
   return $class->SUPER::to_UTDATE( $FITS_headers, @_ );
 }
 
+=item B<to_UTEND>
+
+Converts UT date in a date-end header into C<Time::Piece> object
+
+=cut
+
 sub to_UTEND {
   my $class = shift;
   my $FITS_headers = shift;
@@ -78,6 +100,12 @@ sub to_UTEND {
   $class->_fix_dates( $FITS_headers );
   return $class->SUPER::to_UTEND( $FITS_headers, @_ );
 }
+
+=item B<to_UTSTART>
+
+Converts UT date in a date-obs header into C<Time::Piece> object.
+
+=cut
 
 sub to_UTSTART {
   my $class = shift;
@@ -202,6 +230,7 @@ sub to_SUBSYSTEM_IDKEY {
   return;
 }
 
+=back
 
 =head1 PRIVATE METHODS
 
@@ -303,39 +332,6 @@ sub _middle_value {
   }
   return (undef, undef);
 }
-
-=back
-
-=pod
-
-=head1 NAME
-
-Astro::FITS::HdrTrans::JCMT - class combining common behaviour for mordern JCMT
-instruments
-
-=head2 SYNOPSIS
-
-XXX To be supplied.
-
-=head1 DESCRIPTION
-
-XXX To be supplied.
-
-=head2 METHODS
-
-=over 4
-
-=item B<to_UTDATE>
-
-Converts the date in a date-obs header into a number of form YYYYMMDD.
-
-=item B<to_UTEND>
-
-Converts UT date in a date-end header into C<Time::Piece> object
-
-=item B<to_UTSTART>
-
-Converts UT date in a date-obs header into C<Time::Piece> object.
 
 =back
 

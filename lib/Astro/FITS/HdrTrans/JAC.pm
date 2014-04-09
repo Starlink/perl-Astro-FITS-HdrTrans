@@ -57,6 +57,10 @@ my %UNIT_MAP = (
 # Create the translation methods.
 __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP );
 
+=head1 METHODS
+
+=over 4
+
 =item B<translate_from_FITS>
 
 This routine overrides the base class implementation to enable the
@@ -80,7 +84,7 @@ sub translate_from_FITS {
   return $class->SUPER::translate_from_FITS( $headers, @_ );
 }
 
-
+=back
 
 =head1 COMPLEX CONVERSIONS
 
@@ -217,10 +221,6 @@ sub _convert_sybase_date {
 }
 
 =back
-
-=head1 REVISION
-
-$Id$
 
 =head1 SEE ALSO
 
