@@ -1,6 +1,7 @@
 MANIFEST
 README
 Build.PL
+Changes
 lib/Astro/FITS/HdrTrans.pm
 lib/Astro/FITS/HdrTrans/ACSIS.pm
 lib/Astro/FITS/HdrTrans/Base.pm

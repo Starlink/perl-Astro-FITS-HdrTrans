@@ -67,36 +67,3 @@ Please use CPAN RT for bug reports and github pull requests for patches.
 The source code repository is at
 
   git://github.com/timj/perl-Astro-FITS-HdrTrans.git
-
-Changes
--------
-
- v0.01 - initial test release to CPAN
-
- v0.02 - Change licence in README to be same as Perl.
-         Add copyright statement.
-         Add requirement on Test::More and Time::Piece to Makefile.PL.
-
- v0.03 - Licence should have been GPL
-
- v0.05 - Major rewrite of internals.
-         Supports all UKIRT and JCMT instruments
-
- v1.50 - Includes support for SCUBA-2 and many fixes for ACSIS.
-
- v1.51 - Use Module::Build
-       - Minor fix for polarimeter recipe in ACSIS
-
- v1.52 - Add LCOG instruments (thanks to Tim Lister)
-       - Added OBSERVATION_ID_SUBSYSTEM
-       - Many improvements to JCMT translations.
-       - Astro::SLA is now only required for NIRI translations.
-
- v1.53 - The ACSIS test should skip if Starlink::AST is missing.
-
- v1.54 - Update SCUBA-2 base coordinates estimate so that it can
-         work with subheaders and missing start azel position.
-
- v1.55 - Updates to some LCOG telescope translations (Tim Lister)
-       - Added AMBIENT_TEMPERATURE for SCUBA-2.
-       - No longer check OBSID for ACSIS.
