@@ -66,4 +66,4 @@ The package is currently maintained by Tim Jenness <tjenness@cpan.org>.
 Please use CPAN RT for bug reports and github pull requests for patches.
 The source code repository is at
 
-  git://github.com/timj/perl-Astro-FITS-HdrTrans.git
+  git://github.com/Starlink/perl-Astro-FITS-HdrTrans.git
