@@ -28,7 +28,7 @@ The package is available from CPAN <http://www.cpan.org/>.
 
 Installation
 ------------
-Installation is automated using the ExtUtils::MakeMaker library
+Installation is automated using the Module::Build library
 
     % perl Build.PL
     % ./Build
