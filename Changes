@@ -7,7 +7,7 @@ Revision history for Astro::FITS::HdrTrans
 
 1.55 2013-05-08
 
-    - Updates to some LCOG telescope translations (Tim Lister).
+    - Updates to some LCOGT telescope translations (Tim Lister).
     - Added AMBIENT_TEMPERATURE for SCUBA-2.
     - No longer check OBSID for ACSIS.
 
@@ -22,7 +22,7 @@ Revision history for Astro::FITS::HdrTrans
 
 1.52 2012-06-19
 
-    - Add LCOG instruments (thanks to Tim Lister).
+    - Add LCOGT instruments (thanks to Tim Lister).
     - Added OBSERVATION_ID_SUBSYSTEM
     - Many improvements to JCMT translations.
     - Astro::SLA is now only required for NIRI translations.

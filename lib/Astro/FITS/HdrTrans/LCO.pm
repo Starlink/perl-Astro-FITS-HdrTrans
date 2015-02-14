@@ -395,7 +395,7 @@ sub dms_to_degrees {
   my $sexa = shift;
   my $dms;
   if ( defined( $sexa ) ) {
-    if ($sexa =~ /UNKNOWN/i or $sexa eq "N/A" ) {
+    if ($sexa =~ /UNKNOWN/i or $sexa eq "N/A" or $sexa eq "NaN" ) {
       $dms = 0.0;
     } else {
       my @pos = split( /:/, $sexa );
@@ -421,7 +421,7 @@ sub hms_to_degrees {
   my $sexa = shift;
   my $hms;
   if ( defined( $sexa ) ) {
-    if ($sexa =~ /UNKNOWN/i or $sexa eq "N/A" ) {
+    if ($sexa =~ /UNKNOWN/i or $sexa eq "N/A" or $sexa eq "NaN" ) {
       $hms = 0.0;
     } else {
       my @pos = split( /:/, $sexa );
