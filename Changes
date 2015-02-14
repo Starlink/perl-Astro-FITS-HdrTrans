@@ -1,5 +1,10 @@
 Revision history for Astro::FITS::HdrTrans
 
+1.57 2015-03-06
+
+    - Add support for more LCOGT instruments (Tim Lister).
+    - Avoid NaN values for LCOGT (Tim Lister).
+
 1.56 2014-07-16
 
     - For CGS4Old read INTTYPE if MODE is not present.

@@ -22,9 +22,15 @@ lib/Astro/FITS/HdrTrans/JCMT.pm
 lib/Astro/FITS/HdrTrans/JCMT_GSD.pm
 lib/Astro/FITS/HdrTrans/JCMT_GSD_DB.pm
 lib/Astro/FITS/HdrTrans/LCO.pm
+lib/Astro/FITS/HdrTrans/LCOFLI_1m0.pm
+lib/Astro/FITS/HdrTrans/LCOFLOYDS.pm
+lib/Astro/FITS/HdrTrans/LCOMEROPE.pm
 lib/Astro/FITS/HdrTrans/LCOSBIG_0m4.pm
+lib/Astro/FITS/HdrTrans/LCOSBIG_0m8.pm
 lib/Astro/FITS/HdrTrans/LCOSBIG_1m0.pm
 lib/Astro/FITS/HdrTrans/LCOSBIG_CC.pm
+lib/Astro/FITS/HdrTrans/LCOSINISTRO_1m0.pm
+lib/Astro/FITS/HdrTrans/LCOSPECTRAL.pm
 lib/Astro/FITS/HdrTrans/MICHELLE.pm
 lib/Astro/FITS/HdrTrans/NACO.pm
 lib/Astro/FITS/HdrTrans/NIRI.pm
