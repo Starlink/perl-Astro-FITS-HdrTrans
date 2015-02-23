@@ -29,7 +29,7 @@ use base qw/ Astro::FITS::HdrTrans::LCO /;
 
 use vars qw/ $VERSION /;
 
-$VERSION = '1.56';
+$VERSION = "1.56";
 
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
@@ -59,12 +59,12 @@ C<can_translate> method.
 
   $inst = $class->this_instrument();
 
-Returns "LCOSBIG".
+Returns a regexp pattern of the possible LCOGT camera codes, ORed together.
 
 =cut
 
 sub this_instrument {
-  return qr/^kb22/i;
+  return qr/(^kb10)|(^kb11)|(^kb12)|(^kb14)|(^kb15)|(^kb18)|(^kb20)|(^kb21)|(^kb22)/i;
 }
 
 =back
@@ -85,7 +85,7 @@ these are many-to-many)
 =item B<to_DEC_SCALE>
 
 Sets the declination scale in arcseconds per pixel.  The C<PIXSCALE>
-is used when it's defined.  Otherwise it returns a default value of 0.2320
+is used when it's defined.  Otherwise it returns a default value of 4.74
 arcsec/pixel, multiplied by C<YBINNING> assuming this is defined
 
 =cut
@@ -136,56 +136,10 @@ sub to_DEC_TELESCOPE_OFFSET {
   return -1.0 * $decoffset;
 }
 
-=item B<to_FILTER>
-
-Concatenate the individual C<FILTERx> keywords together, minus any that say "air"
-=cut
-
-sub to_FILTER {
-  my $self = shift;
-  my $FITS_headers = shift;
-  my $filter = "";
-  if (exists $FITS_headers->{"FILTER"} ) {
-   $filter = $FITS_headers->{"FILTER"};
-  } else {
-    my $filter1 = $FITS_headers->{ "FILTER1" };
-    my $filter2 = $FITS_headers->{ "FILTER2" };
-    my $filter3 = $FITS_headers->{ "FILTER3" };
-
-    if ( $filter1 =~ "air" ) {
-       $filter = $filter2;
-    }
-
-    if ( $filter2 =~ "air" ) {
-       $filter = $filter1;
-    }
-
-    if ( $filter1 =~ "air" && $filter2 =~ "air" ) {
-       $filter = $filter3;
-    }
-
-    if ( ( $filter1 =~ "air" ) &&
-         ( $filter2 =~ "air" ) &&
-         ( $filter3 =~ "air" ) ) {
-       $filter = "blank";
-    }
-  }
-  return $filter;
-}
-
-sub from_FILTER {
-  my $self = shift;
-  my $generic_headers = shift;
-  my %return_hash;
-  $return_hash{'FILTER'} = $generic_headers->{FILTER};
-
-  return %return_hash;
-}
-
 =item B<to_RA_SCALE>
 
 Sets the RA scale in arcseconds per pixel.  The C<PIXSCALE>
-is used when it's defined.  Otherwise it returns a default value of 0.2320
+is used when it's defined.  Otherwise it returns a default value of 4.74
 arcsec/pixel, multiplied by C<XBINNING> assuming this is defined (1.0 otherwise)
 
 =cut
@@ -304,20 +258,40 @@ sub to_Y_UPPER_BOUND {
 # If the TRIMSEC header is absent, use a default which corresponds
 # to the useful part of the array (minus bias strips).
 sub getbounds{
-  my $self = shift;
-  my $FITS_headers = shift;
-  my @bounds = ( 6, 3072, 11, 2048 );
-  if ( exists $FITS_headers->{TRIMSEC} ) {
-    my $section = $FITS_headers->{TRIMSEC};
-    if ( $section !~ /UNKNOWN/i ) {
-      $section =~ s/\[//;
-      $section =~ s/\]//;
-      $section =~ s/,/:/g;
-      @bounds = split( /:/, $section );
-    }
-  }
-  #   print("DBG: Bounds=@bounds\n");
-  return @bounds;
+   my $self = shift;
+   my $FITS_headers = shift;
+   my @bounds = ( 6, 1536,  2, 1023 );
+   if ( $FITS_headers->{INSTRUME} =~ /^kb11/i ) {
+      @bounds = ( 3, 1536,  5, 1024 );
+   }
+   if ( exists $FITS_headers->{CCDSUM} ) {
+      my $binning = $FITS_headers->{CCDSUM};
+      if ( $binning eq '1 1' ) {
+        @bounds = (  12, 3072,  4, 2046 );
+        if ( $FITS_headers->{INSTRUME} =~ /^kb11/i ) {
+           @bounds = ( 6, 3072, 10, 2048 );
+        }
+      }
+   }
+   if ( exists $FITS_headers->{TRIMSEC} ) {
+      my $section = $FITS_headers->{TRIMSEC};
+      if ( $section !~ /UNKNOWN/i ) {
+         $section =~ s/\[//;
+         $section =~ s/\]//;
+         $section =~ s/,/:/g;
+         my @newbounds = split( /:/, $section );
+         if (@newbounds == grep { $_ == 0 } @newbounds) {
+            print "ERR: TRIMSEC all 0\n";
+         } else {
+            if ( $FITS_headers->{INSTRUME} !~ /^kb10/i ) {
+# Unless this is kb10 data (which has a bad TRIMSEC), update bounds array 
+               @bounds = @newbounds;
+            }
+         }
+      }
+   }
+#   print("DBG: Bounds=@bounds\n");
+   return @bounds;
 }
 
 =back

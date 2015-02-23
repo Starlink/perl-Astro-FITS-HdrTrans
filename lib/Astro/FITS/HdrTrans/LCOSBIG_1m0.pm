@@ -29,7 +29,7 @@ use base qw/ Astro::FITS::HdrTrans::LCO /;
 
 use vars qw/ $VERSION /;
 
-$VERSION = '1.56';
+$VERSION = "1.56";
 
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
@@ -64,7 +64,7 @@ Returns "LCOSBIG".
 =cut
 
 sub this_instrument {
-  return qr/^kb7/i;
+  return qr/(^kb7)|(^kb05)/i;
 }
 
 =back

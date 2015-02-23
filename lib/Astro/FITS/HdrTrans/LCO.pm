@@ -30,7 +30,7 @@ use base qw/ Astro::FITS::HdrTrans::FITS /;
 
 use vars qw/ $VERSION /;
 
-$VERSION = '1.56';
+$VERSION = "1.56";
 
 # for a constant mapping, there is no FITS header, just a generic
 # header that is constant
@@ -134,8 +134,6 @@ values of the C<OBJECT> and C<OBSTYPE> keywords.  The default is
 
 =cut
 
-# No clue what the recipe is apart for a dark and assume a dither
-# pattern means JITTER_SELF_FLAT.
 sub to_DR_RECIPE {
   my $self = shift;
   my $FITS_headers = shift;
