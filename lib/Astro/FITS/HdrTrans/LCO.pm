@@ -78,9 +78,9 @@ sub to_AIRMASS_END {
   my $self = shift;
   my $FITS_headers = shift;
   my $end_airmass = 1.0;
-  if ( exists $FITS_headers->{"AMEND"} && $FITS_headers->{"AMEND"} ne 'UNKNOWN') {
+  if ( exists $FITS_headers->{"AMEND"} && $FITS_headers->{"AMEND"} !~ /^UNKNOWN/ ) {
     $end_airmass = $FITS_headers->{"AMEND"};
-  } elsif ( exists $FITS_headers->{"AIRMASS"} ) {
+  } elsif ( exists $FITS_headers->{"AIRMASS"} && $FITS_headers->{"AIRMASS"} !~ /^UNKNOWN/  ) {
     $end_airmass = $FITS_headers->{"AIRMASS"};
   }
   return $end_airmass;
@@ -98,9 +98,9 @@ sub to_AIRMASS_START {
   my $self = shift;
   my $FITS_headers = shift;
   my $start_airmass = 1.0;
-  if ( exists $FITS_headers->{"AMSTART"} && $FITS_headers->{"AMSTART"} ne 'UNKNOWN') {
+  if ( exists $FITS_headers->{"AMSTART"} && $FITS_headers->{"AMSTART"} !~ /^UNKNOWN/ ) {
     $start_airmass = $FITS_headers->{"AMSTART"};
-  } elsif ( exists $FITS_headers->{"AIRMASS"} ) {
+  } elsif ( exists $FITS_headers->{"AIRMASS"} && $FITS_headers->{"AIRMASS"} !~ /^UNKNOWN/ ) {
     $start_airmass = $FITS_headers->{"AIRMASS"};
   }
   return $start_airmass;

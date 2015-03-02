@@ -261,10 +261,16 @@ sub getbounds{
   my $self = shift;
   my $FITS_headers = shift;
   my @bounds = ( 21, 2048, 11, 2048 );
+  if ( $FITS_headers->{INSTRUME} =~ /^kb78/i || $FITS_headers->{INSTRUME} =~ /^kb73/i || $FITS_headers->{INSTRUME} =~ /^kb75/i || $FITS_headers->{INSTRUME} =~ /^kb70/i || $FITS_headers->{INSTRUME} =~ /^kb05/i || $FITS_headers->{INSTRUME} =~ /^kb71/i ) {
+    @bounds = ( 11, 2037, 11, 2037 );
+  }
   if ( exists $FITS_headers->{CCDSUM} ) {
     my $binning = $FITS_headers->{CCDSUM};
     if ( $binning eq '1 1' ) {
       @bounds = ( 42, 4096, 22, 4096 );
+      if ( $FITS_headers->{INSTRUME} =~ /^kb78/i || $FITS_headers->{INSTRUME} =~ /^kb73/i || $FITS_headers->{INSTRUME} =~ /^kb75/i || $FITS_headers->{INSTRUME} =~ /^kb70/i || $FITS_headers->{INSTRUME} =~ /^kb05/i || $FITS_headers->{INSTRUME} =~ /^kb71/i ) {
+        @bounds = ( 22, 4074, 22, 4074 );
+      }
     }
   }
   if ( exists $FITS_headers->{TRIMSEC} ) {
@@ -273,7 +279,15 @@ sub getbounds{
       $section =~ s/\[//;
       $section =~ s/\]//;
       $section =~ s/,/:/g;
-      @bounds = split( /:/, $section );
+      my @newbounds = split( /:/, $section );
+      if (@newbounds == grep { $_ == 0 } @newbounds) {
+        print "ERR: TRIMSEC all 0\n";
+      } else {
+        if ( $FITS_headers->{INSTRUME} !~ /^kb78/i && $FITS_headers->{INSTRUME} !~ /^kb73/i && $FITS_headers->{INSTRUME} !~ /^kb75/i && $FITS_headers->{INSTRUME} !~ /^kb70/i && $FITS_headers->{INSTRUME} !~ /^kb79/i  && $FITS_headers->{INSTRUME} !~ /^kb05/i && $FITS_headers->{INSTRUME} !~ /^kb71/i ) {
+          # Unless this is kb78 data (which has a bad TRIMSEC), update bounds array 
+          @bounds = @newbounds;
+        }
+      }
     }
   }
   #   print("DBG: Bounds=@bounds\n");

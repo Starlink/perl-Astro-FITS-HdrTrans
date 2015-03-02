@@ -64,7 +64,7 @@ Returns "LCOSBIG".
 =cut
 
 sub this_instrument {
-   return qr/^kb16/i
+   return qr/^kb16/i;
 
 }
 
