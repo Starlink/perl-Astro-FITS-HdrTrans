@@ -36,7 +36,7 @@ ATSTART =                  5.0 / [deg C] Ambient temperature at start
 ATEND   =                  5.0 / [deg C] Ambient temperature at end
 WVMTAUST=                 0.05 / WVM tau at start
 WVMTAUEN=                 0.05 / WVM tau at end
-SEEINGST=                  1.0 / Seeing at start
+SEEINGST=                  0.0 / Seeing at start
 SEEINGEN=                  1.0 / Seeing at end
 COMMENT   '        '           / -- OMP & ORAC-DR parameters --
 PROJECT = 'M08AC00 '           / The proposal ID for the PROJECT

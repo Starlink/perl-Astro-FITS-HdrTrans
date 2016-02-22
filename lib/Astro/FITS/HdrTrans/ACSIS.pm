@@ -68,7 +68,6 @@ my %UNIT_MAP = (
                 ELEVATION_END      => 'ELEND',
                 FRONTEND           => 'INSTRUME',
                 NUMBER_OF_CYCLES   => 'NUM_CYC',
-                SEEING             => 'SEEINGST',
                 SWITCH_MODE        => 'SW_MODE',
                 VELOCITY_TYPE      => 'DOPPLER',
                );

@@ -14,7 +14,7 @@ eval {
 if( $@ ) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 4;
+  plan tests => 5;
 }
 
 # Test compilation.
@@ -36,6 +36,7 @@ isa_ok( $generic_header{'UTSTART'}, "Time::Piece", "UTSTART" )
 isa_ok( $generic_header{'UTEND'}, "Time::Piece", "UTEND" );
 
 is( $generic_header{'INSTRUMENT'}, "SCUBA-2", "SCUBA-2");
+is( $generic_header{'SEEING'}, 0.5, "SEEING is 0.5");
 
 sub readfits {
   my $file = shift;

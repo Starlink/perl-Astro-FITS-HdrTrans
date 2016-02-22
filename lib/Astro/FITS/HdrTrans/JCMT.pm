@@ -186,6 +186,38 @@ sub to_TAU {
   return $tau;
 }
 
+=item B<to_SEEING>
+
+Use the average seeing measurements.
+
+=cut
+
+sub to_SEEING {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+  my $seeing = 0.0;
+
+
+  my @startvals = $self->via_subheader_undef_check( $FITS_headers, "SEEINGST" );
+  my @endvals   = $self->via_subheader_undef_check( $FITS_headers, "SEEINGEN" );
+  my $startval = $startvals[0];
+  my $endval = $endvals[-1];
+
+  if (defined $startval && defined $endval) {
+      $seeing = ($startval + $endval) / 2;
+  } elsif (defined $startval) {
+      $seeing = $startval;
+  } elsif (defined $endval) {
+      $seeing = $endval;
+  }
+
+  return $seeing;
+}
+
+
+
+
 =item B<to_OBSERVATION_ID_SUBSYSTEM>
 
 Returns the subsystem observation IDs associated with the header.
