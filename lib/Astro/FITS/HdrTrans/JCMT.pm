@@ -33,6 +33,7 @@ my %UNIT_MAP =
     OBJECT               => 'OBJECT',
     OBSERVATION_NUMBER   => 'OBSNUM',
     PROJECT              => 'PROJECT',
+    SCAN_PATTERN         => 'SCAN_PAT',
     STANDARD             => 'STANDARD',
     X_APERTURE           => 'INSTAP_X',
     Y_APERTURE           => 'INSTAP_Y',

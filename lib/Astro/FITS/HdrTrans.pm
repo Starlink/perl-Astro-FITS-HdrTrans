@@ -157,6 +157,7 @@ my @generic_headers = qw(
                           SAMPLE_MODE
                           SAMPLING
                           SCAN_INCREMENT
+                          SCAN_PATTERN
                           SEEING
                           SLIT_ANGLE
                           SLIT_NAME
