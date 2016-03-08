@@ -585,6 +585,7 @@ sub to_TRANSITION {
     # Remove leading and trailing spaces.
     $transition =~ s/^ *//;
     $transition =~ s/ *$//;
+    # Remove duplicated spaces.
     $transition =~ s/  +/ /g;
 
     return $transition;
