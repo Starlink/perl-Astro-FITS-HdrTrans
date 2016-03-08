@@ -52,7 +52,7 @@ my %CONST_MAP = (
                  INST_DHS          => 'ACSIS',
                 );
 
-# unit mapping implies that the value propogates directly
+# unit mapping implies that the value propagates directly
 # to the output with only a keyword name change
 
 my %UNIT_MAP = (
@@ -69,6 +69,8 @@ my %UNIT_MAP = (
                 FRONTEND           => 'INSTRUME',
                 NUMBER_OF_CYCLES   => 'NUM_CYC',
                 SWITCH_MODE        => 'SW_MODE',
+                SPECIES            => 'MOLECULE',
+                TRANSITION         => 'TRANSITI',
                 VELOCITY_TYPE      => 'DOPPLER',
                );
 
