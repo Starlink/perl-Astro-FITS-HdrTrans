@@ -70,7 +70,6 @@ my %UNIT_MAP = (
                 NUMBER_OF_CYCLES   => 'NUM_CYC',
                 SWITCH_MODE        => 'SW_MODE',
                 SPECIES            => 'MOLECULE',
-                TRANSITION         => 'TRANSITI',
                 VELOCITY_TYPE      => 'DOPPLER',
                );
 
@@ -564,6 +563,51 @@ sub to_SYSTEM_VELOCITY {
     }
   }
   return $return;
+}
+
+=item B<to_TRANSITION>
+
+Converts the TRANSITI header to the TRANSITION generic header.
+
+This would be a unit mapping except that we would like to tidy up
+some whitespace issues.
+
+=cut
+
+sub to_TRANSITION {
+    my $self = shift;
+    my $FITS_headers = shift;
+
+    my $transition = $FITS_headers->{'TRANSITI'};
+
+    return undef unless defined $transition;
+
+    # Remove leading and trailing spaces.
+    $transition =~ s/^ *//;
+    $transition =~ s/ *$//;
+    $transition =~ s/  +/ /g;
+
+    return $transition;
+}
+
+=item B<from_TRANSITION>
+
+Converts TRANSITION back to TRANSITI.
+
+=cut
+
+sub from_TRANSITION {
+    my $self = shift;
+    my $generic_headers = shift;
+
+    my $transition = $generic_headers->{'TRANSITION'};
+
+    if (defined $transition) {
+        # Restore whitespace issue to allow comparison of untranslated header.
+        $transition =~ s/ - /  - /;
+    }
+
+    return (TRANSITI => $transition);
 }
 
 =item B<to_VELOCITY>
