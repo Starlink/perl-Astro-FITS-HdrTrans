@@ -249,10 +249,6 @@ sub from_UTSTART {
 
 =back
 
-=head1 REVISION
-
- $Id$
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>.

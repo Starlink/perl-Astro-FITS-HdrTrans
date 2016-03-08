@@ -310,10 +310,6 @@ sub from_TELESCOPE {
 
 =back
 
-=head1 REVISION
-
- $Id$
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.

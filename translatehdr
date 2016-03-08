@@ -55,9 +55,8 @@ pod2usage(1) if $help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $man;
 
 if ($version) {
-  my $id = '$Id: racover.pl 14421 2007-09-05 02:37:29Z agarwal $ ';
   print "translatehdr - Translate a FITS header to generic form\n";
-  print " Source code revision: $id\n";
+  print "Version: ", $Astro::FITS::HdrTrans::VERSION, "\n";
   exit;
 }
 

@@ -295,10 +295,6 @@ sub getbounds{
 
 =back
 
-=head1 REVISION
-
-$Id: LCOSPECTRAL.pm 7422 2014-01-17 23:53:57Z tlister $
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::LCO>.

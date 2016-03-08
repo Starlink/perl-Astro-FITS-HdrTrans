@@ -450,10 +450,6 @@ sub to_SYSTEM_VELOCITY {
 
 =back
 
-=head1 REVISION
-
-$Id$
-
 =head1 AUTHOR
 
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,

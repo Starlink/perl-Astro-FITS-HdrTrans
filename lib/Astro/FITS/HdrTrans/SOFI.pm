@@ -414,10 +414,6 @@ sub xy_offsets {
 
 =back
 
-=head1 REVISION
-
- $Id: SOFI.pm 14879 2008-02-13 21:51:31Z timj $
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.

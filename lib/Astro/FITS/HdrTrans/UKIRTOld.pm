@@ -186,10 +186,6 @@ sub to_INST_DHS {
 
 =back
 
-=head1 REVISION
-
- $Id$
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>

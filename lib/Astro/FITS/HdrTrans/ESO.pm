@@ -572,10 +572,6 @@ sub rotation {
 
 =back
 
-=head1 REVISION
-
-$Id: ESO.pm 14385 2007-08-27 22:01:06Z timj $
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>.

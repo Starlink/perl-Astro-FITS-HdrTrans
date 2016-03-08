@@ -446,10 +446,6 @@ sub _get_UT_date {
 
 =back
 
-=head1 REVISION
-
-$Id: LCO.pm 5661 2012-05-10 17:29:10Z tlister $
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::Base>.

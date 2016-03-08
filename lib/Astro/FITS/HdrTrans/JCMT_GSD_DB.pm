@@ -465,10 +465,6 @@ sub _sybase_convert_date {
 
 =end __PRIVATE
 
-=head1 REVISION
-
-$Id$
-
 =head1 AUTHOR
 
 Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>,

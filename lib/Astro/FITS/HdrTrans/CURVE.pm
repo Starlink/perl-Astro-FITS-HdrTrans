@@ -72,10 +72,6 @@ sub this_instrument {
 
 =back
 
-=head1 REVISION
-
- $Id: UFTI.pm 15284 2008-04-22 16:46:05Z mjc $
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>, C<Astro::FITS::HdrTrans::UKIRT>.

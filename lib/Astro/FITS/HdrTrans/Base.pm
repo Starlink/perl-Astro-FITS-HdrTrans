@@ -699,10 +699,6 @@ Some generic keywords actually return scalar objects. Any new instruments
 must consistently return compatible objects. For example, UTDATE,
 UTSTART and UTEND return (currently) Time::Piece objects.
 
-=head1 REVISION
-
- $Id$
-
 =head1 SEE ALSO
 
 C<Astro::FITS::HdrTrans>
