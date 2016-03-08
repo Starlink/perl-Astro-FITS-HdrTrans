@@ -162,6 +162,7 @@ my @generic_headers = qw(
                           SLIT_ANGLE
                           SLIT_NAME
                           SLIT_WIDTH
+                          SPECIES
                           SPEED_GAIN
                           STANDARD
                           SUBSYSTEM_IDKEY
@@ -172,6 +173,7 @@ my @generic_headers = qw(
                           TAU
                           TELESCOPE
                           TILE_NUMBER
+                          TRANSITION
                           USER_AZIMUTH_CORRECTION
                           USER_ELEVATION_CORRECTION
                           UTDATE
