@@ -725,6 +725,7 @@ Brad Cavanagh E<lt>b.cavanagh@jach.hawaii.eduE<gt>.
 
 =head1 COPYRIGHT
 
+Copyright (C) 2016 East Asian Observatory.
 Copyright (C) 2007-2008 Science and Technology Facilities Council.
 Copyright (C) 2005-2007 Particle Physics and Astronomy Research Council.
 All Rights Reserved.

@@ -383,6 +383,7 @@ Tim Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 =head1 COPYRIGHT
 
 Copyright (C) 2009 Science and Technology Facilities Council.
+Copyright (C) 2016 East Asian Observatory.
 All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it under
