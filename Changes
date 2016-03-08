@@ -1,5 +1,11 @@
 Revision history for Astro::FITS::HdrTrans
 
+1.58 2015-03-08
+
+    - SEEING for JCMT is now average of SEEINGST and SEEINGEN.
+    - Add translation of SCAN_PAT header for JCMT.
+    - Add translations for species/molecule and transition for ACSIS.
+
 1.57 2015-03-06
 
     - Add support for more LCOGT instruments (Tim Lister).

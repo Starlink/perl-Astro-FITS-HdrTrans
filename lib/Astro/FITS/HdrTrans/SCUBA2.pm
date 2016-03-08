@@ -21,7 +21,7 @@ use base qw/ Astro::FITS::HdrTrans::JCMT /;
 
 use vars qw/ $VERSION /;
 
-$VERSION = "1.57";
+$VERSION = "1.58";
 
 # For a constant mapping, there is no FITS header, just a generic
 # header that is constant.
