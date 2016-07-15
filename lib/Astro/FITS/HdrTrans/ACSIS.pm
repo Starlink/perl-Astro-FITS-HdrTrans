@@ -245,6 +245,87 @@ sub from_POLARIMETER {
   return ( "INBEAM" => undef );
 }
 
+=item B<to_REFERENCE_LOCATION>
+
+Creates a string representing the location of the reference spectrum
+to the nearest hundredth of a degree.  It takes the form
+system_longitude_latitude where system will normally be J2000 or GAL.
+If the string cannot be evaluated (such as missing headers), the
+returned value is undefined.
+
+=cut
+
+sub to_REFERENCE_LOCATION {
+  my $self = shift;
+  my $FITS_headers = shift;
+
+# Set the returned value in case something goes awry.
+  my $ref_location = undef;
+
+# Assume that the co-ordinate system is the same for the BASE
+# co-ordinates as the offset to the reference spectrum.
+  my ( $system, $base_lon, $base_lat );
+
+  $system = defined( $FITS_headers->{'TRACKSYS'} ) ?
+                     $FITS_headers->{'TRACKSYS'}   :
+                     undef;
+  $system =~ s/\s+$// if defined( $system );
+
+# Obtain the base location's longitude in decimal degrees.
+  $base_lon = defined( $FITS_headers->{'BASEC1'} ) ?
+                       $FITS_headers->{'BASEC1'}   :
+                       undef;
+
+# Obtain the base location's latitude in decimal degrees.
+  $base_lat = defined( $FITS_headers->{'BASEC2'} ) ?
+                       $FITS_headers->{'BASEC2'}   :
+                       undef;
+
+# Derive the reference position's longitude.
+  my $ref_lon = undef;
+  if ( defined( $system ) && defined( $base_lon ) ) {
+
+# The value of SKYREFX has the form
+#    [OFFSET] <longitude_offset_in_arcsec> [<co-ordinate system>]
+#
+# Assume for now that the TRACKSYS and co-ordinate system are the
+# same.
+     if ( defined( $FITS_headers->{'SKYREFX'} ) ) {
+        my $ref_x = $FITS_headers->{'SKYREFX'};
+        my @comps = split( /\s+/, $ref_x );
+        my $offset_lon = $comps[1] / 3600.0;
+
+# Two decimal places should permit sufficient fuzziness.
+        $ref_lon = sprintf( "%02d", $base_lon + $offset_lon );
+     }
+  }
+
+# Derive the reference position's latitude.
+  my $ref_lat = undef;
+  if ( defined( $system ) && defined( $base_lat ) ) {
+
+# The value of SKYREFY has the form
+#    [OFFSET] <latitude_offset_in_arcsec> [<co-ordinate system>]
+#
+# Assume for now that the TRACKSYS and co-ordinate system are the
+# same.
+     if ( defined( $FITS_headers->{'SKYREFY'} ) ) {
+        my $ref_y = $FITS_headers->{'SKYREFY'};
+        my @comps = split( /\s+/, $ref_y );
+        my $offset_lat = $comps[1] / 3600.0;
+        $ref_lat = sprintf( "%02d", $base_lat + $offset_lat );
+     }
+  }
+
+# Form the string comprising the three elements.
+  if ( defined( $ref_lon ) && defined( $ref_lat ) ) {
+     $ref_location = $system . "_" . $ref_lon . "_" . $ref_lat;
+  }
+
+  return $ref_location;
+}
+
+
 =item B<to_SAMPLE_MODE>
 
 If the SAM_MODE value is either 'raster' or 'scan', return
