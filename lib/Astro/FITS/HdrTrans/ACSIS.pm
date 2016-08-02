@@ -296,7 +296,7 @@ sub to_REFERENCE_LOCATION {
         my $offset_lon = $comps[1] / 3600.0;
 
 # Two decimal places should permit sufficient fuzziness.
-        $ref_lon = sprintf( "%02d", $base_lon + $offset_lon );
+        $ref_lon = sprintf( "%.2f", $base_lon + $offset_lon );
      }
   }
 
@@ -313,7 +313,7 @@ sub to_REFERENCE_LOCATION {
         my $ref_y = $FITS_headers->{'SKYREFY'};
         my @comps = split( /\s+/, $ref_y );
         my $offset_lat = $comps[1] / 3600.0;
-        $ref_lat = sprintf( "%02d", $base_lat + $offset_lat );
+        $ref_lat = sprintf( "%.2f", $base_lat + $offset_lat );
      }
   }
 
