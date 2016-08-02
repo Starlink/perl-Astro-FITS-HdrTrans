@@ -152,6 +152,7 @@ my @generic_headers = qw(
                           RA_SCALE_UNITS
                           RA_TELESCOPE_OFFSET
                           RECEIVER_TEMPERATURE
+                          REFERENCE_LOCATION
                           REST_FREQUENCY
                           ROTATION
                           SAMPLE_MODE
