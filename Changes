@@ -1,5 +1,9 @@
 Revision history for Astro::FITS::HdrTrans
 
+1.59 2016-10-21
+
+    - Add translation of REFERENCE_LOCATION for ACSIS.
+
 1.58 2015-03-08
 
     - SEEING for JCMT is now average of SEEINGST and SEEINGEN.
