@@ -633,6 +633,7 @@ sub _parse_date {
 
   }
 
+  return $time;
 }
 
 =back
