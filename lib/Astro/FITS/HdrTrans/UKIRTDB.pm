@@ -346,7 +346,9 @@ sub to_UTDATE {
   my $return;
 
   if ( exists( $FITS_headers->{'UT_DATE'} ) ) {
-    $return = Time::Piece->strptime( $FITS_headers->{'UT_DATE'}, "%b %d %Y %I:%M%p" );
+    my $datestr = $FITS_headers->{'UT_DATE'};
+    $return = _parse_date($datestr);
+    die "Error parsing date \"$datestr\"" unless defined $return;
     $return = $return->strftime('%Y%m%d');
   }
 
