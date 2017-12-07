@@ -184,6 +184,7 @@ my @generic_headers = qw(
                           VELOCITY_REFERENCE_FRAME
                           VELOCITY_TYPE
                           WAVEPLATE_ANGLE
+                          WIND_BLIND
                           XBINNING
                           YBINNING
                           X_APERTURE
