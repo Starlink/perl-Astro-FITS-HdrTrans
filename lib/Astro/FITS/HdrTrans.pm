@@ -102,6 +102,7 @@ my @generic_headers = qw(
                           DETECTOR_BIAS
                           DETECTOR_INDEX
                           DETECTOR_READ_TYPE
+                          DOME_OPEN
                           DR_GROUP
                           DR_RECIPE
                           ELEVATION_START
