@@ -8,3 +8,5 @@ Build
 /*META.*
 Astro-FITS-HdrTrans-*
 *~
+.*.swp
+/MANIFEST.bak
