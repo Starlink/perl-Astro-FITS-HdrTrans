@@ -1,1 +1,12 @@
 ^MYMETA.yml$
+^MYMETA\.json$
+^\.git
+~$
+^\..*\.swp$
+^_build
+^blib
+^Build$
+^MANIFEST\.SKIP$
+^MANIFEST\.bak$
+^Astro-FITS-HdrTrans-
+^TODO$
