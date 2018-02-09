@@ -114,6 +114,7 @@ my @generic_headers = qw(
                           FILENAME
                           FILTER
                           FRONTEND
+                          FOURIER_TRANSFORM_SPECTROMETER
                           GAIN
                           GALACTIC_LATITUDE
                           GALACTIC_LONGITUDE
