@@ -203,7 +203,7 @@ sub to_UTSTART {
 
 =item B<to_UTEND>
 
-Translates the database date header into a C<Time::Piece> object and adds 
+Translates the database date header into a C<Time::Piece> object and adds
 on the exposure time.
 
 =cut

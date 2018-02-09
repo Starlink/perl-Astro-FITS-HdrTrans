@@ -175,7 +175,7 @@ sub to_RA_SCALE {
   my $cd22 = $FITS_headers->{"CD2_2"};
   sqrt( $cd12**2 + $cd22**2 );
 }
- 
+
 sub to_RA_TELESCOPE_OFFSET {
   my $self = shift;
   my $FITS_headers = shift;

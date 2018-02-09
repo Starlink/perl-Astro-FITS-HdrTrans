@@ -284,7 +284,7 @@ sub getbounds{
             print "ERR: TRIMSEC all 0\n";
          } else {
             if ( $FITS_headers->{INSTRUME} !~ /^kb10/i ) {
-# Unless this is kb10 data (which has a bad TRIMSEC), update bounds array 
+# Unless this is kb10 data (which has a bad TRIMSEC), update bounds array
                @bounds = @newbounds;
             }
          }

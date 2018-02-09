@@ -100,7 +100,7 @@ __PACKAGE__->_generate_lookup_methods( \%CONST_MAP, \%UNIT_MAP, \@NULL_MAP );
 =item B<can_translate>
 
 Determine if this class can handle the translation. Returns true
-if the TELESCOP is "UKIRT" and there is a "FILENAME" key and 
+if the TELESCOP is "UKIRT" and there is a "FILENAME" key and
 a "RAJ2000" key. These keywords allow the DB results to be disambiguated
 from the actual file headers.
 

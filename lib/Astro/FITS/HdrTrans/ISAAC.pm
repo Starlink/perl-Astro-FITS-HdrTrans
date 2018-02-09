@@ -123,7 +123,7 @@ sub to_DEC_TELESCOPE_OFFSET {
     # Apply the rotation matrix to obtain the equatorial pixel offset.
     $decoffset = -$x_as * $sinrot + $y_as * $cosrot;
   }
-              
+
   # The sense is reversed compared with UKIRT, as these measure the
   # place on the sky, not the motion of the telescope.
   return -1.0 * $decoffset;
@@ -226,7 +226,7 @@ sub to_GRATING_DISPERSION {
   }
   #   }
   return $dispersion;
-}     
+}
 
 # If the telescope offset exists in arcsec, then use it.  Otherwise
 # convert the Cartesian offsets to equatorial offsets.
@@ -271,7 +271,7 @@ sub to_RA_TELESCOPE_OFFSET {
     # Apply the rotation matrix to obtain the equatorial pixel offset.
     $raoffset = -$x_as * $cosrot + $y_as * $sinrot;
   }
-              
+
   # The sense is reversed compared with UKIRT, as these measure the
   # place on the sky, not the motion of the telescope.
   return -1.0 * $raoffset;

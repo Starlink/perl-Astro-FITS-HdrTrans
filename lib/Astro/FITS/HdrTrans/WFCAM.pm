@@ -260,7 +260,7 @@ sub to_RA_BASE {
 
 Returns the right-ascension pixel scale in arcseconds per pixel. For
 Cameras 1 and 3, it scales the C<CD1_2> keyword to the C<RA_SCALE>
-generic header.  For Cameras 2 and 4, it scales the C<CD1_1> keyword 
+generic header.  For Cameras 2 and 4, it scales the C<CD1_1> keyword
 instead.
 
 =cut

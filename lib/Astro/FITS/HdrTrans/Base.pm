@@ -179,7 +179,7 @@ sub can_translate {
 
   # For consistency in subsequent algorithm convert
   # a string to a pattern match object
-  if (not ref($ref)) { 
+  if (not ref($ref)) {
     $ref = quotemeta($ref);
     $ref = qr/^$ref$/i;
   }

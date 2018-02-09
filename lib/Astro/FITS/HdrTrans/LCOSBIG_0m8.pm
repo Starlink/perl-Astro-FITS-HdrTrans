@@ -198,7 +198,7 @@ sub to_RA_TELESCOPE_OFFSET {
 # place son the sky, not the motion of the telescope.
    return -1.0 * $raoffset;
 }
- 
+
 =item B<to_X_LOWER_BOUND>
 
 Returns the lower bound along the X-axis of the area of the detector
@@ -286,7 +286,7 @@ sub getbounds{
           print "ERR: TRIMSEC all 0\n";
         } else {
           if ( $FITS_headers->{INSTRUME} !~ /^kbXX/i ) {
-# Unless this is kb78 data (which has a bad TRIMSEC), update bounds array 
+# Unless this is kb78 data (which has a bad TRIMSEC), update bounds array
             @bounds = @newbounds;
           }
         }

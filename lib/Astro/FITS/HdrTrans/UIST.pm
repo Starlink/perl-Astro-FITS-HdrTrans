@@ -45,7 +45,7 @@ my @NULL_MAP = qw/ DETECTOR_INDEX /;
 
 my %UNIT_MAP = (
                 RA_SCALE             => "CDELT2",
-                 
+
                 # UIST specific
                 GRATING_NAME         => "GRISM",
 

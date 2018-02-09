@@ -86,7 +86,7 @@ these are many-to-many)
 =item B<to_DEC_SCALE>
 
 Sets the declination scale in arcseconds per pixel.  The C<PIXSCALE>
-is used when it's defined.  Otherwise it returns a default value of 0.2320 
+is used when it's defined.  Otherwise it returns a default value of 0.2320
 arcsec/pixel, multiplied by C<YBINNING> assuming this is defined
 
 =cut
@@ -140,7 +140,7 @@ sub to_DEC_TELESCOPE_OFFSET {
 =item B<to_RA_SCALE>
 
 Sets the RA scale in arcseconds per pixel.  The C<PIXSCALE>
-is used when it's defined.  Otherwise it returns a default value of 0.2320 
+is used when it's defined.  Otherwise it returns a default value of 0.2320
 arcsec/pixel, multiplied by C<XBINNING> assuming this is defined (1.0 otherwise)
 
 =cut
@@ -194,7 +194,7 @@ sub to_RA_TELESCOPE_OFFSET {
 # place son the sky, not the motion of the telescope.
    return -1.0 * $raoffset;
 }
- 
+
 =item B<to_X_LOWER_BOUND>
 
 Returns the lower bound along the X-axis of the area of the detector
@@ -279,7 +279,7 @@ sub getbounds{
           print "ERR: TRIMSEC all 0\n";
         } else {
           if ( $FITS_headers->{INSTRUME} !~ /^fl02/i && $FITS_headers->{INSTRUME} !~ /^fl03/i && $FITS_headers->{INSTRUME} !~ /^fl04/i  && $FITS_headers->{INSTRUME} !~ /^fl01/i  ) {
-# Unless this is ef02-4 data (which has a bad TRIMSEC), update bounds array 
+# Unless this is ef02-4 data (which has a bad TRIMSEC), update bounds array
             @bounds = @newbounds;
           }
         }

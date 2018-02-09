@@ -401,7 +401,7 @@ sub to_UTSTART {
     my $ut = $utdate . "T" . $FITS_headers->{'UTSTART'};
     $return = $self->_parse_iso_date( $ut );
 
-  } elsif (exists $FITS_headers->{"DATE-OBS"}) { 
+  } elsif (exists $FITS_headers->{"DATE-OBS"}) {
     # reduced data
     $return = $self->_parse_iso_date( $FITS_headers->{"DATE-OBS"} );
 

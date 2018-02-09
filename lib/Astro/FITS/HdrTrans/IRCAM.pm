@@ -141,7 +141,7 @@ sub to_DEC_SCALE {
 =item B<from_DEC_SCALE>
 
 Generate the PIXELSIZ or CDELT2 header for IRCAM2 or IRCAM3 data
-respectively.  The header will be returned in arcseconds, and will 
+respectively.  The header will be returned in arcseconds, and will
 always be positive.
 
 =cut
@@ -227,7 +227,7 @@ sub to_RA_SCALE {
 =item B<from_RA_SCALE>
 
 Generates the PIXELSIZ or CDELT1 header for IRCAM2 or IRCAM3 data
-respectively.  The header will be returned in arcseconds, and will 
+respectively.  The header will be returned in arcseconds, and will
 always be negative.
 
 =cut
