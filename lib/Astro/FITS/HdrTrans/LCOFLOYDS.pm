@@ -116,7 +116,7 @@ sub to_DEC_SCALE {
    } else {
       my $ybinning = $self->via_subheader( $FITS_headers, "YBINNING" );
       if ( defined $ybinning ) {
-      	$decscale = $decscale * $ybinning;
+        $decscale = $decscale * $ybinning;
       }
    }
    return $decscale;
@@ -204,7 +204,7 @@ sub to_RA_SCALE {
    } else {
       my $xbinning = $self->via_subheader( $FITS_headers, "XBINNING" );
       if ( defined $xbinning ) {
-      	$rascale = $rascale * $xbinning;
+        $rascale = $rascale * $xbinning;
       }
    }
    return $rascale;
@@ -332,7 +332,7 @@ sub getbounds{
    if ( exists $FITS_headers->{CCDSUM} ) {
       my $binning = $FITS_headers->{CCDSUM};
       if ( $binning eq '2 2' ) {
-      	 @bounds = ( 1, 1024,  1,  256 );
+         @bounds = ( 1, 1024,  1,  256 );
       }
    }
    if ( exists $FITS_headers->{TRIMSEC} ) {
@@ -348,7 +348,7 @@ sub getbounds{
           if ( $FITS_headers->{INSTRUME} !~ /^en0/i ) {
 # Unless this is any data (which has a bad TRIMSEC), update bounds array 
             @bounds = @newbounds;
-	  }
+          }
         }
       }
    }

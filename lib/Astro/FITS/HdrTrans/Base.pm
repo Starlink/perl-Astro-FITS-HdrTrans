@@ -345,7 +345,7 @@ sub _generate_lookup_methods {
       # First generate the code to generate Generic headers
       my $subname = "to_$key";
       my $sub = qq/ $p sub $subname {
-	  my \@allresults = \$_[0]->via_subheader_undef_check(\$_[1],\"$fhdr\");
+          my \@allresults = \$_[0]->via_subheader_undef_check(\$_[1],\"$fhdr\");
           return \$allresults[-1];
         } $ep /;
       eval "$sub";

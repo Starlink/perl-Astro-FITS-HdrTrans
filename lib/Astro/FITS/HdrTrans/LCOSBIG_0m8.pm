@@ -162,7 +162,7 @@ sub to_RA_SCALE {
       my $ccdsum = $self->via_subheader( $FITS_headers, "CCDSUM" );
       if ( defined $ccdsum ) {
         my @binning = split( / /, $ccdsum );
-      	$rascale = $rascale * $binning[0];
+        $rascale = $rascale * $binning[0];
       }
    }
    return $rascale;
@@ -272,7 +272,7 @@ sub getbounds{
    if ( exists $FITS_headers->{CCDSUM} ) {
       my $binning = $FITS_headers->{CCDSUM};
       if ( $binning eq '1 1' ) {
-      	 @bounds = ( 22, 3072, 12, 2044 );
+         @bounds = ( 22, 3072, 12, 2044 );
       }
    }
    if ( exists $FITS_headers->{TRIMSEC} ) {
