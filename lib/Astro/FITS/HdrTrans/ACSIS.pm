@@ -166,7 +166,7 @@ sub to_DR_RECIPE {
     }
   }
 
-  my $is_sci = ( $obstype =~ /science|raster|scan|grid|chop/ );
+  my $is_sci = ( $obstype =~ /science|raster|scan|grid|jiggle/ );
 
   if ( $standard && $is_sci ) {
     $dr = "REDUCE_STANDARD";
