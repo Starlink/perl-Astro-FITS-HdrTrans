@@ -46,7 +46,7 @@ $DEBUG   = 0;
 # here. This is because some perl modules provide a base set of
 # translations shared by multiple instruments.
 
-my @REF_CLASS_LIST = qw/ ACSIS IRCAM CGS4New CGS4Old UIST UFTI
+my @REF_CLASS_LIST = qw/ ACSIS IRCAM CGS4New CGS4Old UIST UFTI RxH3
                          JCMT_GSD JCMT_GSD_DB MICHELLE SCUBA SCUBA2 UKIRTDB WFCAM IRIS2 SOFI
                          ISAAC NACO INGRID GMOS SPEX NIRI ClassicCam CURVE LCOSBIG_CC
                          LCOSBIG_1m0 LCOSBIG_0m4 LCOSBIG_0m8 LCOSINISTRO_1m0
@@ -134,6 +134,7 @@ my @generic_headers = qw(
                           NUMBER_OF_CYCLES
                           NUMBER_OF_DETECTORS
                           NUMBER_OF_EXPOSURES
+                          NUMBER_OF_FREQUENCIES
                           NUMBER_OF_JITTER_POSITIONS
                           NUMBER_OF_MICROSTEP_POSITIONS
                           NUMBER_OF_OFFSETS
