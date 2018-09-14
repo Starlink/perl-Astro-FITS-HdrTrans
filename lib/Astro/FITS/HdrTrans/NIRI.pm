@@ -125,17 +125,17 @@ sub to_ROTATION {
     my $cd21 = $FITS_headers->{"CD2_1"};
     my $cd22 = $FITS_headers->{"CD2_2"};
 
-    # Determine the orientation using SLALIB routine.  This has the
+    # Determine the orientation using PAL routine.  This has the
     # advantage of not assuming perpendicular axes (i.e. allows for
     # shear).
-    my ( $xz, $yz, $xs, $ys, $perp, $orient );
+    my ( $xz, $yz, $xs, $ys, $perp );
     my @coeffs = ( 0.0, $cd11, $cd21, 0.0, $cd12, $cd22 );
     eval {
-      require Astro::SLA;
-      Astro::SLA::slaDcmpf( @coeffs, $xz, $yz, $xs, $ys, $perp, $rotation );
+      require Astro::PAL;
+      ( $xz, $yz, $xs, $ys, $perp, $rotation ) = Astro::PAL::palDcmpf( \@coeffs );
     };
     if (!defined $perp) {
-      croak "NIRI translations require Astro::SLA. Please contact the authors";
+      croak "NIRI translations require Astro::PAL";
     }
 
     # Convert from radians to degrees.

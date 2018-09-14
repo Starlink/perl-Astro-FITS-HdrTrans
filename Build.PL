@@ -44,7 +44,7 @@ my $build = Module::Build->new
                 },
    recommends => {
                   'Starlink::AST' => 1.02,
-                  'Astro::SLA' => 0,
+                  'Astro::PAL' => 0,
                  },
    requires => {
                 'Astro::Coords' => 0,
