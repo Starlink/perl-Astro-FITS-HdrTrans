@@ -342,14 +342,14 @@ sub to_REMOTE {
   my $self = shift;
   my $FITS_headers = shift;
   my $remote;
-  if (exists( $FITS_HEADERS->{'REMOTE'})) {
+  if (exists( $FITS_headers->{'REMOTE'})) {
       $remote = $FITS_headers->{'REMOTE'};
   } else {
       $remote = ''
   }
-  if (uc($remote) =~ 'REMOTE') {
+  if (uc($remote) =~ /REMOTE/) {
       $remote = 1;
-  } elsif (uc($remote) =~ 'LOCAL') {
+  } elsif (uc($remote) =~ /LOCAL/) {
       $remote = 0;
   } else {
       $remote = undef;
