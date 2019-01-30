@@ -156,6 +156,7 @@ my @generic_headers = qw(
                           RA_TELESCOPE_OFFSET
                           RECEIVER_TEMPERATURE
                           REFERENCE_LOCATION
+                          REMOTE
                           REST_FREQUENCY
                           ROTATION
                           SAMPLE_MODE
@@ -163,6 +164,7 @@ my @generic_headers = qw(
                           SCAN_INCREMENT
                           SCAN_PATTERN
                           SEEING
+                          SHIFT_TYPE
                           SLIT_ANGLE
                           SLIT_NAME
                           SLIT_WIDTH
