@@ -50,15 +50,15 @@ require_ok( "Astro::FITS::HdrTrans" );
 # As a basic test, count the number of expected FITS headers
 # per instrument
 my %COUNT = (
-             ufti => 42,
-             uist_ifu => 55,
-             uist_sp => 55,
-             uist_im => 55,
-             cgs4 => 52,
-             michelle => 56,
-             ircam => 43,
+             ufti => 43,
+             uist_ifu => 56,
+             uist_sp => 56,
+             uist_im => 56,
+             cgs4 => 53,
+             michelle => 57,
+             ircam => 44,
              scuba => 37,
-             wfcam => 44,
+             wfcam => 45,
              acsis => 49,
              scuba2 => 42,
             );
