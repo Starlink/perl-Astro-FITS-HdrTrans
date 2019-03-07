@@ -57,7 +57,6 @@ my %UNIT_MAP = (
                 OBSERVATION_TYPE     => "OBSTYPE",
                 PROJECT              => "PROJECT",
                 STANDARD             => "STANDARD",
-                SHIFT_TYPE           => "OPER_SFT",
                 WAVEPLATE_ANGLE      => "WPLANGLE",
                 X_APERTURE           => "APER_X",
                 X_DIM                => "DCOLUMNS",

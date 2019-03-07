@@ -35,7 +35,6 @@ my %UNIT_MAP =
     PROJECT              => 'PROJECT',
     SCAN_PATTERN         => 'SCAN_PAT',
     STANDARD             => 'STANDARD',
-    SHIFT_TYPE           => 'OPER_SFT',
     WIND_BLIND           => 'WND_BLND',
     X_APERTURE           => 'INSTAP_X',
     Y_APERTURE           => 'INSTAP_Y',

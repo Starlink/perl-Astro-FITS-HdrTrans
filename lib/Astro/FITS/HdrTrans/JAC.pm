@@ -52,6 +52,7 @@ my %CONST_MAP = (
 my %UNIT_MAP = (
                 MSBID              => 'MSBID',
                 MSB_TRANSACTION_ID => 'MSBTID',
+                SHIFT_TYPE         => "OPER_SFT",
                );
 
 # Create the translation methods.
