@@ -176,6 +176,7 @@ my @generic_headers = qw(
                           SWITCH_MODE
                           SYSTEM_TEMPERATURE
                           SYSTEM_VELOCITY
+                          TAI_UTC_CORRECTION
                           TAU
                           TELESCOPE
                           TILE_NUMBER
@@ -185,6 +186,7 @@ my @generic_headers = qw(
                           UTDATE
                           UTEND
                           UTSTART
+                          UT1_UTC_CORRECTION
                           VELOCITY
                           VELOCITY_REFERENCE_FRAME
                           VELOCITY_TYPE
