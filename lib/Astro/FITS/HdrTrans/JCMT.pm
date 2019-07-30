@@ -14,7 +14,7 @@ use Astro::Telescope;
 use DateTime;
 use DateTime::TimeZone;
 
-our $VERSION = '1.61';
+our $VERSION = '1.62';
 
 use base qw/ Astro::FITS::HdrTrans::JAC /;
 
