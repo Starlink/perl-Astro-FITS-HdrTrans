@@ -14,6 +14,7 @@ our $VERSION = '1.62';
 use base qw/Astro::FITS::HdrTrans::JCMT/;
 
 my %CONST_MAP = (
+    DR_RECIPE => 'REDUCE_HOLOGRAPHY',
 );
 
 my %UNIT_MAP = (
