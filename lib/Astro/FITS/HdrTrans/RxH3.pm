@@ -39,6 +39,32 @@ sub this_instrument {
     return 'RxH3';
 }
 
+=item B<can_translate>
+
+Older RxH3 data files lack an INSTRUME header, so look for other
+headers also.
+
+=cut
+
+sub can_translate {
+    my $self = shift;
+    my $headers = shift;
+
+    return 1 if $self->SUPER::can_translate($headers);
+
+    my $freqfile = undef;
+
+    if (exists $headers->{'FREQFILE'}) {
+        $freqfile = $headers->{'FREQFILE'};
+    }
+    elsif (exists $headers->{'SUBHEADERS'} &&
+            exists $headers->{'SUBHEADERS'}->[0]->{'FREQFILE'}) {
+        $freqfile = $headers->{'SUBHEADERS'}->[0]->{'FREQFILE'};
+    }
+
+    return (defined $freqfile and $freqfile =~ /\/rxh3/) ? 1 : 0;
+}
+
 1;
 
 =back
