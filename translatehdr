@@ -82,7 +82,7 @@ if ($file =~ /\.sdf$/) {
     $hdr = Astro::FITS::Header::GSD->new( File => $file );
 } else {
     require Astro::FITS::Header::CFITSIO;
-    $hdr = Astro::FITS::Header::CFITSIO->new( File => $file);
+    $hdr = Astro::FITS::Header::CFITSIO->new( File => $file, ReadOnly => 1 );
 }
 
 # tie to a hash
