@@ -65,6 +65,28 @@ sub can_translate {
     return (defined $freqfile and $freqfile =~ /\/rxh3/) ? 1 : 0;
 }
 
+=item B<to_UTSTART>
+
+Older RxH3 data only has a "DATE" header (the date the FITS file was created),
+so fall back to this if we don't get a value from the standard header ("DATE-OBS").
+
+=cut
+
+sub to_UTSTART {
+    my $self = shift;
+    my $headers = shift;
+
+    my $utstart = $self->SUPER::to_UTSTART($headers);
+
+    unless (defined $utstart) {
+        if ((exists $headers->{'DATE'}) and (defined $headers->{'DATE'})) {
+            $utstart = $self->_parse_iso_date($headers->{'DATE'});
+        }
+    }
+
+    return $utstart;
+}
+
 1;
 
 =back
