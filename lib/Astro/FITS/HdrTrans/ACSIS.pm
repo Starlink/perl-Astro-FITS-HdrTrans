@@ -36,7 +36,7 @@ use constant CLIGHT => 2.99792458e5;
 
 use vars qw/ $VERSION /;
 
-$VERSION = "1.63";
+$VERSION = "1.64";
 
 # Cache UTC definition
 our $UTC = DateTime::TimeZone->new( name => 'UTC' );
