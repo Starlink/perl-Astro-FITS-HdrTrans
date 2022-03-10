@@ -71,6 +71,9 @@ my %UNIT_MAP = (
                 SWITCH_MODE        => 'SW_MODE',
                 SPECIES            => 'MOLECULE',
                 VELOCITY_TYPE      => 'DOPPLER',
+                SIDEBAND_MODE      => 'SB_MODE',
+                OBSERVED_SIDEBAND  => 'OBS_SB',
+                TRACKING_SIDEBAND  => 'TRACK_SB',
                );
 
 # Create the translation methods

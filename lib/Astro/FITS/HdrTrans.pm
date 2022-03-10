@@ -147,6 +147,7 @@ my @generic_headers = qw(
                           OBSERVATION_MODE
                           OBSERVATION_NUMBER
                           OBSERVATION_TYPE
+                          OBSERVED_SIDEBAND
                           POLARIMETER
                           POLARIMETRY
                           PROJECT
@@ -165,6 +166,7 @@ my @generic_headers = qw(
                           SCAN_PATTERN
                           SEEING
                           SHIFT_TYPE
+                          SIDEBAND_MODE
                           SLIT_ANGLE
                           SLIT_NAME
                           SLIT_WIDTH
@@ -180,6 +182,7 @@ my @generic_headers = qw(
                           TAU
                           TELESCOPE
                           TILE_NUMBER
+                          TRACKING_SIDEBAND
                           TRANSITION
                           USER_AZIMUTH_CORRECTION
                           USER_ELEVATION_CORRECTION
