@@ -412,8 +412,10 @@ sub to_EXPOSURE_TIME {
        exists( $FITS_headers->{'DATE-END'} ) ) {
     my $start = $self->to_UTSTART( $FITS_headers );
     my $end = $self->to_UTEND( $FITS_headers );
-    my $duration = $end - $start;
-    $return = $duration->seconds;
+    if (defined $start and defined $end) {
+      my $duration = $end - $start;
+      $return = $duration->seconds;
+    }
   }
   return $return;
 }
