@@ -54,6 +54,7 @@ IFCHANSP=           -488281.25 / [Hz] TOPO IF channel spacing (signed)
 FFT_WIN = 'truncate'           / Type of window used for FFT
 BEDEGFAC=                 1.23 / Backend degradation factor
 MSROOT  = 'test_focus_ppsw'    / Root name of raw measurement sets
+SPECID  =                    1 / Spectrum to which this subsystem belongs
 INSTRUME= 'RxA3    '           / Front-end receiver
 SB_MODE = 'DSB     '           / Sideband mode
 IFFREQ  =                  4.0 / [GHz] IF Frequency

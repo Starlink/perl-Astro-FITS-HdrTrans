@@ -72,6 +72,8 @@ my %UNIT_MAP = (
                 SPECIES            => 'MOLECULE',
                 VELOCITY_TYPE      => 'DOPPLER',
                 SIDEBAND_MODE      => 'SB_MODE',
+                SPECTRUM_NUMBER    => 'SPECID',
+                SUBSYSTEM_NUMBER   => 'SUBSYSNR',
                 OBSERVED_SIDEBAND  => 'OBS_SB',
                 TRACKING_SIDEBAND  => 'TRACK_SB',
                );

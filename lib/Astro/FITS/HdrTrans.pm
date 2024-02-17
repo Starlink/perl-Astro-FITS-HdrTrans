@@ -171,8 +171,10 @@ my @generic_headers = qw(
                           SLIT_NAME
                           SLIT_WIDTH
                           SPECIES
+                          SPECTRUM_NUMBER
                           SPEED_GAIN
                           STANDARD
+                          SUBSYSTEM_NUMBER
                           SUBSYSTEM_IDKEY
                           SURVEY
                           SWITCH_MODE
