@@ -119,17 +119,16 @@ sub to_OBSERVATION_ID {
     $return = $FITS_headers->{'OBSID'};
   } else {
 
-    my $instrume = lc( $self->to_INSTRUMENT( $FITS_headers ) );
+    my $instrume = $self->to_INSTRUMENT( $FITS_headers );
     my $obsnum = $self->to_OBSERVATION_NUMBER( $FITS_headers );
     my $dateobs = $self->to_UTSTART( $FITS_headers );
 
-    my $datetime;
-    if ( defined $dateobs && defined $obsnum ) {
-      $datetime = $dateobs->datetime;
+    if ( defined $dateobs && defined $obsnum && defined $instrume ) {
+      my $datetime = $dateobs->datetime;
       $datetime =~ s/-//g;
       $datetime =~ s/://g;
 
-      $return = join '_', $instrume, $obsnum, $datetime;
+      $return = join '_', (lc $instrume), $obsnum, $datetime;
     }
   }
 
