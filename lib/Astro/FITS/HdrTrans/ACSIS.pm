@@ -699,11 +699,6 @@ sub from_TRANSITION {
 
     my $transition = $generic_headers->{'TRANSITION'};
 
-    if (defined $transition) {
-        # Restore whitespace issue to allow comparison of untranslated header.
-        $transition =~ s/ - /  - /;
-    }
-
     return (TRANSITI => $transition);
 }
 
