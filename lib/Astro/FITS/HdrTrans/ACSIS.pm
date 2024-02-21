@@ -722,7 +722,7 @@ sub to_VELOCITY {
   my $FITS_headers = shift;
   my $frameset = shift;
 
-  my $velocity = 0;
+  my $velocity = undef;
   if ( defined( $frameset ) &&
        UNIVERSAL::isa( $frameset, "Starlink::AST::FrameSet" ) ) {
 
