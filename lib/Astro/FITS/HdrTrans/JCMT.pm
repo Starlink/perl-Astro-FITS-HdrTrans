@@ -168,7 +168,7 @@ sub to_TAU {
   my $self = shift;
   my $FITS_headers = shift;
 
-  my $tau = 0.0;
+  my $tau = undef;
   for my $src (qw/ TAU225 WVMTAU /) {
     my $st = $src . "ST";
     my $en = $src . "EN";
