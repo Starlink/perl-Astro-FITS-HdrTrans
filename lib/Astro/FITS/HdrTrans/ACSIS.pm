@@ -34,9 +34,7 @@ use base qw/ Astro::FITS::HdrTrans::JCMT /;
 # Speed of light in km/s.
 use constant CLIGHT => 2.99792458e5;
 
-use vars qw/ $VERSION /;
-
-$VERSION = "1.65";
+our $VERSION = "1.66";
 
 # Cache UTC definition
 our $UTC = DateTime::TimeZone->new( name => 'UTC' );
