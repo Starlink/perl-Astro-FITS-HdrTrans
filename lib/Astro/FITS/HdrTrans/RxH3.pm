@@ -21,6 +21,7 @@ my %UNIT_MAP = (
     OBSERVATION_MODE => 'OBS_TYPE',
     REST_FREQUENCY => 'FREQBAND',
     NUMBER_OF_FREQUENCIES => 'NFREQ',
+    Y_DIM => 'NROWS',
 );
 
 __PACKAGE__->_generate_lookup_methods(\%CONST_MAP, \%UNIT_MAP);
@@ -85,6 +86,35 @@ sub to_UTSTART {
     }
 
     return $utstart;
+}
+
+=item B<to_X_DIM>
+
+There appears to be no header for number of points per row.  However if
+we assume that the map will be gridded into square pixels, we can estimate
+this by dividing the row length by the spacing between rows.
+
+=cut
+
+sub to_X_DIM {
+    my $self = shift;
+    my $headers = shift;
+
+    my $xdim = undef;
+
+    if ((exists $headers->{'SUBHEADERS'})
+            and (exists $headers->{'SUBHEADERS'}->[0]->{'ROWSPCNG'})
+            and (exists $headers->{'SUBHEADERS'}->[0]->{'ROWLEN'})) {
+        my $spacing = $headers->{'SUBHEADERS'}->[0]->{'ROWSPCNG'};
+        my $rowlen = $headers->{'SUBHEADERS'}->[0]->{'ROWLEN'};
+
+        if ((defined $spacing) and (defined $rowlen) and ($spacing > 0)) {
+            # Assume square pixels (i.e. dx = dy = $spacing).
+            $xdim = $self->nint($rowlen / $spacing);
+        }
+    }
+
+    return $xdim;
 }
 
 1;
