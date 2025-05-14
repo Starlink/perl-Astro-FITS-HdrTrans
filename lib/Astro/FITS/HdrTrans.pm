@@ -125,8 +125,12 @@ my @generic_headers = qw(
                           HUMIDITY
                           INSTRUMENT
                           INST_DHS
+                          INTERMEDIATE_FREQUENCY
                           LATITUDE
                           LONGITUDE
+                          MAP_ANGLE
+                          MAP_HEIGHT
+                          MAP_WIDTH
                           MSBID
                           MSB_TRANSACTION_ID
                           NSCAN_POSITIONS
@@ -162,6 +166,7 @@ my @generic_headers = qw(
                           ROTATION
                           SAMPLE_MODE
                           SAMPLING
+                          SCAN_ANGLE
                           SCAN_INCREMENT
                           SCAN_PATTERN
                           SEEING

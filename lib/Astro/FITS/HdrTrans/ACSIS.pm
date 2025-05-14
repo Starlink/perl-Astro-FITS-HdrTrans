@@ -65,7 +65,11 @@ my %UNIT_MAP = (
                 CHOP_THROW         => 'CHOP_THR',
                 ELEVATION_END      => 'ELEND',
                 FRONTEND           => 'INSTRUME',
+                INTERMEDIATE_FREQUENCY => 'IFFREQ',
+                MAP_ANGLE          => 'MAP_PA',
                 NUMBER_OF_CYCLES   => 'NUM_CYC',
+                SCAN_ANGLE         => 'SCAN_PA',
+                SCAN_INCREMENT     => 'SCAN_DY',
                 SWITCH_MODE        => 'SW_MODE',
                 SPECIES            => 'MOLECULE',
                 VELOCITY_TYPE      => 'DOPPLER',
@@ -575,6 +579,55 @@ sub to_OBSERVATION_TYPE {
   return $return;
 }
 
+=item B<to_NSCAN_POSITIONS>
+
+Get the number of positions, for observing modes with discrete positions.
+
+=over 4
+
+=item Jiggle
+
+Return C<JIGL_CNT>.
+
+=item Grid
+
+Unfortunately there is no header for number of offsets.
+
+=back
+
+=cut
+
+sub to_NSCAN_POSITIONS {
+    my $self = shift;
+    my $FITS_headers = shift;
+
+    if (defined $FITS_headers->{'SAM_MODE'}) {
+        my $sam_mode = $FITS_headers->{'SAM_MODE'};
+        if ($sam_mode =~ /jiggle/) {
+            return $FITS_headers->{'JIGL_CNT'};
+        }
+    }
+
+    return undef;
+}
+
+=item B<from_NSCAN_POSITIONS>
+
+Converts C<NSCAN_POSITIONS> back to the relevant header.
+
+=cut
+
+sub from_NSCAN_POSITIONS {
+    my $self = shift;
+    my $generic_headers = shift;
+
+    my $sam_mode = $generic_headers->{'SAMPLE_MODE'};
+    if ($sam_mode =~ /jiggle/) {
+        return (JIGL_CNT => $generic_headers->{'NSCAN_POSITIONS'});
+    }
+
+    return ();
+}
 
 =item B<to_REST_FREQUENCY>
 

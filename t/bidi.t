@@ -42,7 +42,7 @@ eval {
 if ($@) {
   plan skip_all => 'Test requires Astro::FITS::Header module';
 } else {
-  plan tests => 488;
+  plan tests => 496;
 }
 
 require_ok( "Astro::FITS::HdrTrans" );
@@ -59,8 +59,8 @@ my %COUNT = (
              ircam => 44,
              scuba => 38,
              wfcam => 45,
-             acsis => 56,
-             scuba2 => 44,
+             acsis => 62,
+             scuba2 => 46,
             );
 
 my $datadir = File::Spec->catdir( "t","data");
