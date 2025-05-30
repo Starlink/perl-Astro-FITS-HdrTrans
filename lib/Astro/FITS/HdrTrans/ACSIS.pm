@@ -587,11 +587,11 @@ Get the number of positions, for observing modes with discrete positions.
 
 =item Jiggle
 
-Return C<JIGL_CNT>.
+Return C<JIGL_CNT> unless this looks like a freqsw grid converted to 1x1 jiggle.
 
 =item Grid
 
-Unfortunately there is no header for number of offsets.
+Return C<GRID_CNT>.
 
 =back
 
@@ -603,7 +603,14 @@ sub to_NSCAN_POSITIONS {
 
     if (defined $FITS_headers->{'SAM_MODE'}) {
         my $sam_mode = $FITS_headers->{'SAM_MODE'};
-        if ($sam_mode =~ /jiggle/) {
+
+        if (($sam_mode =~ /grid/)
+                or ($sam_mode =~ /jiggle/
+                    and $self->_is_FSW($FITS_headers)
+                    and $FITS_headers->{'JIGL_CNT'} == 1)) {
+            return $FITS_headers->{'GRID_CNT'};
+        }
+        elsif ($sam_mode =~ /jiggle/) {
             return $FITS_headers->{'JIGL_CNT'};
         }
     }
@@ -615,6 +622,10 @@ sub to_NSCAN_POSITIONS {
 
 Converts C<NSCAN_POSITIONS> back to the relevant header.
 
+(Grid freqsw converted to 1x1 jiggle can not be distinguished
+at this point so C<JIGL_CNT> will be returned instead of
+C<GRID_CNT> in this case.)
+
 =cut
 
 sub from_NSCAN_POSITIONS {
@@ -622,7 +633,11 @@ sub from_NSCAN_POSITIONS {
     my $generic_headers = shift;
 
     my $sam_mode = $generic_headers->{'SAMPLE_MODE'};
-    if ($sam_mode =~ /jiggle/) {
+
+    if ($sam_mode =~ /grid/) {
+        return (GRID_CNT => $generic_headers->{'NSCAN_POSITIONS'});
+    }
+    elsif ($sam_mode =~ /jiggle/) {
         return (JIGL_CNT => $generic_headers->{'NSCAN_POSITIONS'});
     }
 
