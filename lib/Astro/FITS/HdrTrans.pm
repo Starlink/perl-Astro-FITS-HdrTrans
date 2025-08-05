@@ -132,6 +132,7 @@ my @generic_headers = qw(
                           MAP_HEIGHT
                           MAP_WIDTH
                           MSBID
+                          MSB_TITLE
                           MSB_TRANSACTION_ID
                           NSCAN_POSITIONS
                           NUMBER_OF_COADDS

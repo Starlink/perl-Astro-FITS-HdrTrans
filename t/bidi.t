@@ -50,17 +50,17 @@ require_ok( "Astro::FITS::HdrTrans" );
 # As a basic test, count the number of expected FITS headers
 # per instrument
 my %COUNT = (
-             ufti => 43,
-             uist_ifu => 56,
-             uist_sp => 56,
-             uist_im => 56,
-             cgs4 => 53,
-             michelle => 57,
-             ircam => 44,
-             scuba => 38,
-             wfcam => 45,
-             acsis => 63,
-             scuba2 => 46,
+             ufti => 44,
+             uist_ifu => 57,
+             uist_sp => 57,
+             uist_im => 57,
+             cgs4 => 54,
+             michelle => 58,
+             ircam => 45,
+             scuba => 39,
+             wfcam => 46,
+             acsis => 64,
+             scuba2 => 47,
             );
 
 my $datadir = File::Spec->catdir( "t","data");
