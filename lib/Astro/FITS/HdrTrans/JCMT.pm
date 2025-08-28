@@ -162,7 +162,14 @@ sub to_DEC_BASE {
 
 =item B<to_TAU>
 
-Use the average WVM tau measurements.
+Use the average tau measurement.
+
+Prefer the "TAU225" headers prior to the date of the blizzard during which
+the CSO/SMA 225GHz tipper was damaged, or the "WVMTAU" header otherwise.
+Also check whether the corresponding date header indicates whether the
+opacity data is up to date.
+
+For the blizzard, see: https://lweb.cfa.harvard.edu/sma/memos/164.pdf
 
 =cut
 
@@ -170,18 +177,37 @@ sub to_TAU {
   my $self = shift;
   my $FITS_headers = shift;
 
-  my $tau = undef;
-  for my $src (qw/ TAU225 WVMTAU /) {
-    my $st = $src . "ST";
-    my $en = $src . "EN";
+  my $stale_limit = 0.5;  # hours
+  my $utdate = $self->to_UTDATE($FITS_headers);
+  my $utstart = $self->to_UTSTART($FITS_headers);
+  my $utend = $self->to_UTEND($FITS_headers);
 
-    my @startvals = $self->via_subheader_undef_check( $FITS_headers, $st );
-    my @endvals   = $self->via_subheader_undef_check( $FITS_headers, $en );
+  my @order = qw/WVMTAU TAU225/;
+  if ((defined $utdate) and ($utdate < 20150102)) {
+    # Retain previous behavior for dates prior to the blizzard.
+    @order = qw/TAU225 WVMTAU/;
+  }
+
+  my $tau = undef;
+  foreach my $src (@order) {
+    my @startvals = $self->via_subheader_undef_check( $FITS_headers, $src . 'ST' );
+    my @endvals   = $self->via_subheader_undef_check( $FITS_headers, $src . 'EN' );
     my $startval = $startvals[0];
     my $endval = $endvals[-1];
 
     my $have_start = ((defined $startval) and ($startval != 0.0));
     my $have_end = ((defined $endval) and ($endval != 0.0));
+
+    # Now check the date header to see if the value is stale.
+    my $srcdate = ($src eq 'WVMTAU') ? 'WVMDAT' : 'TAUDAT';
+    my @startdates = $self->via_subheader_undef_check( $FITS_headers, $srcdate . 'ST' );
+    my @enddates   = $self->via_subheader_undef_check( $FITS_headers, $srcdate . 'EN' );
+    my $startdate = eval {$self->_parse_iso_date($startdates[0]);};
+    my $enddate = eval {$self->_parse_iso_date($enddates[-1]);};
+
+    $have_start = 0 if (not defined $startdate) or ((defined $utstart) and (($utstart - $startdate)->hours > $stale_limit));
+    $have_end = 0 if (not defined $enddate) or ((defined $utend) and (($utend - $enddate)->hours > $stale_limit));
+
     if ($have_start and $have_end) {
       $tau = ($startval + $endval) / 2;
       last;
