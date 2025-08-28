@@ -156,6 +156,16 @@ sub _fix_dates {
   # For compatability with Sybase database, also accept LONGDATEEND
   __PACKAGE__->_try_dates( $FITS_headers, 'DATE-END', qw/ DATE_END LONGDATEEND / );
 
+  # Simpler cases where the name is correct but the format may be MySQL.
+  foreach my $key (qw/TAUDATST TAUDATEN WVMDATST WVMDATEN SEEDATST SEEDATEN/) {
+    if ((exists $FITS_headers->{$key}) and (defined $FITS_headers->{$key})) {
+      my $date = _convert_mysql_date($FITS_headers->{$key});
+      if (defined $date) {
+        $FITS_headers->{$key} = $date->datetime;
+      }
+    }
+  }
+
   return;
 }
 
