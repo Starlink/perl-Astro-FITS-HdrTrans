@@ -37,6 +37,11 @@ back to instrument-specific FITS headers.  This option is primarily
 intended for use in testing the operation of the FITS header translation
 software.
 
+=item B<--wcs>
+
+If reading from an NDF, attempt to read the WCS information and
+include it with the FITS headers for translation.
+
 =back
 
 =cut
@@ -52,11 +57,12 @@ use Astro::FITS::HdrTrans;
 
 
 # Options
-my ($help, $man, $version, $test_bidi);
+my ($help, $man, $version, $test_bidi, $use_wcs);
 my $status = GetOptions("help" => \$help,
                         "man" => \$man,
                         "version" => \$version,
                         "test-to-fits" => \$test_bidi,
+                        "wcs" => \$use_wcs,
                        );
 
 pod2usage(1) if $help;
@@ -73,9 +79,35 @@ die "Must supply a filename\n" unless $file;
 
 # Get the header
 my $hdr;
+my $wcs = undef;
 if ($file =~ /\.sdf$/) {
     require Astro::FITS::Header::NDF;
     $hdr = Astro::FITS::Header::NDF->new( File => $file );
+
+    if ($use_wcs) {
+        # WCS reading code based on OMP::Info::Obs::readfile.
+        require NDF; NDF->import(qw/:ndf :err/);
+
+        my $STATUS = &NDF::SAI__OK;
+        err_begin($STATUS);
+        ndf_begin();
+        ndf_find(&NDF::DAT__ROOT, $file, my $indf, $STATUS);
+        $wcs = ndfGtwcs($indf, $STATUS);
+        ndf_annul($indf, $STATUS);
+        ndf_end($STATUS);
+
+        if ($STATUS != &NDF::SAI__OK) {
+            local $\ = "\n";
+            print STDERR 'Error retrieving WCS from NDF:';
+            for (;;) {
+                err_load(my $param, my $parlen, my $opstr, my $oplen, $STATUS);
+                last if $oplen == 1;
+                print STDERR $opstr;
+            }
+            err_annul($STATUS);
+        }
+        err_end($STATUS);
+    }
 } elsif ($file =~ /\.(gsd|dat)$/) {
     # assume GSD??
     require Astro::FITS::Header::GSD;
@@ -89,7 +121,7 @@ if ($file =~ /\.sdf$/) {
 my %header;
 tie %header, "Astro::FITS::Header", $hdr;
 
-my %translation = Astro::FITS::HdrTrans::translate_from_FITS( \%header );
+my %translation = Astro::FITS::HdrTrans::translate_from_FITS( \%header, frameset => $wcs );
 
 for my $k (sort keys %translation) {
     next if $k =~ /^_/;
